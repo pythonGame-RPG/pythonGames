@@ -1,0 +1,37 @@
+Python作業メモ
+
+
+■課題
+・mysql + python
+・'module' object is not callable　バグ対処
+・モデルは概ね理解したが、namespaceなどでもう少しファイル管理が簡単になるとよい。
+・フォルダ構成MVC？
+・機能作成
+・ER図作成→メインメニュー（街）から
+・クラス相関図
+・GitBucketを利用→SSHキーの管理が必要だった模様
+
+■Git完成版
+git cloneはローカルにリポジトリを作成
+※使用する必要なし。
+
+ ! [remote rejected] master (refusing to delete the current branch: refs/heads/master)
+error: failed to push some refs to 'https://github.com/pythonGame-RPG/pythonGames.git'
+
+https://github.com/pythonGame-RPG
+
+↓
+GitHubのbranchがmasterになっていると更新エラーが発生。
+解決方法：新しいブランチを切ってリポジトリとする。
+
+バージョン管理完成版：
+
+・リモートリポジトリ作成
+・first commit
+
+git branch [新しいブランチ]
+git checkout [新しいブランチ]
+git add .
+git commit -m"コメント"
+git remote add origin [URL]
+git push origin [新しいブランチ]
