@@ -9,7 +9,6 @@ Python作業メモ
 ・機能作成
 ・ER図作成→メインメニュー（街）から
 ・クラス相関図
-・GitBucketを利用→SSHキーの管理が必要だった模様
 
 ■Git完成版
 git cloneはローカルにリポジトリを作成
@@ -35,3 +34,12 @@ git add .
 git commit -m"コメント"
 git remote add origin [URL]
 git push origin [新しいブランチ]
+
+■SourceTree
+・編集後→コミット→右下コミットボタン（コメントは極力入れる）
+・最後にプッシュ（リボン参照）
+・利点→GitBashなどのコマンド入力を省くことができる。
+
+■スケジュール
+・概要設計を進める
+・PyGame解析
