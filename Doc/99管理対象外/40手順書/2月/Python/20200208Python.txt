@@ -1,0 +1,107 @@
+Python作業メモ
+
+■正規表現
+
+text = '隴西《ろうさい》の李徴《りちょう》は博学｜才穎《さいえい》、天宝の末年、若くして名を虎榜《こぼう》に連ね、ついで江南尉《こうなんい》に補せられたが、性、狷介《けんかい》、自《みずか》ら恃《たの》むところ頗《すこぶ》る厚く、賤吏《せんり》に甘んずるを潔《いさぎよ》しとしなかった。'
+
+
+import re
+print(re.sub(r'《.*?》', '', text))
+
+.:どんな文字にもマッチ
+*:直前パターン０回以上の繰り返し
+?:直前パターン０回か１回の繰り返し
+*:直前パターン１回以上の繰り返し
+
+他によく使うメタ文字は「行頭」と「行末」を表す^と$
+
+・^#.*: 文頭に「#」があり、それ以後は何があっても良いような文字列
+#hoge fugaなどにヒット
+
+・fuga$: 文末にfugaがあるような文字列
+hoge fugaなどにヒット
+
+■Numpy
+・ファイル名numpy.pyは使用不可
+attributes no array というエラーを吐く
+
+・pipでnumpyライブラリを追加したがnot found
+・numpyがインポートできない。
+
+
+■VSCODE
+Git bashをターミナルに設定する
+・設定→setting.json
+【terminal.integrated.shell.windows】で設定項目検索
+・"terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe"
+区切りは\\でなければ読み取ってくれない。
+・https://code.visualstudio.com/docs/editor/integrated-terminal#_configuration
+上を参照で解決させてくれるあたりvscodeはやさしい。
+
+■イテラブル
+・繰り返し処理でいつずつ取り出せる（文字列、リスト、タプル）
+
+■リスト、タプル、文字列
+pop()メソッド→末尾を殻にする。元からからの場合はExceptionを投げる
+
+・リスト[]
+・タプル()
+
+■イミュータブル（変更不可能）
+・一度作ったら要素の追加、削除不可能。
+
+■pyenvのインストール
+▼問題点
+・VsCodeでintelisenseがエラーを吐いている。(importが使えない。）
+・GitBashにpyenvコマンドが存在しない。
+
+▼解決案
+・pyenv-win→pythonのバージョン管理可能(windows)以下のGitHubページ参照
+https://github.com/pyenv-win/pyenv-win#introduction
+環境変数を入力後（※Microsoft/Storeのパスよりも上位に記載）
+・gitからpyenvを入手後コマンドプロンプトを別起動する。処理窓ではパスが完全に通っていないため
+・
+
+↓EX.
+mkdir project
+cd project
+pyenv install 3.5.2
+pyenv local 3.5.2
+python -m venv .venv
+.venv\Scripts\activate
+
+■pipのインストール
+・numpyなどのパッケージを導入するためにはpipをインストールする必要がある。
+
+https://gammasoft.jp/python/python-library-install/#install
+
+pip install --upgrade pip
+でアップグレード可能。（教訓：公式マニュアルを読め。）
+
+pip freeze > requirements.txt
+でインストールされているライブラリとバージョンが出力される。
+
+---
+中身20200209時点↓
+PyPDF2==1.26.0
+のみ
+---
+Numpyインストール
+pip install numpy
+
+pandasインストール
+pip install pandas
+C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\Scripts
+なぜか上記のパスに。しかしwhich is not on path
+
+Matplotlibインストール
+pip install matplotlib
+
+その他関数（参考）↓
+https://gammasoft.jp/blog/install-numpy-pandas-matplotlib-by-pip/#numpy
+
+
+■課題
+・VsCodeでpipを使用
+・numpyのLocation設定、おそらく環境変数をいじる。
+

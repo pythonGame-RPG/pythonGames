@@ -1,0 +1,55 @@
+Python作業メモ
+
+
+■課題
+・直進したままbreakしない。
+・座標
+・primaryはidのみにしてもよいか、伝票番号、納品日、取引先などの組み合わせも考えられる。
+・俯瞰方法→数値の変動、時間経過、転生をさせるかどうか、情報だけがデータベースに蓄積していってしまう。
+・データの消費の仕方→AIに還元or物理削除
+・anticipation、peopleがいつどこで死ぬかをたどる
+・規模とその事象が起こる確率、勝率だけでは味気ない弱点を攻撃するAI
+・偉さ、NPCとのかかわり、子孫繁栄
+・遺伝率、転生率、変動値の設定
+・レアを保持する確率、切り捨て判断
+・欲望傾向
+・サイコパス、スパイ、などカルマ表現
+・プレイヤーとして世界に入る方法→UI操作が必要
+・座標設定、エンカウント表現（～が現れた！）
+・コマンドの表示コマンドラインorボタンクリック
+・レア探知→デストロイ→
+
+
+■bash（コマンドラインでbash入力）
+
+
+■リポジトリ作成
+・git clone https://github.com/Giphe/python_lessons.git
+・git_command更新
+・snakegame実装
+
+■ステータス管理
+・json
+・mysql→pip install mysqlclient
+でmysqlをインストール
+mysqlに接続↓
+
+import MySQLdb
+
+# 接続する
+conn = MySQLdb.connect(
+user='root',
+passwd='root',
+host='localhost',
+db='mysql'
+)
+
+# 接続を閉じる
+con.closeる
+ con.close
+ 
+↓以下のエラー
+ Can't connect to MySQL 
+server on 'localhost' (10061)
+
+▼mysqlをインストールする必要あり

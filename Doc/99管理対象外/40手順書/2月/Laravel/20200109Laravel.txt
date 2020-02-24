@@ -1,0 +1,58 @@
+[Laravel備忘録]
+
+
+エラー①はググっても出てこない→なぜかbk_HelloMiddleware.phpがヒットしてしまっていたから。
+StackOverFlowにて"$next(request);が悪さしている"という救済コメントがなければ一生路頭に迷っていた。
+
+index.phpの$request.....handle(省略)の記述はかつて手入力した？
+
+■Eloquent ORM(Object-Relational Mapping)
+→ORMによって取り出されたデータはオブジェクトの形をとる。
+→「Eloquent」はORM
+→Modelはテーブル内容を定義したクラス。People（テーブル）→Person（モデル）
+
+▼モデルの作成
+・php artisan make:model Person
+
+▼コントローラの作成
+・php artisan make:controller PersonController
+
+→Eloquentで詰まったのでデバッグを試す
+
+■ログの保存期間を変更
+    //'log' => env('APP_LOG', 'single'),
+    //'log' => env('APP_LOG', 'daily'),
+    'log' => 'daily',
+    'log_max_files' => '10',
+
+configを更新したら
+・php artisan config:cache
+
+■Log ファサード
+use Log;
+
+//省略
+
+  // DEBUG
+  Log::debug('$dept_name="'.$dept_name.'"');
+  Log::debug('$pref="'.$pref.'"');
+  
+  →ログの保存先：storage/logs/laravel.log
+  
+■scope(メソッドの最初につける）
+・whereで条件を追加していくよりも視認性が良い
+→$item = Person::nameEqual($request->input)->first();
+
+Person
+・    public function scopeNameEqual($query, $str) {
+        return $query->where('name', $str);
+    }
+    
+■boot
+・モデルの初期化専用メソッド
+
+■GlobalScope
+・scopeよりも使い勝手が良い。
+・処理を用意しておくだけでそのモデルでのすべてのレコードの取得にそのスコープが適用される。
+
+■Scopeクラスの作成

@@ -1,0 +1,53 @@
+Python作業メモ
+
+
+■課題
+・管理文書のリポジトリをリプレイスする
+・RPG構想、ファイル管理→うまいことPython＆Grep機能を使いたい。
+・ゲームエンジンUnityの習得→人間が存在するマイクラ。
+
+作れそう？
+・ブロックの構造
+・敵（アルゴリズム）
+・2D
+・床の定義
+・歩く→上下左右のマスに移動
+・体力ゲージ
+・RPG町
+・クラス情報？csv？JSON？どの形式でもおそらくimport osで可能。
+
+作れなそう＞＜
+・グラフィック
+・シームレスな切り替え
+
+
+親知らずがずきずきする
+
+
+■bash（コマンドラインでbash入力）
+・python3→使えないpythonコマンド
+・ls→フォルダ構成
+・history→コマンド入力可能
+・pwd→現在のパスを表示（print working directory作業ディレクトリの出力)
+・cd /→ルートディレクトリに移動
+・相対パスは
+・cd  ~/MyCentOS/python_lessons/sample
+・cd ..
+・rmdir tstp→ディレクトリ消去
+・ls --author -l→作成者を表示
+・touch .self_taught→隠しファイル作成
+・ls -a→フォルダ内容を表示（隠しファイルも）
+・export x=100  環境変数の=の両端には 空白は必要なし
+・echo $x   出力時は$が必要
+・whoami  →権限（パーミッション）を設定　よくわからない
+・export PATH=$PATH:#<追加したいパス>
+・~/.bash_profile　#.bash_profileに保存
+・echo $PATH   # 現在メモリに存在するパスを表示
+
+■リポジトリ作成
+・git clone https://github.com/Giphe/python_lessons.git
+・git_command更新
+
+■Unity
+・日本語化
+・コード解析→monobehaviorなどメソッドの宣言が特殊;セミコロンで内容がないまま区切り

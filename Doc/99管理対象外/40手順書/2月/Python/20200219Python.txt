@@ -1,0 +1,30 @@
+Python作業メモ
+
+
+■課題
+・直進したままbreakしない。
+
+作れそう？
+・ブロックの構造
+・敵（アルゴリズム）
+・2D
+・床の定義
+・歩く→上下左右のマスに移動
+・体力ゲージ
+・RPG町
+・クラス情報？csv？JSON？どの形式でもおそらくimport osで可能。
+
+作れなそう＞＜
+・グラフィック
+・シームレスな切り替え
+
+
+■bash（コマンドラインでbash入力）
+
+
+■リポジトリ作成
+・git clone https://github.com/Giphe/python_lessons.git
+・git_command更新
+・snakegame実装
+
+■

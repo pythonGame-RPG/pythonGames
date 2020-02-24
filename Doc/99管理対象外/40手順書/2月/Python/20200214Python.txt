@@ -1,0 +1,73 @@
+Python作業メモ
+
+
+■課題
+・管理文書のリポジトリをリプレイスする
+・RPG構想、ファイル管理→うまいことPython＆Grep機能を使いたい。
+・
+
+作れそう？
+・ブロックの構造
+・敵（アルゴリズム）
+・2D
+・床の定義
+・歩く→上下左右のマスに移動
+・体力ゲージ
+・RPG町
+・クラス情報？csv？JSON？どの形式でもおそらくimport osで可能。
+
+作れなそう＞＜
+・グラフィック
+・シームレスな切り替え
+
+■20200210インストール完了
+
+■文字列
+・イミュ―タブル
+・足し算可能
+・掛け算可能upper()メソッドで大小変換可能
+・最初の文字を大文字：capitalize
+
+■型変換の必要性
+y = ["ウォーキング・デッド", "アントラージュ", "ザ・ソプラノズ", "ヴァンパイア・ダイアリーズ"]
+
+for data in y:
+    i = y.index(data)
+    print(data + "は" + str(i) + "番目の要素です。")
+    
+int + str の合成は上記のようにstr(i)でstr型に変換してから出力する必要がある、
+
+■ファイル出力
+#ファイルのパスを以下の形式で入力
+os.path.join("Users", "kou", "MyCentOS", "python_lessons", "sample", "st.txt")
+
+st = open("st.txt", "w", encoding="utf-8")
+st.write("Pythonからこんにちは！")
+st.close()
+
+#csvファイルの出力も可能
+with open("self_taught.csv", "w", encoding="utf-8") as f:
+    f.write("one,two,three\nfour,five,six")
+
+#前の節で作成したファイルを読み込みます
+with open("st.txt", "r", encoding="utf-8") as f:
+    print(f.read())
+    
+参照→myapp3.py
+
+■音声とかいろいろ情報を駆使して簡単にフィールドを作りたい。
+
+■デバッグ
+・VsCodeで可能。F5でデバッグ実行。ブレークも貼れる！Pythonマジすご
+・random関数
+リストの中の要素からランダムで1つを抽出
+import random
+
+listA = ["タカシ", "メグ", "シャウエッセン"]
+rn = random.choice(listA)
+
+複数の場合はchoices
+
+■管理文書関連
+・Grep機能で辞書化
+・備忘録を作りフォーマットの構想もおいおい固めていく

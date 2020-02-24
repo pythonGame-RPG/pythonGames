@@ -1,0 +1,41 @@
+Python作業メモ
+
+
+■課題
+・mysql + python
+・'module' object is not callable　バグ対処
+・モデルは概ね理解したが、namespaceなどでもう少しファイル管理が簡単になるとよい。
+・フォルダ構成MVC？
+・機能作成
+・ER図作成→メインメニュー（街）から
+・クラス相関図
+・GitBucketを利用→SSHキーの管理が必要だった模様
+
+■class
+・クラスには修飾子を付けてはいけない(publicなどはエラーとなる)
+・importした先でno moduleが出たときはクラス宣言に失敗した可能性がある
+（importしたクラスがAppleの場合AppleのクラスAppleを宣言したい場合はApple.Apple()と宣言する。
+・
+■エラー
+・画像がimportされない（フォルダに入れたはず）
+例外が発生しました: error
+Couldn't open block.jpg
+  File "C:\Users\User\MyCentOS\python_lessons\pyGame_sample1\App.py", line 31, in on_init
+    self._image_surf = pygame.image.load("block.jpg").convert()
+  File "C:\Users\User\MyCentOS\python_lessons\pyGame_sample1\App.py", line 67, in on_execute
+    if self.on_init() == False:
+  File "C:\Users\User\MyCentOS\python_lessons\pyGame_sample1\pyGame_sample1.py", line 12, in <module>
+    theApp.on_execute()
+    
+解決重複ウィンドウだった可能性。
+
+■スネークゲーム完成
+・def on_execute(self):メソッド内でキーイベントを管理
+・Game,Player,App,Appleクラス→いちいち宣言時にエラーで止まるのがめんどくさい
+・pyGame_sample1.py→実行ファイル。
+
+■設計フォーマット
+・作成完了→ちまちま設定値を入力する作業
+・要望リスト→管理対象外？手順書？
+・スケジュール作成（詳細、単体仕様、製造、テスト）
+・

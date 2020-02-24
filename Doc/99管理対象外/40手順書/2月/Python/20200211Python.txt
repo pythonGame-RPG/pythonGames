@@ -1,0 +1,40 @@
+Python作業メモ
+
+
+■課題
+・VsCodeでpipを使用
+・numpyのLocation設定、おそらく環境変数をいじる。
+
+↓参考
+https://qiita.com/maech/items/72559402556eb2af73ad
+
+↓確認コマンド省略
+cd MyCentOS
+cd python_lessons
+python numpy_traning.py
+
+↓site_packagesの場所を確認
+python -c "import site; print (site.getsitepackages())"
+現在
+['C:\\Users\\User\\$HOME\\.pyenv\\pyenv-win\\versions\\3.8.0', 'C:\\Users\\User\\$HOME\\.pyenv\\pyenv-win\\versions\\3.8.0\\lib\\site-packages']
+
+▼解決
+アンスト→公式インストール
+
+https://www.python.org/downloads/release/python-381/
+
+■pipでエラー
+↓参考
+https://temcee.hatenablog.com/entry/tensorflow_install_error
+
+pip install matplotlib, pip install --upgrade pip
+上記のインストールで？エラーを投げられる
+
+■20200210インストール完了
+
+■文字列
+・イミュ―タブル
+・足し算可能
+・掛け算可能upper()メソッドで大小変換可能
+・最初の文字を大文字：capitalize
+
