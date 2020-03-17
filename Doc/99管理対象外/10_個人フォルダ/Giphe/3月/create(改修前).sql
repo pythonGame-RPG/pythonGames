@@ -1,30 +1,14 @@
 
-/*DB規約*/
-grant all on python_game. * to dbuser@localhost identified by 'root'
-
-use python_game
-
-/* キャラクタマスタ
-↓以下は連携要素
-・gene_id→遺伝マスタ
-・race_id→種族マスタ
-・dangeon_id→ダンジョンマスタ
-・master_id→使役マスタ
-・id→ユーザマスタ
+/* 人型オブジェクト
+Mはmaster_idを取得→boxが使える
+DMはdangeon_idを取得→DMになれる
+geneで世代を表現
  */
-drop table dbo.characters;
-create table dbo.characters (
+drop table dbo.character;
+create table dbo.character (
 	id int(10) not null auto_increment primary key,
-	ins_date datetime,
-	ins_id varchar(10),
-	upd_date datetime,
-	upd_id varchar(10),
 	gene_id int(10) not null ,
 	race_id int(10) not null ,
-	grid_x int(10) not null,
-	grid_y int(10) not null,
-	sgrid_x tinyint,
-	sgrid_y tinyint,
 	name varchar(16) not null default "unknown",
 	age int(4) not null default 0,
 	birth datetime not null ,
@@ -52,16 +36,9 @@ create table dbo.characters (
 )DEFAULT CHARACTER SET=utf8;
 
 
-
-/* 種族マスタ
- */
-drop table dbo.races;
-create table dbo.races (
+drop table python_lessons.race;
+create table python_lessons.race (
 	id int(10) not null auto_increment primary key,
-	ins_date datetime,
-	ins_id verchar(10),
-	upd_date datetime,
-	upd_id verchar(10),
 	atk int(10),
 	def int(10),
 	bit int(10),
@@ -70,52 +47,49 @@ create table dbo.races (
 	agi int(10),
 );
 
-/* ユーザマスタ
-↓以下は連携要素
-・user_id→キャラクタマスタ
- */
-drop table dbo.users;
-create table dbo.users (
-	user_id int(10) not null auto_increment primary key,
-	ins_date datetime,
-	ins_id varchar(10),
-	upd_date datetime,
-	upd_id varchar(10),
-	name varchar(16) not null,
-	is_deleted tinyint default 0,
-	is_admin tinyint default 0,
-	is_sec tinyint default 0,
-	is_save tinyint,
-	play_time varchar(8) default 0,
-	total_amount numeric(10,3)
+drop table python_lessons.player;
+create table python_lessons.player (
+	id int(10) not null auto_increment primary key,
+	name varchar(8),
+	level int(10),
+	class_id int(10),
+	HP int(10),
+	MP int(10),
+	atk int(10),
+	def int(10),
+	bit int(10),
+	int int(10),
+	def int(10),
+	agi int(10),
+	talent verchar(10),
 );
 
-drop table pythonGame.numeric;
-create table pythonGame.numeric (
+drop table python_lessons.numeric;
+create table python_lessons.numeric (
 	id int(50) not null auto_increment primary key,
 	group_id int(50),
 	created datetime,
 	created_by varchar(255)
 );
 
-drop table pythonGame.pattern;
-create table pythonGame.pattern (
+drop table python_lessons.pattern;
+create table python_lessons.pattern (
 	id int(50) not null auto_increment primary key,
 	group_id int(50),
 	created datetime,
 	created_by varchar(255)
 );
 
-drop table pythonGame.weapon;
-create table pythonGame.weapon (
+drop table python_lessons.weapon;
+create table python_lessons.weapon (
 	id int(10) not null auto_increment primary key,
 	group_id int(50),
 	created datetime,
 	created_by varchar(255)
 );
 
-drop table pythonGame.item;
-create table pythonGame.item (
+drop table python_lessons.item;
+create table python_lessons.item (
 	id int not null auto_increment primary key,
 	user_id int(10) not null auto_increment primary key,
 	user_name varchar(255),
@@ -127,21 +101,21 @@ create table pythonGame.item (
 	comment varchar(255)
 );
 
-drop table pythonGame.probability;
-create table pythonGame.probability (
+drop table python_lessons.probability;
+create table python_lessons.probability (
 	id int(10),
 	dec decimal(4)
 );
 
-drop table pythonGame.class;
-create table pythonGame.class (
+drop table python_lessons.class;
+create table python_lessons.class (
 	id int(10),
 	follower_id int(50),
 	follower_name varchar(255)
 );
 
-drop table pythonGame.magic;
-create table pythonGame.magic (
+drop table python_lessons.magic;
+create table python_lessons.magic (
 	id int not null auto_increment primary key,
 	kubun int(1),
 	category_id int(2),
@@ -156,35 +130,15 @@ create table pythonGame.magic (
 	modified_by varchar(255)
 );
 
-drop table pythonGame.skill;
-create table pythonGame.skill (
-	id int(10),
-	skill_name varchar(50),
-		HP int(10),
-	MP int(10),
-	state int(2),
-	sta int(5)
-	atk int(10),
-	bit int(10),
-	int int(10),
-	def int(10),
-	agi int(10),
-	insdate datetime
+drop table python_lessons.slill;
+create table python_lessons.slill (
+	topics_id int(50),
+	topics_img varchar(255),
+	created datetime
 );
 
-drop table pythonGame.history;
-create table pythonGame.history (
-	killer_id int(10),
-	killed_id int(10),
-	turnNum int(10),
-	same_flg int(1),
-	upDown_flg int(1),
-	del_flg int(1),
-	insdate datetime
-);
-
-drop table pythonGame.talent;
-create table pythonGame.talent (
+drop table python_lessons.talent;
+create table python_lessons.talent (
 	id int not null auto_increment primary key,
 	kubun int(1),
 	category_id int(2),
@@ -203,22 +157,22 @@ create table pythonGame.talent (
 ・大陸座標として考える
 ・縦横8x8として移動速度をシミュレート
 */
-drop table pythonGame.area;
-create table pythonGame.area (
+drop table python_lessons.area;
+create table python_lessons.area (
 	caegory_id int(50),
 	group_id int(50),
 	category_img varchar(255)
 );
 
-drop table pythonGame.mstGeneral;
-create table pythonGame.mstGeneral(
+drop table python_lessons.mstGeneral;
+create table python_lessons.mstGeneral(
 	caegory_id int(50),
 	group_id int(50),
 	category_img varchar(255)
 );
 
-drop table pythonGame.rank;
-create table pythonGame.rank (
+drop table python_lessons.rank;
+create table python_lessons.rank (
 	id int(10),
 	rank char(3),
 	point int(14),
@@ -229,8 +183,8 @@ create table pythonGame.rank (
 ・DMのみIDを取得
 ・DPを利用して改装、商品購入
 */
-drop table pythonGame.dangeon;
-create table pythonGame.dangeon (
+drop table python_lessons.dangeon;
+create table python_lessons.dangeon (
 	id int(10),
 	rank char(3),
 	point int(14),
@@ -243,8 +197,8 @@ create table pythonGame.dangeon (
 オブジェクト
 ・効果はアシスト、トラップ、ガチャ、配合
 */
-drop table pythonGame.object;
-create table pythonGame.object (
+drop table python_lessons.object;
+create table python_lessons.object (
 	id int(10),
 	people_id(10),
 	rank char(3),
@@ -254,8 +208,8 @@ create table pythonGame.object (
 	ob_id int(10)	
 );
 
-drop table pythonGame.master;
-create table pythonGame.master (
+drop table python_lessons.master;
+create table python_lessons.master (
 	id int(1),
 	master_rank char(3),
 	master_point int(14),
