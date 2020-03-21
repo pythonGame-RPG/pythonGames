@@ -2,25 +2,26 @@ from pygame.locals import *
 from random import randint
 import pygame
 import time
-import Apple
+import Characters
 import Game
 import Player
+import pyGame_sample1
 
 class App:
 
     windowWidth = 800
     windowHeight = 600
     player = 0
-    apple = 0
+    characters = 0
 
     def __init__(self):
         self._running = True
         self._display_surf = None
         self._image_surf = None
-        self._apple_surf = None
+        self._characters_surf = None
         self.game = Game.Game()
         self.player = Player.Player(3) 
-        self.apple = Apple.Apple(5,5)
+        self.characters = Characters.Characters(5,5)
 
     # ウィンドウ・画像の設置
     def on_init(self):
@@ -30,7 +31,7 @@ class App:
         pygame.display.set_caption('Pygame pythonspot.com example')
         self._running = True
         self._image_surf = pygame.image.load("block.jpg").convert()
-        self._apple_surf = pygame.image.load("block.jpg").convert()
+        self._characters_surf = pygame.image.load("block.jpg").convert()
 
     # イベントフラグ設置
     def on_event(self, event):
@@ -42,9 +43,9 @@ class App:
         self.player.update()
 
         for i in range(0,self.player.length):
-            if self.game.isCollision(self.apple.x,self.apple.y,self.player.x[i], self.player.y[i],44):
-                self.apple.x = randint(2,9) * 44
-                self.apple.y = randint(2,9) * 44
+            if self.game.isCollision(self.characters.x,self.characters.y,self.player.x[i], self.player.y[i],44):
+                self.characters.x = randint(2,9) * 44
+                self.characters.y = randint(2,9) * 44
                 self.player.length = self.player.length + 1
 
 
@@ -60,13 +61,14 @@ class App:
     # 
     def on_render(self):
         self._display_surf.fill((0,0,0))
-        self.player.draw(self._display_surf, self._image_surf)
-        self.apple.draw(self._display_surf, self._apple_surf)
+        # self.player.draw(self._display_surf, self._image_surf)
+        # self.characters.draw(self._display_surf, self._characters_surf)
         pygame.display.flip()
 
     def on_cleanup(self):
         pygame.quit()
 
+    """
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
@@ -94,4 +96,34 @@ class App:
             self.on_render()
 
             time.sleep (50.0 / 1000.0);
+        
         self.on_cleanup()
+    """
+
+    def on_execute(self):
+        if self.on_init() == False:
+            self._running = False
+
+            if (keys[K_F1]):
+                self.player.moveRight()
+
+            if (keys[K_F2]):
+                self.player.moveLeft()
+
+            if (keys[K_F3]):
+                self.player.moveUp()
+
+            if (keys[K_F4]):
+                self.player.moveDown()
+                self.player.moveUp()
+
+            if (keys[K_F5]):
+                self.player.moveDown()
+
+            if (keys[K_ESCAPE]):
+                self._running = False
+                self.player.moveDown()
+
+            if (keys[K_q]):
+                self._running = False
+                self.player.moveDown()

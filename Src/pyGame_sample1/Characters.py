@@ -3,7 +3,7 @@ from random import randint
 import pygame
 import time
 
-class Apple:
+class Charcters:
     x = 0
     y = 0
     step = 44

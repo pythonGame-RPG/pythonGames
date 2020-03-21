@@ -2,7 +2,7 @@ from pygame.locals import *
 from random import randint
 import pygame
 import time
-import Apple
+import Characters
 import App
 import Player
 
