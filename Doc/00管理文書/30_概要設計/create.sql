@@ -10,7 +10,7 @@ use python_game
 ・race_id→種族マスタ
 ・dangeon_id→ダンジョンマスタ
 ・master_id→使役マスタ
-・id→ユーザマスタ
+・user_id→ユーザマスタ
  */
 drop table dbo.characters;
 create table dbo.characters (
@@ -43,12 +43,14 @@ create table dbo.characters (
 	def int(10) not null default 1,
 	agi int(10) not null default 1,
 	talent varchar(10),
-	is_deleted tinyint(1) default 0,
 	party1_id int(10) not null default 0,
 	party2_id int(10) not null default 0,
 	party3_id int(10) not null default 0,
 	dangeon_id int(10) not null default 0,
-	master_id int(10) not null default 0
+	master_id int(10) not null default 0,
+	user_id varchar(20),
+	is_user tinyint,
+	is_deleted tinyint(1) default 0
 )DEFAULT CHARACTER SET=utf8;
 
 
@@ -76,7 +78,9 @@ create table dbo.races (
  */
 drop table dbo.users;
 create table dbo.users (
-	user_id int(10) not null auto_increment primary key,
+	id  int(10) not null auto_increment primary key,
+	user_id varchar(20),
+	password varchar(255),
 	ins_date datetime,
 	ins_id varchar(10),
 	upd_date datetime,

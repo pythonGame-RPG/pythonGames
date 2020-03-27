@@ -21,7 +21,7 @@ class App:
         self._characters_surf = None
         self.game = Game.Game()
         self.player = Player.Player(3) 
-        self.characters = Characters.Characters(5,5)
+        # self.characters = Characters.Characters(5,5)
 
     # ウィンドウ・画像の設置
     def on_init(self):
@@ -30,7 +30,8 @@ class App:
 
         pygame.display.set_caption('Pygame pythonspot.com example')
         self._running = True
-        self._image_surf = pygame.image.load("block.jpg").convert()
+        # self._image_surf = pygame.image.load("block.jpg").convert()
+        self._image_surf = pygame.image.load("btlbg.png").convert()
         self._characters_surf = pygame.image.load("block.jpg").convert()
 
     # イベントフラグ設置
@@ -98,15 +99,18 @@ class App:
             time.sleep (50.0 / 1000.0);
         
         self.on_cleanup()
+        
     """
 
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
 
+            # メニュー表示
             if (keys[K_F1]):
                 self.player.moveRight()
 
+            # 
             if (keys[K_F2]):
                 self.player.moveLeft()
 
@@ -120,10 +124,14 @@ class App:
             if (keys[K_F5]):
                 self.player.moveDown()
 
+            # 終了処理
             if (keys[K_ESCAPE]):
                 self._running = False
                 self.player.moveDown()
-
+            """
             if (keys[K_q]):
                 self._running = False
                 self.player.moveDown()
+            """
+
+
