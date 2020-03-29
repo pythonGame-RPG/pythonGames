@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "C:\\Users\\User\\Python\\Python38\\python.exe",
+    "python.envFile": "${workspaceFolder}/.env"
+}
