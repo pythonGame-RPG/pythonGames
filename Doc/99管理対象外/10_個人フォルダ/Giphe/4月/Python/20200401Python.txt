@@ -73,6 +73,9 @@ https://github.com/pythonGame-RPG
 １２．キーボードのボタンを押して離すと、イベントキューにpygame.KEYDOWNイベントとpygame.KEYUPイベントが取得される
 →キューは入れた順に取得される（押す→離すの場合、同様にKEYUP→KEYDOWNの順で取得される。）
 →event.typeをKEYUP、KEYDOWNで判別すると同時押しなどのイベントを実装可能
+１３．pg.display.flip()→display Surface全体を更新して画面に描写する
+１４．pygame.display→ウィンドウ画面やスクリーンの制御を行うpygameモジュール
+１５．wait_for_keyが曲者っぽい。
 
 
 ■ショートカット
@@ -147,4 +150,12 @@ resource
 ・playing = Falseでゲームオーバー（落下を表現event.type == pg.QUITより）
 →すべてのspriteのmax値を取得、回して順番に取得していることがから、視覚的な要素ではないと思われる。
 ・現在press button→速攻でGameOverとなる
-→これを回避したい
+→【課題１】これを回避したい
+→while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+【解析結果】ここでループしていることが判明。for分に関してはpg.event.get():でnullが取得されるため。
+→【課題２】GAMEオーバー画面からEnter押下後NewGame画面に遷移しない
+→newgameでEnter押下後なg.new()に遷移（おそらくrunningフラグがTRUEになったため。）
+→【課題３】デバッグ時にF5を連続実行すると画面が固まる。デバッグは停止（画面だけが表示された状態）
+→同時実行を回避したい
