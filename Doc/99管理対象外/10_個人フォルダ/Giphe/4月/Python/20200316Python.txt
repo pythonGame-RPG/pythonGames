@@ -1,0 +1,75 @@
+Python作業メモ
+
+
+■課題
+・mysql + python
+・詳細設計PG
+
+■Git完成版
+git cloneはローカルにリポジトリを作成
+※使用する必要なし。
+
+ ! [remote rejected] master (refusing to delete the current branch: refs/heads/master)
+error: failed to push some refs to 'https://github.com/pythonGame-RPG/pythonGames.git'
+
+https://github.com/pythonGame-RPG
+
+↓
+GitHubのbranchがmasterになっていると更新エラーが発生。
+解決方法：新しいブランチを切ってリポジトリとする。
+
+
+■スケジュール
+・database作成
+→python_gameデータベース作成後、管理者ツールからdboを作成する
+→characterテーブルのみ取り急ぎ
+
+DB設計「キャラクタマスタ」張り替え
+
+■ショートカット
+shift + F10→右クリック
+ctrl + shift + N → フォルダ作成
+
+
+■環境構築
+・データベース作成
+カラム名が予約語の場合``バッククォートで囲む必要がある
+sql整形後エラー→SQL   : #42000Unknown database 'pythongame'
+
+・DB設計リンク解除
+データ→リンクの編集→リンク解除
+
+・
+
+■機能概要
+・マッチング取り込み前にマッチングを確定させる処理を追加
+
+■■■■■
+■■■■■
+■■〇■■
+■■■■■
+■■■■■
+
+縦横３マスに存在するキャラクタがマッチング対象となる
+丸のマスを集計座標と命名。
+
+１２３
+４０５
+６７８
+
+〇は(x,y)座標でDB登録マッチング対象のピックアップは丸の座標で行う。
+同じ座標にオブジェクトが存在しないようにするため〇と１－８の番号は主キーとする。
+
+９マスに属するオブジェクト最大９ブロックでマッチングを行う
+→乱数マスタでマッチング対象から除外される
+
+★ブレイクで保持するキー項目
+処理対象日-陣営id-パーティid-カルマ値
+
+キャラクタマスタから全件取得して集計座標で回す。
+
+パーティは全員がリーダーと同じ集計座標に存在すること。
+
+★
+
+
