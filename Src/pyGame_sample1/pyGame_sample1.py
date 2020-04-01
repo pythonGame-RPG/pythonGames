@@ -3,6 +3,7 @@ from random import randint
 import pygame
 import time
 import Characters
+from Characters import *
 import App
 import Game
 import Player

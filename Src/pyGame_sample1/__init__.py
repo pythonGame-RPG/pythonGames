@@ -1,1 +1,1 @@
-from pyGame_sample1.main import *
+from pyGame_sample1 import *

@@ -3,6 +3,7 @@ import random
 from import_autoloader import *
 from settings import *
 from sprites import *
+from Sql import *
 from os import path
 
 
@@ -60,6 +61,7 @@ class Game:
 
     def new(self):
         # ゲームオーバー後のニューゲーム
+        """TODO:既存ロジック
         self.score = 0
         self.all_sprites = pg.sprite.LayeredUpdates()  # sprite が描かれる順番を指定できるようになる
         self.platforms = pg.sprite.Group()
@@ -69,6 +71,7 @@ class Game:
 
         self.player = Player(self)
 
+        # platform→地面のリスト
         for plat in PLATFORM_LIST:
             Platform(self, *plat)
 
@@ -82,6 +85,17 @@ class Game:
             c = Cloud(self)
             c.rect.y += 500
         self.run()
+        """
+        self.name = 0
+        self.all_sprites = pg.sprite.LayeredUpdates()  # sprite が描かれる順番を指定できるようになる    
+        self.powerups = pg.sprite.Group()
+        self.mobs = pg.sprite.Group()
+        self.clouds = pg.sprite.Group()
+
+        self.player = Player(self)
+
+        # mob を作成した時間を記録
+        self.mob_timer = 0
 
     def run(self):
         # ゲームループ
@@ -164,9 +178,11 @@ class Game:
                 self.player.jumping = False
 
         # ゲームオーバー
-        # 落下を表現
+        # TODO:落下を表現、いらなくなったら消す
+        # playerのspriteが画面の高さ以下になったらplaying = False
         if self.player.rect.bottom > HEIGHT:
-            # 全てのsprite
+            # 全てのspriteが画面上部に消えていく
+            # 全てのspriteでループさせる→velはベクトル
             for sprite in self.all_sprites:
                 sprite.rect.y -= max(self.player.vel.y, 10)  # max値を取得
                 if sprite.rect.bottom < 0:  # spriteが画面上部に消えたら
@@ -188,9 +204,12 @@ class Game:
                 if self.playing:
                     self.playing = False
                 self.running = False
+            # キーを押している間、かつそれがスペースの場合
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
+
+            # キーを離している間、かつそれがスペースの場合    
             if event.type == pg.KEYUP:
                 # ジャンプを調整 ボタンを押す長さ
                 if event.key == pg.K_SPACE:
@@ -249,11 +268,12 @@ class Game:
             self.draw_text("HIGH SCORE: {}".format("See you!"), 22,
                            WHITE,
                            WIDTH / 2, HEIGHT / 2 + 40)
-
+        # 
         pg.display.flip()
         self.wait_for_key()
         pg.mixer.music.fadeout(500)
 
+    # キー押下待ち
     def wait_for_key(self):
         waiting = True
         while waiting:
@@ -265,6 +285,7 @@ class Game:
                 if event.type == pg.KEYUP:
                     waiting = False
 
+    # 真ん中詰めテキスト表示
     def draw_text(self, text, size, color, x, y):
         font = pg.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)
@@ -272,6 +293,7 @@ class Game:
         text_rect.midtop = (x, y)
         self.screen.blit(text_surface, text_rect)
 
+    # 左詰めテキスト表示
     def draw_left_text(self, text, size, color, x, y):
         font = pg.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)

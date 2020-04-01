@@ -1,0 +1,150 @@
+Python作業メモ
+
+■課題
+・mysql + python
+・詳細設計PG
+①座標→画像表示
+②マップ表示（以下参照「選択座標」のグリッドと「集計座標」(x, y)形式
+③ステータス表示（集計座標と同様）
+※②，③はゆくゆくはDBから取得することを考慮
+DB設計「キャラクタマスタ」張り替え
+・F12で定義に
+・unresolve imoprtのエラーを吐く
+・ドキュメントルートの問題
+→Displayをワークスペースに変更することで解決
+→今後オートローダ機能のように動的にインポート（importにファイル名の身を指定）できるよう
+にする必要がある。
+↓参照（パス構造）
+top
+  |- main.py
+  |- foo
+          |- __init__.py
+          |- some.py
+          |- sample.py
+  |- bar
+          |- __init__.py
+          |- some.py
+          
+↓参照（動的なモジュール取得ルート)	
+import importlib
+
+m = importlib.import_module('foo.some') # -> 'module'
+m.__name__ # -> 'foo.some'
+
+n = importlib.import_module('bar.some') # -> 'module'
+n.__name__ # -> 'bar.some'
+
+・main.pyでimport_moduleを用いる→ダイナミックインポートが可能
+
+
+■Git完成版
+tortoiseGit実装
+https://github.com/pythonGame-RPG
+
+
+■スケジュール
+・ユーザインターフェースを取り急ぎ
+・tortoiseGit実装予定
+・pygame.vector
+・imoportエラーの対処
+
+■pygame解析
+１．sprite→オブジェクト。Add, update(フック),killなど追加、除外、更新が可能
+２．pygame.sprite.spritecollide
+　→接触判定。接触しているものの一覧を返す。マッチング処理を実装可能。
+３．pygame.sprite.collide_rect
+　→rect属性を使って当たり判定を行う、比率変換したうえで当たり判定を調べる→collide_rect_ratio
+　→radius属性の場合はrectでなくcircleで当たり判定を行うことが可能
+　→mask属性の場合はmaskを使う。bitmaskが重なっているかどうかを判定する（グリッドの場合こちらの方がいいかも）
+　→group属性の判定はgroupcollide
+４．pygame.sprite.groupcollide
+　→２つのgroup間で接触しているすべてのSpriteを探す
+５．SpriteSheetクラスを作成→get_imageを定義し、1枚の画像からイラストを切り取る
+６．ニューゲーム時はall_spritesとplatformsを初期化
+　self.all_sprites = pg.sprite.Group()
+　self.platforms = pg.sprite.Group()
+７．settings.pyにSPRITESHEET、PLATFORMのパスを格納
+８．xmlファイルでspritesheetの含有範囲を格納(<Subtexture name, x, y, height, width>
+９．Surfaceでイメージの枠を作成image = pg.Surface((width, height))　#引数にタプル
+１０．image.blitで切り取った画像を張り付ける
+　→image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+１１．LayeredUpdates（pygame.spriteのライブラリ）
+→レイヤーを制御し、OrderedUpdatesのように画像描写処理を行うLayeredUpdates
+１２．キーボードのボタンを押して離すと、イベントキューにpygame.KEYDOWNイベントとpygame.KEYUPイベントが取得される
+→キューは入れた順に取得される（押す→離すの場合、同様にKEYUP→KEYDOWNの順で取得される。）
+→event.typeをKEYUP、KEYDOWNで判別すると同時押しなどのイベントを実装可能
+
+
+■ショートカット
+shift + F10→右クリック
+ctrl + shift + N → フォルダ作成
+
+
+■機能概要
+・マッチング取り込み前にマッチングを確定させる処理を追加
+
+■■■■■
+■■■■■
+■■〇■■
+■■■■■
+■■■■■
+
+縦横３マスに存在するキャラクタがマッチング対象となる
+丸のマスを【集計座標】と命名。
+集計座標を中心とする縦横５マス集計エリアを【選択座標】と命名。
+
+１２３
+４０５
+６７８
+
+〇は(x,y)座標でDB登録マッチング対象のピックアップは丸の座標で行う。
+同じ座標にオブジェクトが存在しないようにするため〇と１－８の番号は主キーとする。
+
+９マスに属するオブジェクト最大９ブロックでマッチングを行う
+→乱数マスタでマッチング対象から除外される
+
+★ブレイクで保持するキー項目
+処理対象日-陣営id-パーティid-カルマ値
+
+キャラクタマスタから全件取得して集計座標で回す。
+
+パーティは全員がリーダーと同じ集計座標に存在すること。
+
+
+■フォルダ構成
+resource
+┗Display
+　┗Image
+　　┗・・・
+　　┗・・・
+　┗Sound
+┗Server
+　┗Dao
+　┗Dto
+　┗Facade
+┗Batch
+　┗・・・
+　┗frtproot # ファイルI/O
+　┗send
+　┗recv
+┗Common
+　┗BaseBatch
+　┗Validator
+　┗Const
+┗LogTrace # 一括ログ管理
+　┗DisplayLog
+　┗BatchLog
+
+→ディレクトリを当てている分処理が遅くなっていしまうことを危惧している。
+
+■備考
+・結局処理を開始するのもすべて__main__.pyなので処理構成は全てmainを修正
+・現在は初期画面→ボタン押下→プレイ画面の様式のためこれを変更する必要がある
+→show_start_screenを修正
+・main.pyのGameクラスを修正→def events(self)にキー操作を記入
+→ただし既存はプレイ中の移動コマンドのみなので、メニュー操作などに対応可能かどうかは不明
+→if event.type == pg.KEYUP:が現状解析不能
+・playing = Falseでゲームオーバー（落下を表現event.type == pg.QUITより）
+→すべてのspriteのmax値を取得、回して順番に取得していることがから、視覚的な要素ではないと思われる。
+・現在press button→速攻でGameOverとなる
+→これを回避したい

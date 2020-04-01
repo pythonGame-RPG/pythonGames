@@ -1,6 +1,6 @@
 # game options/settings
 TITLE = "Jumpy!"
-WIDTH = 480
+WIDTH = 1000
 HEIGHT = 600
 FPS = 60
 FONT_NAME = 'arial'
@@ -26,11 +26,11 @@ POW_LAYER = 1
 MOB_LAYER = 2
 CLOUD_LAYER = 0
 
-# Starting platforms
+# TODO:Starting platformsいらなくなったら削除
 PLATFORM_LIST = [(0, HEIGHT - 50),
                  (WIDTH / 2 - 50, HEIGHT * 3 / 4),
                  (125, HEIGHT - 350),
-                 (350, 200),
+                 (350, 200),    
                  (175, 100)]
 
 # define colors
