@@ -3,6 +3,7 @@ import random
 from import_autoloader import *
 from settings import *
 from sprites import *
+from login import *
 from Sql import *
 from os import path
 
@@ -26,7 +27,8 @@ class Game:
         self.spritesheet = None
         self.jump_sound = None
         self.snd_dir = None
-
+        # NewGameフラグ
+        self.rebase = True
         self.font_name = pg.font.match_font(FONT_NAME)  # FONTを探す
         self.load_data()
 
@@ -270,20 +272,36 @@ class Game:
                            WIDTH / 2, HEIGHT / 2 + 40)
         # 
         pg.display.flip()
-        self.wait_for_key()
+        self.wait_for_key(False)
         pg.mixer.music.fadeout(500)
 
     # キー押下待ち
-    def wait_for_key(self):
+    def wait_for_key(self, running = True):
         waiting = True
+        self.running = running
+
         while waiting:
             self.clock.tick(FPS)
             for event in pg.event.get():
+                keys = pg.key.get_pressed()
+                # ゲーム終了
                 if event.type == pg.QUIT:
                     waiting = False
                     self.running = False
+                # ニューゲーム
                 if event.type == pg.KEYUP:
                     waiting = False
+                    if keys[pg.K_q]:
+                        self.rebase = False
+                # qを押したら処理を抜ける
+                if keys[pg.K_SPACE]:
+                    self.rebase = False
+    
+    # F1キーが押された場合の処理
+    def procF1key():
+        # データ１を起動
+
+
 
     # 真ん中詰めテキスト表示
     def draw_text(self, text, size, color, x, y):
@@ -301,11 +319,17 @@ class Game:
         text_rect.midleft = (x, y)
         self.screen.blit(text_surface, text_rect)
 
-
+# gamestart以降show_start_screen()は実行されない
 g = Game()
-g.show_start_screen()
-while g.running:
-    g.new()
-    g.show_go_screen()
+l = login.Login()
+# rebaseフラグ：Falseにならない限りゲームは終了しない。
+while g.rebase:
+    # ログイン画面に遷移
+
+    g.show_start_screen()
+
+    while g.running:
+        g.new()
+        g.show_go_screen()
 
 pg.quit()

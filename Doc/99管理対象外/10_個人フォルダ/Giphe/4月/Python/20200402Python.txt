@@ -161,3 +161,19 @@ resource
 →同時実行を回避したい
 →デバッグ時にrunning = False, waiting = Falseに変更後→g.new→g.show_start_screen→g.quit()
 ウィンドウを閉じる結果におそらくフラグを変更した時点でshow～を切り抜けるように記述されている。
+forループの外側にデバッグポイントを設置するのはナンセンス→設置するのはif文やfor,while文の内側。
+
+【課題４】NewGameとGameOverの遷移、処理の終了をクリア
+▼コメント
+・main.pyのmainメソッドで処理中状態をキープする。
+・wait_for_keysメソッドでユーザのキー入力を待つようにする
+【課題５】コマンド画面でこれを指定、それぞれのキーを入力された場合を動的に判断して
+それぞれのプログラムに渡せる仕組みを作りたい【難易度S】
+【課題６】プログラムごとのrunningのような処理中フラグを作成→while self.running
+【課題７】メニュー画面F1ボタン押下時→データ１を起動（F2、F3も同様）
+パラメータ（画面IDとユーザ情報）をキーとして画面を呼び出す。
+【課題８】ログイン画面の作成：ユーザIDとパスワードを入力しログインする仕様→データ選択
+
+■次回
+https://stackoverflow.com/questions/46390231/how-to-create-a-text-input-box-with-pygame
+ログイン画面の作成から。

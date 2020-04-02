@@ -1,5 +1,7 @@
 # game options/settings
-TITLE = "Jumpy!"
+TITLE = "WorldSIMU"
+LOGIN = "LOGIN"
+MES_LOGIN = "ログインIDとパスワードを入力してください。"
 WIDTH = 1000
 HEIGHT = 600
 FPS = 60
