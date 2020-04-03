@@ -29,7 +29,8 @@ class users:
         self.play_time = 0
         self.total_amount = 0
 
-    def execute(self):
+
+    def execute(self, sql):
         with closing(conn.cursor()) as cursor:
             cursor.execute(select.onwith())
             rows = cursor.fetchall()
@@ -37,6 +38,25 @@ class users:
         for data in rows:
             # TODO:★keyを取得するメソッド
             data = 1
+    
+    # select文を作成
+    def select(self, Dbname):
+        # カンマ区切りでリストをstrにここでは使わない
+        # data_str = ",".join(map(str, data))
+        # セレクト文を作成
+        sql = format("Select * from {0}", Dbname)
+        return sql
+
+    def where(self, select, datas):
+        user_id = format("user_id = {}", str(datas[0]))
+        password = format("password = {}", str(datas[1]))
+        sql_where = format(" where {0} and {1}", user_id, password)
+        return select.join(sql_where)
+            
+
+
+    # where文を作成
+    # def where(self)
 
 class players:
     def __init__(self):

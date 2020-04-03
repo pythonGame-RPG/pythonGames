@@ -298,7 +298,7 @@ class Game:
                     self.rebase = False
     
     # F1キーが押された場合の処理
-    def procF1key():
+    # def procF1key():
         # データ１を起動
 
 
@@ -321,7 +321,8 @@ class Game:
 
 # gamestart以降show_start_screen()は実行されない
 g = Game()
-l = login.Login()
+l = Login()
+l.show_start_screen()
 # rebaseフラグ：Falseにならない限りゲームは終了しない。
 while g.rebase:
     # ログイン画面に遷移

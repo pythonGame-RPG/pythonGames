@@ -46,3 +46,13 @@ YELLOW = (244, 194, 13)
 BLUE = (72, 133, 237)
 LIGHTBLUE = (41, 128, 185)
 BGCOLOR = LIGHTBLUE
+
+# sqlデータベース
+MST_USERS = "users"
+
+# エラーコード
+ERR_MESSAGE1 = "{}は半角英数字で入力してください。"
+ERR_MESSAGE2 = "{0}は{1}文字以内で入力してください。"
+
+# 上限下限
+LOGIN_MAXNUM = 16
