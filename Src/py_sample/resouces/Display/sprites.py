@@ -5,7 +5,6 @@ import random
 
 vec = pg.math.Vector2
 
-
 class SpriteSheet:
     def __init__(self, filename):
         """ SpriteSheet専用クラス"""

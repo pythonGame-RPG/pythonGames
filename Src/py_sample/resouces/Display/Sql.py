@@ -1,18 +1,8 @@
-# MySQLdbのインポート
-import MySQLdb
-from contextlib import closing
 from select import *
-
-# データベースへの接続とカーソルの生成
-conn = MySQLdb.connect(
-    host='localhost',
-    user='root',
-    passwd='root',
-    db='dbo')
-cursor = conn.cursor()
+from DbAccess import *
 
 # ここに実行したいコードを入力します
-class users:
+class sql_query:
     def __init__(self):
         self.id = 0
         self.user_id = 0
@@ -29,34 +19,26 @@ class users:
         self.play_time = 0
         self.total_amount = 0
 
-
     def execute(self, sql):
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(select.onwith())
-            rows = cursor.fetchall()
-        # keyが一致した場合に、取得したデータを格納する
-        for data in rows:
-            # TODO:★keyを取得するメソッド
-            data = 1
+        return dbaccess().exe_sql(sql)
     
     # select文を作成
     def select(self, Dbname):
         # カンマ区切りでリストをstrにここでは使わない
         # data_str = ",".join(map(str, data))
         # セレクト文を作成
-        sql = format("Select * from {0}", Dbname)
+        sql = "Select * from {}".format(Dbname)
         return sql
 
     def where(self, select, datas):
-        user_id = format("user_id = {}", str(datas[0]))
-        password = format("password = {}", str(datas[1]))
-        sql_where = format(" where {0} and {1}", user_id, password)
-        return select.join(sql_where)
-            
-
-
-    # where文を作成
-    # def where(self)
+        where_list = []
+        # keyとvalueをイコール関係で結びつける
+        for dkey, dvalue in datas.items():
+            where_list.append(dkey + ' = '  + '"{}"'.format(dvalue))
+        # AND区切りの文字列に変換
+        where = " AND ".join(map(str, where_list))
+        where = " where " + where
+        return select + where
 
 class players:
     def __init__(self):
@@ -74,9 +56,3 @@ class players:
         self.is_save = 0
         self.play_time = 0
         self.total_amount = 0
-
-# 保存を実行
-conn.commit()
-
-# 接続を閉じる
-conn.close()

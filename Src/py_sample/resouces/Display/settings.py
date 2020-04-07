@@ -53,6 +53,8 @@ MST_USERS = "users"
 # エラーコード
 ERR_MESSAGE1 = "{}は半角英数字で入力してください。"
 ERR_MESSAGE2 = "{0}は{1}文字以内で入力してください。"
+ERR_MESSAGE3 = "user_idまたはpasswordが間違っています。"
 
 # 上限下限
 LOGIN_MAXNUM = 16
+MAX_ERR = 3

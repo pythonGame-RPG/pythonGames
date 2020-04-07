@@ -7,7 +7,6 @@ from login import *
 from Sql import *
 from os import path
 
-
 class Game:
     def __init__(self):
         """ ゲームを初期化 """
@@ -226,7 +225,7 @@ class Game:
         self.draw_text(str(self.score), 22, WHITE, WIDTH / 2, 15)
         pg.display.flip()
 
-    def show_start_screen(self):
+    def show_start_screen(self, user_data):
         # ゲームスタート画面
         # 音楽
         pg.mixer.music.load(path.join(self.snd_dir, "Yippee.ogg"))
@@ -239,6 +238,8 @@ class Game:
         self.draw_text("Press a key to play", 22, WHITE, WIDTH / 2,
                        HEIGHT * 3 / 4)
         """データ順にプレイヤー名を表示"""
+        # user_idからキャラクタデータを取得
+        
         i = 0
         for name in self.player_name:
             i += 1
@@ -321,13 +322,21 @@ class Game:
 
 # gamestart以降show_start_screen()は実行されない
 g = Game()
+
+# ログイン画面を表示
 l = Login()
-l.show_start_screen()
+l.mainloop()
+
+# ユーザ―データの有無を確認
+if(len(l.user_data) == 0):
+    pg.quit
+
+# ユーザデータをメニュー画面に渡す
 # rebaseフラグ：Falseにならない限りゲームは終了しない。
 while g.rebase:
     # ログイン画面に遷移
 
-    g.show_start_screen()
+    g.show_start_screen(l.user_data)
 
     while g.running:
         g.new()
