@@ -49,6 +49,7 @@ BGCOLOR = LIGHTBLUE
 
 # sqlデータベース
 MST_USERS = "users"
+MST_CHARACTERS = "characters"
 
 # エラーコード
 ERR_MESSAGE1 = "{}は半角英数字で入力してください。"
@@ -58,3 +59,8 @@ ERR_MESSAGE3 = "user_idまたはpasswordが間違っています。"
 # 上限下限
 LOGIN_MAXNUM = 16
 MAX_ERR = 3
+
+# データ起動フラグ
+DATA_1 = 1
+DATA_2 = 2
+DATA_3 = 3

@@ -66,5 +66,6 @@ class dbaccess:
 
         return self.cur.fetchall()
 
+    # デストラクタ
     def __del__(self):
         self.db.close()

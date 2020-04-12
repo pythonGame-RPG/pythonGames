@@ -24,17 +24,31 @@ class sql_query:
     
     # select文を作成
     def select(self, Dbname):
-        # カンマ区切りでリストをstrにここでは使わない
-        # data_str = ",".join(map(str, data))
         # セレクト文を作成
         sql = "Select * from {}".format(Dbname)
         return sql
 
-    def where(self, select, datas):
+    def where(self, select, datas, bigger = None, smaller = None):
         where_list = []
         # keyとvalueをイコール関係で結びつける
-        for dkey, dvalue in datas.items():
-            where_list.append(dkey + ' = '  + '"{}"'.format(dvalue))
+        try:
+            for dkey, dvalue in datas.items():
+                where_list.append(dkey + ' = '  + '"{}"'.format(dvalue))
+        except AttributeError:
+            pass
+        try:
+            # 大なり
+            for dkey, dvalue in bigger.items():
+                where_list.append(dkey + ' >= '  + '"{}"'.format(dvalue))
+        except AttributeError:
+            pass
+        try:
+            # 小なり
+            for dkey, dvalue in bigger.items():
+                where_list.append(dkey + ' <= '  + '"{}"'.format(dvalue))
+        except AttributeError:
+            pass
+        
         # AND区切りの文字列に変換
         where = " AND ".join(map(str, where_list))
         where = " where " + where
