@@ -34,6 +34,8 @@ class Game:
         # キャラクタ取得キー
         self.character_id = None
         self.load_key = None
+        self.pointer_length = 0
+        self.pointer = 0
 
     def load_data(self):
         """ Player_nameデータをロード """
@@ -89,24 +91,45 @@ class Game:
         pg.mixer.music.play(loops=-1)
         pg.mixer.music.set_volume(0.05)
         """
+        # TODO:データ順にプレイヤー名を表示
         self.screen.fill(BGCOLOR)
+        self.draw_display()
+        # ここでキー押下待ち
+        self.wait_for_key()
+        # pg.mixer.music.fadeout(500)
+
+    # プレイヤー名を描画
+    def draw_display(self):
+        # iはフォーカス順
+        i = 0
+        for name in self.player_name:
+            self.draw_left_text("{0}. {1}".format(i + 1,name), 22, self.get_color(i),
+                            WIDTH / 4, 15+20*(i + 1))
+            self.draw_left_text("Press F{0}Key".format(i + 1), 22, self.get_color(i),
+                            5*WIDTH / 8, 15+20*(i + 1))
+            i += 1
+        # 画面文字列の描画
         self.draw_text(TITLE, 48, WHITE, WIDTH / 2, HEIGHT / 4)
         self.draw_text("Arrows to move, Space to jump", 22, WHITE, WIDTH / 2,
                        HEIGHT / 2)
-        self.draw_text("Press a key to play", 22, WHITE, WIDTH / 2,
+        self.draw_text("Press a key to play", 22, self.get_color(i+1), WIDTH / 2,
                        HEIGHT * 3 / 4)
-        # TODO:データ順にプレイヤー名を表示
-        i = 0
-        for name in self.player_name:
-            i += 1
-            self.draw_left_text("{0}. {1}".format(i,name), 22, WHITE,
-                            WIDTH / 4, 15+20*i)
-            self.draw_left_text("Press F{0}Key".format(i), 22, WHITE,
-                            5*WIDTH / 8, 15+20*i)
+        self.draw_text("sign up", 22, self.get_color(i+2), WIDTH / 2,
+                       HEIGHT * 7 / 8)
         pg.display.flip()
-        # ここでキー押下待ち
-        self.wait_for_key()
-        pg.mixer.music.fadeout(500)
+
+    # ポインターを設定  
+    def set_pointer(self, i):
+        # player_name(1-3),sign_up
+        self.pointer_length = len(self.player_name) + 2
+        self.pointer = (self.pointer + i) % self.pointer_length
+    
+    # 通常時:WHITE、フォーカス時:PINK
+    def get_color(self, i):
+        if i == self.pointer:
+            return PINK
+        else:
+            return WHITE
 
     def show_go_screen(self):
         # ゲームオーバー画面
@@ -148,12 +171,13 @@ class Game:
                     waiting = False
                     self.running = False
                 # ニューゲームKEYUPはキーを離した状態（不明）
-                
+                """
                 if event.type == pg.KEYUP:
                     waiting = False
                     # qを押したら処理を抜ける
                     if keys[pg.K_q] | keys[pg.K_ESCAPE]:
                         self.rebase = False
+                """
 
                 if event.type == pg.KEYDOWN:
                     # 起動データが存在、かつF★を押したらデータ★を起動
@@ -162,7 +186,16 @@ class Game:
                     if len(self.player_name) == 2 & keys[pg.K_F2]:
                         self.load_key = DATA_2
                     if len(self.player_name) == 3 & keys[pg.K_F3]:
-                        self.load_key = DATA_3    
+                        self.load_key = DATA_3 
+                    # 上を押下した場合
+                    if keys[pg.K_UP]:
+                        self.set_pointer(-1)
+                        self.draw_display()
+                    # 上を押下した場合
+                    if keys[pg.K_DOWN]:
+                        self.set_pointer(+1)
+                        self.draw_display()
+
                 # spaceで問答無用に終了
                 if keys[pg.K_SPACE]:
                     self.rebase = False

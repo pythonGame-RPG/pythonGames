@@ -8,8 +8,9 @@ from Sql import *
 from os import path
 
 # menuクラス一覧表示
-class Menu(self):
-    self.bar = None
+class Menu:
+    def __init__(self):
+        self.bar = None
     # load sound
     """
     self.snd_dir = path.join(self.dir, 'snd')
