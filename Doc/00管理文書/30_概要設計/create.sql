@@ -12,12 +12,13 @@ use python_game
 ・master_id→使役マスタ
 ・user_id→ユーザマスタ
  */
-drop table dbo.characters;
-create table dbo.characters (
+
+drop table IF EXISTS dbo.characters;
+create table dbo.characters   (
 	id int(10) not null auto_increment primary key,
-	ins_date datetime,
+	ins_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	ins_id varchar(10),
-	upd_date datetime,
+	upd_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	upd_id varchar(10),
 	gene_id int(10) not null ,
 	race_id int(10) not null ,
@@ -32,17 +33,20 @@ create table dbo.characters (
 	class1 int(4) not null default 1,
 	class2 int(4) not null default 0,
 	class3 int(4) not null default 0,
-	`rank` char(3) not null default '  G',
+	guild_rank char(3) not null default '  G',
+	title int(4) not null default 0,
+	state int(2) not null default 0,
 	HP int(10) not null default 1,
 	MP int(10) not null default 1,
-	state int(2) not null default 0,
 	sta int(5) not null default 1,
 	atk int(10) not null default 1,
 	bit int(10) not null default 1,
-	`int` int(10) not null default 1,
-	def int(10) not null default 1,
+	mag int(10) not null default 1,
+	des int(10) not null default 1,
 	agi int(10) not null default 1,
-	talent varchar(10),
+	talent1 int,
+	talent2 int,
+	talent3 int,
 	party1_id int(10) not null default 0,
 	party2_id int(10) not null default 0,
 	party3_id int(10) not null default 0,
@@ -53,11 +57,26 @@ create table dbo.characters (
 	is_deleted tinyint(1) default 0
 )DEFAULT CHARACTER SET=utf8;
 
-
-
-/* 種族マスタ
+/* 遺伝子マスタ
  */
-drop table dbo.races;
+drop table IF EXISTS dbo.genes;
+create table dbo.races (
+	id int(10) not null auto_increment primary key,
+	ins_date datetime,
+	ins_id varchar(10),
+	upd_date datetime,
+	upd_id varchar(10),
+	s_HP int(3) default 1,
+	s_MP int(3) default 1,
+	s_atk int(3) default 1,
+	s_bit int(3) default 1,
+	s_mag int(3) default 1,
+	s_def int(3) default 1,
+	s_agi int(3) default 1,
+	total_sense int(3) default 7,
+	g_RANK char(3) default 'E'
+)
+	
 create table dbo.races (
 	id int(10) not null auto_increment primary key,
 	ins_date datetime,

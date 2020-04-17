@@ -31,6 +31,7 @@ class Game:
         self.rebase = True
         self.font_name = pg.font.match_font(FONT_NAME)  # FONTを探す
         self.load_data()
+        self.character_data = None
         # キャラクタ取得キー
         self.character_id = None
         self.load_key = None
@@ -62,9 +63,6 @@ class Game:
 
         self.player = Player(self)
 
-        # メニュー呼び出し
-        m = Menu()
-
         # mob を作成した時間を記録
         self.mob_timer = 0
     
@@ -78,11 +76,11 @@ class Game:
         sql = self.character_select_sql.where(sql, {'user_id': self.character_id})
 
         # sqlを実行してcharacterデータを取得
-        character_data = self.character_select_sql.execute(sql)
+        self.character_data = self.character_select_sql.execute(sql)
         # return character_data
         
         # 名前をリストに格納
-        for d in character_data:
+        for d in self.character_data:
             if d['name'] not in self.player_name:
                 self.player_name.append(d['name'])
 
@@ -112,15 +110,15 @@ class Game:
         self.draw_text(TITLE, 48, WHITE, WIDTH / 2, HEIGHT / 4)
         self.draw_text("Arrows to move, Space to jump", 22, WHITE, WIDTH / 2,
                        HEIGHT / 2)
-        self.draw_text("Press a key to play", 22, self.get_color(i+1), WIDTH / 2,
+        self.draw_text("Press a key to play", 22, self.get_color(i), WIDTH / 2,
                        HEIGHT * 3 / 4)
-        self.draw_text("sign up", 22, self.get_color(i+2), WIDTH / 2,
+        self.draw_text("sign up", 22, self.get_color(i+1), WIDTH / 2,
                        HEIGHT * 7 / 8)
         pg.display.flip()
 
     # ポインターを設定  
     def set_pointer(self, i):
-        # player_name(1-3),sign_up
+        # player_name(0-2),sign_up
         self.pointer_length = len(self.player_name) + 2
         self.pointer = (self.pointer + i) % self.pointer_length
     
@@ -171,14 +169,14 @@ class Game:
                     waiting = False
                     self.running = False
                 # ニューゲームKEYUPはキーを離した状態（不明）
-                """
+
                 if event.type == pg.KEYUP:
-                    waiting = False
                     # qを押したら処理を抜ける
                     if keys[pg.K_q] | keys[pg.K_ESCAPE]:
+                        waiting = False
                         self.rebase = False
-                """
-
+                        
+                # キーイベント
                 if event.type == pg.KEYDOWN:
                     # 起動データが存在、かつF★を押したらデータ★を起動
                     if len(self.player_name) == 1 & keys[pg.K_F1]:
@@ -187,13 +185,21 @@ class Game:
                         self.load_key = DATA_2
                     if len(self.player_name) == 3 & keys[pg.K_F3]:
                         self.load_key = DATA_3 
-                    # 上を押下した場合
+                    # 上を押下した場合フォーカス上
                     if keys[pg.K_UP]:
                         self.set_pointer(-1)
                         self.draw_display()
                     # 上を押下した場合
                     if keys[pg.K_DOWN]:
                         self.set_pointer(+1)
+                        self.draw_display()
+                    # Enterを押下した場合
+                    if keys[pg.K_RETURN]:
+                        # データ起動
+                        if self.pointer + 1 <= len(self.player_name):
+                            # メニュー呼び出し
+                            m = Menu()
+                            m.run(self.character_data)
                         self.draw_display()
 
                 # spaceで問答無用に終了

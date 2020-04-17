@@ -11,34 +11,36 @@ from os import path
 class Menu:
     def __init__(self):
         self.bar = None
-    # load sound
-    """
-    self.snd_dir = path.join(self.dir, 'snd')
-    self.jump_sound = pg.mixer.Sound(
-        path.join(self.snd_dir, 'Jump33.wav'))
-    self.jump_sound.set_volume(0.1)
-    self.boost_sound = pg.mixer.Sound(
-        path.join(self.snd_dir, 'Boost16.wav'))
-    self.boost_sound.set_volume(0.1)
-    """
+        self.running = True
+        pg.init()
+        pg.mixer.init()
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT))
+        pg.display.set_caption(TITLE)
+        self.clock = pg.time.Clock()
    
-
 # キーイベント
 
 # 画像の描画
-"""
-    def run(self):
+    def run(self,character_data):
         # ゲームループ
         # 音楽を再生 (-1 はループ)
         pg.mixer.music.play(loops=-1)
         pg.mixer.music.set_volume(0.3)
         self.playing = True
+        self.draw_status(character_data)
+        # プレイ中events→update→draw
         while self.playing:
             self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
         pg.mixer.music.fadeout(500) 
+
+    """
+    def draw_status(self, character_data):
+        # characterのステータス部分だけ抜き出して表示したい。
+        for element in character_data:
+    """
 
     def update(self):
         # アップデート
@@ -153,4 +155,3 @@ class Menu:
         # self.screen.blit(self.player.image, self.player.rect)
         self.draw_text(str(self.score), 22, WHITE, WIDTH / 2, 15)
         pg.display.flip()
-    """

@@ -9,6 +9,7 @@ from turtle import *
 class Login(tk.Tk):
     def __init__(self):
         self.root = tk.Tk.__init__(self)
+        self.geometry('200x200')
         self.title('Enter password')
         # tkinterパーツを初期化
         #self.root = tk.Tk()
