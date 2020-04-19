@@ -6,15 +6,12 @@ class Character:
         self.race_id = None        
         self.age = None
         self.birth = None
-        self.name = None
-        self.age = None
-        self.birth = None
-        self.level = None
+        self.title = None
         self.class1 = None
         self.class2 = None
         self.class3 = None
+        self.level = None
         self.guild_rank = None
-        self.title = None
         self.state = None
         self.HP = None
         self.MP = None
@@ -30,3 +27,5 @@ class Character:
         self.dangeon_id = None
         self.master_id = None
         self.user_id = None
+
+    # def get_name

@@ -1,0 +1,164 @@
+Python作業メモ
+
+■課題
+・詳細設計PG
+①座標→画像表示
+②マップ表示（以下参照「選択座標」のグリッドと「集計座標」(x, y)形式
+③ステータス表示（集計座標と同様）
+※②，③はゆくゆくはDBから取得することを考慮
+DB設計「キャラクタマスタ」張り替え
+・ドキュメントルートの問題
+→Displayをワークスペースに変更することで解決
+→今後オートローダ機能のように動的にインポート（importにファイル名の身を指定）できるよう
+にする必要がある。
+
+↓参照（動的なモジュール取得ルート)	
+import importlib
+
+m = importlib.import_module('foo.some') # -> 'module'
+m.__name__ # -> 'foo.some'
+
+n = importlib.import_module('bar.some') # -> 'module'
+n.__name__ # -> 'bar.some'
+
+・main.pyでimport_moduleを用いる→ダイナミックインポートが可能
+
+
+■スケジュール
+・ユーザインターフェースを取り急ぎ
+・tortoiseGit実装予定
+・pygame.vector
+・imoportエラーの対処
+
+■pygame解析
+１．sprite→オブジェクト。Add, update(フック),killなど追加、除外、更新が可能
+２．pygame.sprite.spritecollide
+　→接触判定。接触しているものの一覧を返す。マッチング処理を実装可能。
+３．pygame.sprite.collide_rect
+　→rect属性を使って当たり判定を行う、比率変換したうえで当たり判定を調べる→collide_rect_ratio
+　→radius属性の場合はrectでなくcircleで当たり判定を行うことが可能
+　→mask属性の場合はmaskを使う。bitmaskが重なっているかどうかを判定する（グリッドの場合こちらの方がいいかも）
+　→group属性の判定はgroupcollide
+４．pygame.sprite.groupcollide
+　→２つのgroup間で接触しているすべてのSpriteを探す
+５．SpriteSheetクラスを作成→get_imageを定義し、1枚の画像からイラストを切り取る
+６．ニューゲーム時はall_spritesとplatformsを初期化
+　self.all_sprites = pg.sprite.Group()
+　self.platforms = pg.sprite.Group()
+７．settings.pyにSPRITESHEET、PLATFORMのパスを格納
+８．xmlファイルでspritesheetの含有範囲を格納(<Subtexture name, x, y, height, width>
+９．Surfaceでイメージの枠を作成image = pg.Surface((width, height))　#引数にタプル
+１０．image.blitで切り取った画像を張り付ける
+　→image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+１１．LayeredUpdates（pygame.spriteのライブラリ）
+→レイヤーを制御し、OrderedUpdatesのように画像描写処理を行うLayeredUpdates
+１２．キーボードのボタンを押して離すと、イベントキューにpygame.KEYDOWNイベントとpygame.KEYUPイベントが取得される
+→キューは入れた順に取得される（押す→離すの場合、同様にKEYUP→KEYDOWNの順で取得される。）
+→event.typeをKEYUP、KEYDOWNで判別すると同時押しなどのイベントを実装可能
+１３．pg.display.flip()→display Surface全体を更新して画面に描写する
+１４．pygame.display→ウィンドウ画面やスクリーンの制御を行うpygameモジュール
+１５．wait_for_keyが曲者っぽい。
+１６．Pygameでは、いかなる状況でも一つのdisplayしかアクティブ状態にすることができません
+１７．pygame.display.set_mode 命令で新しいdisplayを作成すると、これまで使用していたdisplayは終了して閉じられます。
+１８．batch作成
+１９．上下押下で選択＆Enterキー押下でデータが選べるようになる
+
+■ショートカット
+
+■機能概要
+・マッチング取り込み前にマッチングを確定させる処理を追加
+
+■■■■■
+■■■■■
+■■〇■■
+■■■■■
+■■■■■
+
+縦横３マスに存在するキャラクタがマッチング対象となる
+丸のマスを【集計座標】と命名。
+集計座標を中心とする縦横５マス集計エリアを【選択座標】と命名。
+
+１２３
+４０５
+６７８
+
+〇は(x,y)座標でDB登録マッチング対象のピックアップは丸の座標で行う。
+同じ座標にオブジェクトが存在しないようにするため〇と１－８の番号は主キーとする。
+
+９マスに属するオブジェクト最大９ブロックでマッチングを行う
+→乱数マスタでマッチング対象から除外される
+
+★ブレイクで保持するキー項目
+処理対象日-陣営id-パーティid-カルマ値
+
+キャラクタマスタから全件取得して集計座標で回す。
+
+パーティは全員がリーダーと同じ集計座標に存在すること。
+
+
+■フォルダ構成
+resource
+┗Display
+　┗Image
+　　┗・・・
+　　┗・・・
+　┗Sound
+┗Server
+　┗Dao
+　┗Dto
+　┗Facade
+┗Batch
+　┗・・・
+　┗frtproot # ファイルI/O
+　┗send
+　┗recv
+┗Common
+　┗BaseBatch
+　┗Validator
+　┗Const
+┗LogTrace # 一括ログ管理
+　┗DisplayLog
+　┗BatchLog
+
+→ディレクトリを当てている分処理が遅くなっていしまうことを危惧している。
+
+■課題
+Login.pyの課題
+
+
+main.pyの課題
+
+【課題２２】ポインターの番号を編集。ポインタ対象が増えた場合のために拡張性が必要。ポインター(player_name(1-3),sign_up)
+【課題２３】characterのステータス部分だけ抜き出して表示したい。
+【課題２４】statusをどのように保持するか
+
+■メモ
+・ステータスの保持playerクラスを作成、いつでもアクセスできるようにする。UPDATE、CREATEなど。
+・Sqlクラスで作成するのもいずれ控える。プレイヤー更新処理↓
+レベルアップ、テイム、経験値、アイテム取得、状態異常、ダメージ等の増減、アイテムの使用、クラス変更
+案１：UPDATEにフラグを持たせるX
+案２：UPDATE処理としてまとめず、それぞれの処理を分けて実装。〇
+・バッチでspriteを操作→極力処理量を減らしたい。処理終了後にupdateをかける。
+・playerはbattleでバトルを実施、自動処理も可能。
+・優先順位はLEVELUP、BATTLE、
+・create characterはsignupで可能。sub_characterの取得はテイム、ガチャなど。
+・ガチャとは別にcreate characterが可能。ランダム生成、アイテムを所持している場合は使用して作成が可能。
+・spriteに要素を追加する（ステータス）
+・LEVELUPはgenes,charactersを結合バッチ
+・sign up作成→insertのテンプレート
+・applicationhome.configの作成？Server.Service？フレームワークなの？
+・calendar.pyはcalendarが予約語のため使用不可。
+・tkinterのEntryウィジェットの入力値は編集可能→delete/insertのテキストの更新処理を実装。
+・
+
+■進捗
+・mycalendar.pyの実装→birthの入力→カレンダーから任意の日付を取得する処理を実装。
+・status作成に着手、birthに苦戦中
+→1対多の継承なので継承がうまくはまらなかったので、クラスを用いない方針で進める。
+→
+
+
+■次回
+メニュー画面の作成
+フォルダ構成の検討→Display直下に全ファイルが存在しているので整理が必要。autoloader機能実装。
+

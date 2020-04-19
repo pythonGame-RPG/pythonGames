@@ -3,6 +3,7 @@ from Sql import *
 from validate import *
 import random
 import dbo.character as chara
+import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
 from turtle import *
@@ -13,7 +14,8 @@ class Signup(tk.Tk):
         self.root = tk.Tk.__init__(self)
         self.geometry('500x400')
         self.title('make character')
-        ch = chara.Character()
+        self.ch = chara.Character()
+        self.ca = None
         id = None
         password = None
         # ウィンドウを分ける
@@ -31,17 +33,17 @@ class Signup(tk.Tk):
         pw_left.add(fm_left_1)
         
         # group_label
-        self.lbl1 = tk.Label(fm_left_1,text = '基本データ')
-        self.lbl1.grid(row=1, column=0,columnspan=2, padx=5, pady=2)
+        self.lbl0 = tk.Label(fm_left_1,text = '基本データ')
+        self.lbl0.grid(row=1, column=0,columnspan=2, padx=5, pady=2)
         # name
         self.lbl1 = tk.Label(fm_left_1,text = 'name')
         self.lbl1.grid(row=2, column=0, padx=5, pady=2)
-        self.ent1 = tk.Entry(fm_left_1,textvariable=ch.name)
+        self.ent1 = tk.Entry(fm_left_1,textvariable=self.ch.name)
         self.ent1.grid(row=2, column=1, padx=5, pady=2)
         # gene
         self.lbl2 = tk.Label(fm_left_1,text = 'gene')
         self.lbl2.grid(row=3, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_left_1, textvariable=ch.gene_id)
+        self.cbo2 = ttk.Combobox(fm_left_1, textvariable=self.ch.gene_id)
         # self.cbo2.bind('<<ComboboxSelected>>', self.cbo2_selected)
         self.cbo2['values']=('Foo', 'Bar', 'Baz')
         self.cbo2.set("Foo")
@@ -49,35 +51,64 @@ class Signup(tk.Tk):
         # race
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
-        self.cbo3 = ttk.Combobox(fm_left_1, textvariable=ch.race_id)
-        # self.cbo3.bind('<<ComboboxSelected>>', self.cbo2_selected)
+        self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.ch.race_id)
+
+        # bindは更新処理→eventが発生しメソッドが呼び出される。self.cbo3.bind('<<ComboboxSelected>>', self.cbo2_selected)
         self.cbo3['values']=('Foo', 'Bar', 'Baz')
         self.cbo3.set("Foo")
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
-        # age
-        self.lbl4 = tk.Label(fm_left_1,text = 'age')
-        self.lbl4.grid(row=5, column=0, padx=5, pady=2)
-        self.ent4 = tk.Entry(fm_left_1, textvariable=ch.age)
-        self.ent4.grid(row=5, column=1, padx=5, pady=2)
-        # birth
-        self.lbl5 = tk.Label(fm_left_1,text = 'birth')
-        self.lbl5.grid(row=6, column=0, padx=5, pady=2)
-        self.ent5 = tk.Entry(fm_left_1, textvariable=ch.birth)
-        self.ent5.grid(row=6, column=1, padx=5, pady=2)
         
-        fm_status = tk.Frame(self.root, bd=2, relief="ridge")
-        pw_left.add(fm_left_1)
+        # birth
+        self.lbl4 = tk.Label(fm_left_1,text = 'birth')
+        self.lbl4.grid(row=5, column=0, padx=5, pady=2)
+        self.ent4 = tk.Entry(fm_left_1, textvariable=self.ch.birth)
+        self.ent4.grid(row=5, column=1, padx=5, pady=2)
+
+        # 日付選択アイコン
+        self.i_birth = tk.Label(fm_left_1, text = "<", font = ("",14))
+        self.i_birth.bind("<1>",self.select_birth)
+        self.i_birth.grid(row=5, column=2, padx=5, pady=2)
 
         # 基本情報フレーム２
-        fm_left_2 = tk.Frame(pw_left, bd=2, relief="ridge")
-        pw_left.add(fm_left_2)
+        fm_status = tk.Frame(pw_left, bd=2, relief="ridge")
+        pw_left.add(fm_status)
+        # RANK
+        self.lbl5 = tk.Label(fm_status,text = 'rank')
+        self.lbl5.grid(row=1, column=0, padx=5, pady=2)
+        self.ent5 = tk.Entry(fm_status, textvariable=self.ch.guild_rank, width=7)
+        self.ent5.grid(row=1, column=1, padx=5, pady=2)
+        # LEVEL
+        self.lbl6 = tk.Label(fm_status,text = 'level')
+        self.lbl6.grid(row=1, column=2, padx=5, pady=2)
+        self.ent6 = tk.Entry(fm_status, textvariable=self.ch.level, width=7)
+        self.ent6.grid(row=1, column=3, padx=5, pady=2)
+        # HP
+        self.lbl7 = tk.Label(fm_status,text = 'HP')
+        self.lbl7.grid(row=2, column=0, padx=5, pady=2)
+        self.ent7 = tk.Entry(fm_status, textvariable=self.ch.HP, width=7)
+        self.ent7.grid(row=2, column=1, padx=5, pady=2)
+        # MP
+        self.lbl8 = tk.Label(fm_status,text = 'MP')
+        self.lbl8.grid(row=2, column=2, padx=5, pady=2)
+        self.ent8 = tk.Entry(fm_status, textvariable=self.ch.MP, width=7)
+        self.ent8.grid(row=2, column=3, padx=5, pady=2)
+        # sta
+        self.lbl9 = tk.Label(fm_status,text = 'sta')
+        self.lbl9.grid(row=3, column=0, padx=5, pady=2)
+        self.ent9 = tk.Entry(fm_status, textvariable=self.ch.sta, width=7)
+        self.ent9.grid(row=3, column=1, padx=5, pady=2)
+        # atk
+        self.lbl10 = tk.Label(fm_status,text = 'atk')
+        self.lbl10.grid(row=3, column=2, padx=5, pady=2)
+        self.ent10 = tk.Entry(fm_status, textvariable=self.ch.atk, width=7)
+        self.ent10.grid(row=3, column=3, padx=5, pady=2)
         
         fm_status = tk.Frame(pw_left, bd=2, relief="ridge")
-        pw_left.add(fm_left_1)
+        pw_left.add(fm_status)
 
         # ログインボタン
-        self.btn = tk.Button(fm_left_1, text='Submit', command=self.submit)
-        # self.btn.pack()
+        self.btn = tk.Button(fm_status, text='Submit', command=self.submit)
+        self.btn.grid(row=7, column=0, columnspan=2, padx=5, pady=2)
         self.running = True
         self.user_id = None
         self.passwd = None
@@ -93,6 +124,13 @@ class Signup(tk.Tk):
         self.users = None
         # 入力ロック判定用
         self.v_err = 0
+
+    def select_birth(self,event):
+        c = cal.cal()
+        self.ent4.delete(0, tk.END) 
+        self.ent4.insert(tk.END, c.selected_d)
+        self.ent4.pack()
+        return
 
     # ボタン押下後処理
     def submit(self):
