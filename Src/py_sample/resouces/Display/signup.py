@@ -12,10 +12,15 @@ from turtle import *
 class Signup(tk.Tk):
     def __init__(self):
         self.root = tk.Tk.__init__(self)
+        #　子画面
+        self.sub_root = cal.mycalendar(self)
+
         self.geometry('500x400')
         self.title('make character')
+
+        self.selected_date = tk.StringVar()
         self.ch = chara.Character()
-        self.ca = None
+
         id = None
         password = None
         # ウィンドウを分ける
@@ -61,17 +66,22 @@ class Signup(tk.Tk):
         # birth
         self.lbl4 = tk.Label(fm_left_1,text = 'birth')
         self.lbl4.grid(row=5, column=0, padx=5, pady=2)
-        self.ent4 = tk.Entry(fm_left_1, textvariable=self.ch.birth)
+        self.ent4 = tk.Entry(fm_left_1, textvariable=self.selected_date)
         self.ent4.grid(row=5, column=1, padx=5, pady=2)
+        # birthをDTOにセット
+        self.ch.birth.set(self.ent4.get())
 
         # 日付選択アイコン
-        self.i_birth = tk.Label(fm_left_1, text = "<", font = ("",14))
-        self.i_birth.bind("<1>",self.select_birth)
+        self.i_birth = tk.Button(fm_left_1, text = "日付選択", font = ("",9),command=self.sub_root.openDialog)
+        #self.i_birth.bind("<1>",self.select_birth)
         self.i_birth.grid(row=5, column=2, padx=5, pady=2)
 
-        # 基本情報フレーム２
+        # ステータスフレーム２
         fm_status = tk.Frame(pw_left, bd=2, relief="ridge")
         pw_left.add(fm_status)
+        # group２_label
+        self.lbl0 = tk.Label(fm_status,text = 'ステータス')
+        self.lbl0.grid(row=0, column=0,columnspan=4, padx=5, pady=2)
         # RANK
         self.lbl5 = tk.Label(fm_status,text = 'rank')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
@@ -102,6 +112,26 @@ class Signup(tk.Tk):
         self.lbl10.grid(row=3, column=2, padx=5, pady=2)
         self.ent10 = tk.Entry(fm_status, textvariable=self.ch.atk, width=7)
         self.ent10.grid(row=3, column=3, padx=5, pady=2)
+        # bit
+        self.lbl11 = tk.Label(fm_status,text = 'bit')
+        self.lbl11.grid(row=4, column=0, padx=5, pady=2)
+        self.ent11 = tk.Entry(fm_status, textvariable=self.ch.bit, width=7)
+        self.ent11.grid(row=4, column=1, padx=5, pady=2)
+        # mag
+        self.lbl12 = tk.Label(fm_status,text = 'mag')
+        self.lbl12.grid(row=4, column=2, padx=5, pady=2)
+        self.ent12 = tk.Entry(fm_status, textvariable=self.ch.mag, width=7)
+        self.ent12.grid(row=4, column=3, padx=5, pady=2)
+        # des
+        self.lbl11 = tk.Label(fm_status,text = 'des')
+        self.lbl11.grid(row=5, column=0, padx=5, pady=2)
+        self.ent11 = tk.Entry(fm_status, textvariable=self.ch.des, width=7)
+        self.ent11.grid(row=5, column=1, padx=5, pady=2)
+        # agi
+        self.lbl12 = tk.Label(fm_status,text = 'agi')
+        self.lbl12.grid(row=5, column=2, padx=5, pady=2)
+        self.ent12 = tk.Entry(fm_status, textvariable=self.ch.agi, width=7)
+        self.ent12.grid(row=5, column=3, padx=5, pady=2)
         
         fm_status = tk.Frame(pw_left, bd=2, relief="ridge")
         pw_left.add(fm_status)
@@ -124,13 +154,7 @@ class Signup(tk.Tk):
         self.users = None
         # 入力ロック判定用
         self.v_err = 0
-
-    def select_birth(self,event):
-        c = cal.cal()
-        self.ent4.delete(0, tk.END) 
-        self.ent4.insert(tk.END, c.selected_d)
-        self.ent4.pack()
-        return
+        # self.after(10,self)
 
     # ボタン押下後処理
     def submit(self):
@@ -165,8 +189,11 @@ class Signup(tk.Tk):
                 return self.user_data
         if(self.v_err >= MAX_ERR):
             return
-        
-        # 0407続きはここから
+
+    # 入力文字数制限
+    def character_limit(self,entry_text, num):
+        if len(entry_text.get()) > 0:
+            entry_text.set(entry_text.get()[:num])
 
     # 入力チェック
     def valid(self, data):

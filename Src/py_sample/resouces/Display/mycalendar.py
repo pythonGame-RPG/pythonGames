@@ -1,47 +1,41 @@
 from settings import *
 import tkinter as tk
+import tkinter.ttk as ttk
 import datetime
 from turtle import *
 
 selected_d = ''
 
-# テストドライバ
-class cal:
-    def __init__(self):
-        self.selected_d = 'a'
-        self.m = mycalendar()
-        self.m.mainloop()
-        #self.m.destroy()
-
 # カレンダーを作成するフレームクラス
-class mycalendar(tk.Tk):
-    def __init__(self,selected_date=None):
-        # "初期化メソッド"
+class mycalendar():
+    def __init__(self,parent):
+
         import datetime
-        #tk.Frame.__init__(self,master,cnf,**kw)
-
-        self.root = tk.Tk.__init__(self)
-        self.title("Calendar App")
-
-        # 日付選択専用
-        self.selected_date = selected_date
-
-        # エンターキーに更新処理をバインド
-        self.bind('<Return>', self.change_month)
+        self.parent = parent
+        self.dialog = None
 
         # 現在の日付を取得
         now = datetime.datetime.now()
         # 現在の年と月を属性に追加
         self.year = now.year
         self.month = now.month
-        
+        self.selected_d = tk.StringVar()
+
         # 追記 https://teratail.com/questions/234639#reply-355304
         global YEAR, MONTH
         YEAR = str(self.year)
         MONTH = str(self.month)
 
+    def openDialog(self):        
+       # 子画面クラス
+        self.window = tk.Toplevel(self.parent)
+        self.window.title("Calendar App")
+
+        # エンターキーに更新処理をバインド
+        self.window.bind('<Return>', self.change_month)
+
         # frame_top部分の作成
-        frame_top = tk.Frame(self)
+        frame_top = tk.Frame(self.window)
         frame_top.pack(pady=5)
         self.previous_month = tk.Label(frame_top, text = "<", font = ("",14))
         self.previous_month.bind("<1>",self.change_month)
@@ -60,7 +54,7 @@ class mycalendar(tk.Tk):
         self.next_month.pack(side = "left", padx = 10)
 
         # frame_week部分の作成
-        frame_week = tk.Frame(self)
+        frame_week = tk.Frame(self.window)
         frame_week.pack()
         button_mon = d_button(frame_week,  text = "Mon")
         button_mon.grid(column=0,row=0)
@@ -78,16 +72,16 @@ class mycalendar(tk.Tk):
         button_san.grid(column=6,row=0)
 
         # frame_calendar部分の作成
-        self.frame_calendar = tk.Frame(self)
+        self.frame_calendar = tk.Frame(self.window)
         self.frame_calendar.pack()
 
         # 日付部分を作成するメソッドの呼び出し
         self.create_calendar(self.year,self.month)
-        # self.pack()
-          
 
+          
     def create_calendar(self,year,month):
         "指定した年(year),月(month)のカレンダーウィジェットを作成する"
+    
 
         # ボタンがある場合には削除する（初期化）
         try:
@@ -127,9 +121,11 @@ class mycalendar(tk.Tk):
             selected_date += YEAR
             selected_date += convert_in2_2bytes(MONTH)
             selected_date += convert_in2_2bytes(str(event.widget['text']))
-            self.select_d = selected_date
+            self.parent.selected_date.set(selected_date)
 
-        self.destroy()
+        # self.closeDialog()
+        self.window.destroy()
+        return "break"
 
     # textの内容のリセットself.yearに格納
     def change_month(self,event):
@@ -163,7 +159,6 @@ class mycalendar(tk.Tk):
         # self.current_year.pack(side = "left")
         # 日付部分を作成するメソッドの呼び出し
         self.create_calendar(self.year,self.month)
-        # カレンダーの年月日を取得するコールバック関数→コンソールに出力する
 
 # デフォルトのボタンクラス
 # どーでもいいボタン、メインループあるのに何で別クラス？やりずらいんだが。
@@ -191,4 +186,15 @@ def convert_in2_2bytes(str_number):
     else:
         return str_number
 
+"""
+def get_birth():
+    selected_date = 'a'
+    m = mycalendar()
+    # m.mainloop()
+    selected_date = selected_d
+    return selected_date
+"""
+
 # c = cal()
+#m = mycalendar()
+#m.mainloop()
