@@ -33,7 +33,7 @@ class Game:
         self.load_data()
         self.character_data = None
         # キャラクタ取得キー
-        self.character_id = None
+        self.user_id = None
         self.load_key = None
         self.pointer_length = 0
         self.pointer = 0
@@ -70,14 +70,13 @@ class Game:
         # ゲームスタート画面
         self.character_select_sql = sql_query()
         # character_idにusersのFKをセット
-        self.character_id = user_data[0]['id']
+        self.user_id = user_data[0]['user_id']
         # 取得SQLを作成
         sql = self.character_select_sql.select(MST_CHARACTERS)
-        sql = self.character_select_sql.where(sql, {'user_id': self.character_id})
+        sql = self.character_select_sql.where(sql, {'user_id': self.user_id})
 
         # sqlを実行してcharacterデータを取得
         self.character_data = self.character_select_sql.execute(sql)
-        # return character_data
         
         # 名前をリストに格納
         for d in self.character_data:

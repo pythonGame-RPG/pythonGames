@@ -121,7 +121,10 @@ class mycalendar():
             selected_date += YEAR
             selected_date += convert_in2_2bytes(MONTH)
             selected_date += convert_in2_2bytes(str(event.widget['text']))
-            self.parent.selected_date.set(selected_date)
+            from datetime import datetime as dt
+            adt = dt.strptime(selected_date, '%Y%m%d')
+            newstr = adt.strftime('%Y/%m/%d')
+            self.parent.selected_date.set(newstr)
 
         # self.closeDialog()
         self.window.destroy()

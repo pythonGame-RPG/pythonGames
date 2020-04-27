@@ -1,9 +1,12 @@
 import tkinter as tk
+from DbAccess import *
+from settings import *
 
 class Gene:
     def __init__(self):
-        self.gene_id = tk.IntVar()  
-        self.personal_code = tk.IntVar()  
+        self.gene_name = tk.StringVar()
+        self.is_gene_name = tk.IntVar()
+        self.personal_code = tk.IntVar()
         self.s_HP = tk.IntVar()
         self.s_MP = tk.IntVar()
         self.s_sta = tk.IntVar()
@@ -22,18 +25,21 @@ class Gene:
         self.bk_num = 0
         self.bk_total_sense = 0
 
+    def init(self):
+        self.personal_code.set(1)
+        self.s_HP.set(1)
+        self.s_MP.set(1)
+        self.s_sta.set(1)
+        self.s_atk.set(1)
+        self.s_bit.set(1)
+        self.s_mag.set(1)
+        self.s_des.set(1)
+        self.s_agi.set(1)
 
-        
+    def insert_gene(self):
+        dbaccess().insert(self, MST_GENES)
 
-    # def get_name
-    # 入力文字数制限
-    """
-    def character_limit(self,entry_text, num):
-        if len(str(entry_text.get())) > 0:
-            entry_text.set(str(entry_text.get())[:num])
-            self.total_sense.set(str(self.s_HP.get()+self.s_MP.get()+self.s_sta.get()
-            +self.s_atk.get()+self.s_bit.get()+self.s_mag.get()+self.s_HP.get()
-            +self.s_des.get()+self.s_agi.get()))
-    """
+    
+
 
 

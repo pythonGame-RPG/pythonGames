@@ -6,7 +6,7 @@ import os
 @return class
 """
 class im:
-    def auto__load(self, basepath):
+    def auto_load(self, basepath):
         #basepath = os. 
         """
          TODO:

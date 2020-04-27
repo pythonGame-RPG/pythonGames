@@ -2,8 +2,12 @@ from settings import *
 from Sql import *
 from validate import *
 import random
-import DTO.character as chara
+import DTO.characters as chara
 import DTO.genes as genes
+import DTO.races as races
+import DAO.charactersDAO as _chara
+import DAO.genesDAO as _genes
+import DAO.racesDAO as _races
 import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
@@ -23,6 +27,10 @@ class Signup(tk.Tk):
         self.selected_date = tk.StringVar()
         self.ch = chara.Character()
         self.ge = genes.Gene()
+        self.ra = races.Race()
+        self.ch_dao = _chara.CharacterDAO()
+        self.ge_dao = _genes.GeneDAO()
+        self.ra_dao = _races.RaceDAO()
 
         # chara桁数制限
         self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
@@ -43,6 +51,10 @@ class Signup(tk.Tk):
 
         self.total = tk.IntVar()
         self.ge.total_sense.trace("w", lambda *args: self.character_limit(self.total, 4))
+
+        # テキスト初期化
+        self.ch.init()
+        self.ge.init()
         
 
         id = None
@@ -80,8 +92,8 @@ class Signup(tk.Tk):
         self.lblo = tk.Label(fm_left_1,text = 'location')
         self.lblo.grid(row=4, column=2, padx=5, pady=2)
         self.cboo = ttk.Combobox(fm_left_1, textvariable=self.ch.location_id,width=18)
-        self.cboo['values']=('Foo', 'Bar', 'Baz')
-        self.cboo.set("Foo")
+        # self.cboo['values']=self.lo.set_location_name()
+        self.cboo.set("")
         self.cboo.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
 
         # dangeon_chara
@@ -91,15 +103,15 @@ class Signup(tk.Tk):
         self.lbl2 = tk.Label(fm_left_1,text = 'gene')
         self.lbl2.grid(row=3, column=0, padx=5, pady=2)
         self.cbo2 = ttk.Combobox(fm_left_1, textvariable=self.ch.gene_id,width=10)
-        self.cbo2['values']=('Foo', 'Bar', 'Baz')
-        self.cbo2.set("Foo")
+        self.cbo2['values']=self.ge_dao.set_gene()
+        self.cbo2.set("")
         self.cbo2.grid(row=3, column=1, padx=5, pady=2)
         # race
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
         self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.ch.race_id,width=10)
-        self.cbo3['values']=('Foo', 'Bar', 'Baz')
-        self.cbo3.set("Foo")
+        self.cbo3['values']=self.ge.set_race_name()
+        self.cbo3.set("")
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
         
         # birth
@@ -108,7 +120,7 @@ class Signup(tk.Tk):
         self.ent4 = tk.Entry(fm_left_1, textvariable=self.selected_date,width=10)
         self.ent4.grid(row=5, column=3, padx=5, pady=2)
         # birthをDTOにセット
-        self.ch.birth.set(self.ent4.get())
+        # self.ch.birth.set(self.ent4.get())
 
         # 日付選択アイコン
         self.i_birth = tk.Button(fm_left_1, text = "日付選択", font = ("",8),command=self.sub_root.openDialog)
@@ -141,6 +153,12 @@ class Signup(tk.Tk):
         self.lbl6.grid(row=1, column=2, padx=5, pady=2)
         self.ent6 = tk.Entry(fm_status, textvariable=self.ch.level, width=7)
         self.ent6.grid(row=1, column=3, padx=5, pady=2)
+        # is_gene_name
+        self.chkgn = tk.Checkbutton(fm_status, variable=int, var=self.ge.is_gene_name, text='g_name')
+        self.chkgn.grid(row=1, column=4, padx=5, pady=2)
+        # gene_name
+        self.entgn = tk.Entry(fm_status, textvariable=self.ge.gene_name, width=7)
+        self.entgn.grid(row=1, column=5, padx=5, pady=2)
         # HP
         self.lbl7 = tk.Label(fm_status,text = 'HP')
         self.lbl7.grid(row=2, column=0, padx=5, pady=2)
@@ -206,11 +224,13 @@ class Signup(tk.Tk):
         self.lbl12.grid(row=6, column=2, padx=5, pady=2)
         self.ent12 = tk.Entry(fm_status, textvariable=self.ge.total_sense, width=7)
         self.ent12.grid(row=6, column=3, padx=5, pady=2)
+        self.ent12.configure(state = 'readonly')
         # total
-        self.lbl12 = tk.Label(fm_status,text = 'total')
-        self.lbl12.grid(row=6, column=4, padx=5, pady=2)
-        self.ent12 = tk.Entry(fm_status, textvariable=self.total,  width=7)
-        self.ent12.grid(row=6, column=5, padx=5, pady=2)
+        self.lbl13 = tk.Label(fm_status,text = 'total')
+        self.lbl13.grid(row=6, column=4, padx=5, pady=2)
+        self.ent13 = tk.Entry(fm_status, textvariable=self.total,  width=7)
+        self.ent13.grid(row=6, column=5, padx=5, pady=2)
+        self.ent13.configure(state = 'readonly')
         # intelligence
         self.lblcha = tk.Label(fm_status,text = 'intelligence')
         self.lblcha.grid(row=5, column=4, padx=5, pady=2)
@@ -274,8 +294,8 @@ class Signup(tk.Tk):
         self.chk15 = tk.Checkbutton(fm_flg, variable=int, var=self.ch.is_user, text='is_user')
         self.chk15.grid(row=1, column=2, padx=5, pady=2)
         # retire
-        self.chk15 = tk.Checkbutton(fm_flg, variable=int, var=self.ch.is_retire, text='is_retire')
-        self.chk15.grid(row=1, column=3, padx=5, pady=2)
+        self.chk16 = tk.Checkbutton(fm_flg, variable=int, var=self.ch.is_retire, text='is_retire')
+        self.chk16.grid(row=1, column=3, padx=5, pady=2)
 
         # ランダムボタン
         self.btn = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
@@ -304,6 +324,19 @@ class Signup(tk.Tk):
     def random_generate(self):
         pass
         # 最大3桁の数字を生成×12→関数でステータスに設定
+        # genesをループ
+        for key, val in self.gene.items():
+            # ステータス設定→
+            if key in 's_' or key in 'level':
+                val.set(self.rand_three())
+            
+
+
+        
+    
+    def rand_three(self):
+        num = random.randint(1,100)
+        return num
 
         # 1～100までの数字生成（level用）→関数でステータスに設定
         # levelに応じた選択可能範囲の設定関数
@@ -314,6 +347,11 @@ class Signup(tk.Tk):
         # ランダムビット生成→1の確率ほぼ0
         # ランダムビット生成→50%、30%
         # 名前のランダム生成→人名、国、class、talent
+
+    # コンボボックスの取得
+    def get_combo(self):
+        pass
+
 
     # ボタン押下後処理
     def submit(self):
@@ -352,6 +390,8 @@ class Signup(tk.Tk):
     # 入力文字数制限
     def character_limit(self,entry_text, num):
         if len(str(entry_text.get())) > 0:
+            if int(entry_text.get()) <= 0:
+                entry_text.set(1)
             entry_text.set(str(entry_text.get())[:num])
             # total_sense集計
             self.ge.total_sense.set(str(self.ge.s_HP.get()+self.ge.s_MP.get()+self.ge.s_sta.get()

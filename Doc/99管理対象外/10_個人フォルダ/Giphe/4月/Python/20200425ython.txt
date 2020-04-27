@@ -1,0 +1,182 @@
+Python作業メモ
+
+■課題
+・詳細設計PG
+①座標→画像表示
+②マップ表示（以下参照「選択座標」のグリッドと「集計座標」(x, y)形式
+③ステータス表示（集計座標と同様）
+※②，③はゆくゆくはDBから取得することを考慮
+DB設計「キャラクタマスタ」張り替え
+・ドキュメントルートの問題
+→Displayをワークスペースに変更することで解決
+→今後オートローダ機能のように動的にインポート（importにファイル名の身を指定）できるよう
+にする必要がある。
+
+↓参照（動的なモジュール取得ルート)	
+import importlib
+
+m = importlib.import_module('foo.some') # -> 'module'
+m.__name__ # -> 'foo.some'
+
+n = importlib.import_module('bar.some') # -> 'module'
+n.__name__ # -> 'bar.some'
+
+・main.pyでimport_moduleを用いる→ダイナミックインポートが可能
+
+
+■スケジュール
+・ユーザインターフェースを取り急ぎ
+・tortoiseGit実装予定
+・pygame.vector
+・imoportエラーの対処
+
+■pygame解析
+１．sprite→オブジェクト。Add, update(フック),killなど追加、除外、更新が可能
+２．pygame.sprite.spritecollide
+　→接触判定。接触しているものの一覧を返す。マッチング処理を実装可能。
+３．pygame.sprite.collide_rect
+　→rect属性を使って当たり判定を行う、比率変換したうえで当たり判定を調べる→collide_rect_ratio
+　→radius属性の場合はrectでなくcircleで当たり判定を行うことが可能
+　→mask属性の場合はmaskを使う。bitmaskが重なっているかどうかを判定する（グリッドの場合こちらの方がいいかも）
+　→group属性の判定はgroupcollide
+４．pygame.sprite.groupcollide
+　→２つのgroup間で接触しているすべてのSpriteを探す
+５．SpriteSheetクラスを作成→get_imageを定義し、1枚の画像からイラストを切り取る
+６．ニューゲーム時はall_spritesとplatformsを初期化
+　self.all_sprites = pg.sprite.Group()
+　self.platforms = pg.sprite.Group()
+７．settings.pyにSPRITESHEET、PLATFORMのパスを格納
+８．xmlファイルでspritesheetの含有範囲を格納(<Subtexture name, x, y, height, width>
+９．Surfaceでイメージの枠を作成image = pg.Surface((width, height))　#引数にタプル
+１０．image.blitで切り取った画像を張り付ける
+　→image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+１１．LayeredUpdates（pygame.spriteのライブラリ）
+→レイヤーを制御し、OrderedUpdatesのように画像描写処理を行うLayeredUpdates
+１２．キーボードのボタンを押して離すと、イベントキューにpygame.KEYDOWNイベントとpygame.KEYUPイベントが取得される
+→キューは入れた順に取得される（押す→離すの場合、同様にKEYUP→KEYDOWNの順で取得される。）
+→event.typeをKEYUP、KEYDOWNで判別すると同時押しなどのイベントを実装可能
+１３．pg.display.flip()→display Surface全体を更新して画面に描写する
+１４．pygame.display→ウィンドウ画面やスクリーンの制御を行うpygameモジュール
+１５．wait_for_keyが曲者っぽい。
+１６．Pygameでは、いかなる状況でも一つのdisplayしかアクティブ状態にすることができません
+１７．pygame.display.set_mode 命令で新しいdisplayを作成すると、これまで使用していたdisplayは終了して閉じられます。
+１８．batch作成
+１９．上下押下で選択＆Enterキー押下でデータが選べるようになる
+２０．ブログで広告収入？とりあえず進捗報告を毎日あげていこうと思う。
+２１.//→商を返す 22 // 8 = 2
+２２．文字列 * 5.0→エラーstr * floatは無理
+２３．シーケンス→データが並んだデータ型のこと、文字列やリスト、タプルなど
+２４．変数に初めて値が入ること→初期化、上書きは上書き
+２５．無限ループに入ったら→ctrl + C
+２６．TrueやFalseとみなされる値がある。→0,0.0,''など。
+２７．for i int range(5):→iが0から4まで、range(12, 16)なども可能。range(0, 10, 2)→0から2ずつ8まで。
+２８．import random, sys, os, math　インポート→ただし、sys.random.などの接頭辞を付ける必要あり
+２９．from * import tk→モジュール名を省略可能。ただ、読みづらいので普通のimportを使った方が良い
+３０.partner_id, is_retire, 拠点_id
+３１．変数名を文字列として取得するlocals→ローカル変数の一覧を返す
+３２．ランダム生成→setでテキストに出力→insertでlocal変数（変数名）で動的に処理。getで変数を取得
+３３．コンボボックスのランダム生成→DBからkey,valueを取得→タプル格納→タプルの参照渡しでランダム選択
+３４.
+
+gene_idの生成→独自で可能
+race_idの生成
+
+必要な処理
+・徴兵
+・結婚
+・拠点変更
+・マッチング
+・勝敗
+・パーティ
+・アイテム購入
+・日付経過処理（HP回復）
+・アイテム購入
+・座標変更（マッチング前処理）
+・
+
+
+■ショートカット
+
+■機能概要
+・マッチング取り込み前にマッチングを確定させる処理を追加
+
+■■■■■
+■■■■■
+■■〇■■
+■■■■■
+■■■■■
+
+縦横３マスに存在するキャラクタがマッチング対象となる
+丸のマスを【集計座標】と命名。
+集計座標を中心とする縦横５マス集計エリアを【選択座標】と命名。
+
+１２３
+４０５
+６７８
+
+〇は(x,y)座標でDB登録マッチング対象のピックアップは丸の座標で行う。
+同じ座標にオブジェクトが存在しないようにするため〇と１－８の番号は主キーとする。
+
+９マスに属するオブジェクト最大９ブロックでマッチングを行う
+→乱数マスタでマッチング対象から除外される
+
+★ブレイクで保持するキー項目
+処理対象日-陣営id-パーティid-カルマ値
+
+キャラクタマスタから全件取得して集計座標で回す。
+
+パーティは全員がリーダーと同じ集計座標に存在すること。
+
+
+■フォルダ構成
+resource
+┗Display
+　┗Image
+　　┗・・・
+　　┗・・・
+　┗Sound
+┗Server
+　┗Dao
+　┗Dto
+　┗Facade
+┗Batch
+　┗・・・
+　┗frtproot # ファイルI/O
+　┗send
+　┗recv
+┗Common
+　┗BaseBatch
+　┗Validator
+　┗Const
+┗LogTrace # 一括ログ管理
+　┗DisplayLog
+　┗BatchLog
+
+→ディレクトリを当てている分処理が遅くなっていしまうことを危惧している。
+
+■課題
+Login.pyの課題
+
+
+main.pyの課題
+未起票の乱数生成コメントあり
+
+■メモ
+・優先順位はLEVELUP、BATTLE、
+・create characterはsignupで可能。sub_characterの取得はテイム、ガチャなど。
+・ガチャとは別にcreate characterが可能。ランダム生成、アイテムを所持している場合は使用して作成が可能。
+・spriteに要素を追加する（ステータス）
+・LEVELUPはgenes,charactersを結合バッチ
+・コンボボックスの項目→汎用マスタから名称、コード取得？
+・geneコンボ→遺伝子マスタ
+・raceコンボ→種族マスタ
+
+■進捗
+→ステータス入力→traceでコールバックの処理をsignupに移植
+→wordpress更新
+→乱数生成イメージ
+
+
+■次回
+→
+

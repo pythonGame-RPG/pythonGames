@@ -51,6 +51,13 @@ BGCOLOR = LIGHTBLUE
 # sqlデータベース
 MST_USERS = "users"
 MST_CHARACTERS = "characters"
+MST_DANGEON_CHARACTERS = "dangeon_characters"
+MST_GENES = "genes"
+MST_RACES = "races"
+MST_CLASSES = "classes"
+MST_TALENTS = "talents"
+MST_PERSONALITIES = "personalities"
+MST_DANGEONS = "dangeons"
 
 # エラーコード
 ERR_MESSAGE1 = "{}は半角英数字で入力してください。"

@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class Character:
     def __init__(self):
         self.name = tk.StringVar()
@@ -7,17 +8,17 @@ class Character:
         self.gene_id = tk.IntVar()
         self.race_id = tk.IntVar()      
         self.location_id = tk.IntVar()
-        self.age = tk.StringVar()
+        self.age = tk.IntVar()
         self.birth = tk.StringVar()
         self.birthplace = tk.StringVar()
         self.title = tk.StringVar()
         self.class1 = tk.StringVar()
         self.class2 = tk.StringVar()
         self.class3 = tk.StringVar()
-        self.ep = None
+        self.ep = tk.IntVar()
         self.level = tk.IntVar()
         self.guild_rank = tk.StringVar()
-        self.state = tk.IntVar()
+        self.state = tk.IntVar()  # 編集なし
         self.charisma = tk.IntVar()
         self.karma = tk.IntVar()
         self.fortune = tk.IntVar()
@@ -50,16 +51,13 @@ class Character:
         self.upd_id = None
 
         
-        """
-        self.HP.trace("w", lambda *args: self.character_limit(self.HP, 3))
-        self.MP.trace("w", lambda *args: self.character_limit(self.MP, 3))
-        self.sta.trace("w", lambda *args: self.character_limit(self.sta, 3))
-        self.atk.trace("w", lambda *args: self.character_limit(self.atk, 3))
-        self.bit.trace("w", lambda *args: self.character_limit(self.bit, 3))
-        self.mag.trace("w", lambda *args: self.character_limit(self.mag, 3))
-        self.des.trace("w", lambda *args: self.character_limit(self.des, 3))
-        self.agi.trace("w", lambda *args: self.character_limit(self.agi, 3))
-        """
+    def init(self):
+        
+        self.level = tk.IntVar()
+        self.charisma = tk.IntVar()
+        self.karma = tk.IntVar()
+        self.fortune = tk.IntVar()
+        self.intelligence = tk.IntVar()
         
 
     # def get_name
