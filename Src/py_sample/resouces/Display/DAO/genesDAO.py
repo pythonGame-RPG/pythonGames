@@ -3,25 +3,29 @@ from DbAccess import *
 from DTO.genes import *
 from settings import *
 
-class GeneDAO:
+class GeneDAO():
     def __init__(self):
-        self.gene_name = [""]  
+        self.gene_name = [""] 
+        self.gene_list = {}
+        self.gene_cbo = []
     
     def execute(self, sql):
         return dbaccess().exe_sql(sql)
 
     # select文を作成
-    def select_gene(self, where = None):
-        return dbaccess().SELECT_All(MST_GENES)
+    def select_gene(self):
+        _comb = ('gene_id', 'g_rank', 'gene_name')
+        return dbaccess().SELECT_Column(MST_GENES,'gene_id', 'gene_name', 'g_rank')
     
     # gene_nameをセット
     def set_gene(self):
         genes = self.select_gene()
-        for key, val in genes.items():
-            data = {'gene_id':genes.gene_id, 'gene_name':genes.gene_name, 'gene_rank':genes.gene_rank}
-            self.gene_name.append(data)
+        for gene in genes:
+            # コンボボックスのリストに追加
+            self.gene_list[gene['gene_id']] = gene['g_rank'] + ':' + gene['gene_name']
+            # self.gene_cbo.append(gene['gene_name'])
 
-        # geneデータ取得
-        return self.gene_name
+        # geneデータ
+        return self.gene_list
 
     # def select

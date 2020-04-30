@@ -8,6 +8,8 @@ import DTO.races as races
 import DAO.charactersDAO as _chara
 import DAO.genesDAO as _genes
 import DAO.racesDAO as _races
+import DAO.classesDAO as _classes
+import DAO.talentsDAO as _talents
 import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
@@ -110,7 +112,7 @@ class Signup(tk.Tk):
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
         self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.ch.race_id,width=10)
-        self.cbo3['values']=self.ge.set_race_name()
+        self.cbo3['values']=self.ra_dao.set_race()
         self.cbo3.set("")
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
         
@@ -137,12 +139,13 @@ class Signup(tk.Tk):
 
         # ステータスフレーム
         fm_status = tk.Frame(pw_left, bd=2, relief="ridge")
+
         pw_left.add(fm_status)
         # group2_label
         self.lbl0 = tk.Label(fm_status,text = 'ステータス')
         self.lbl0.grid(row=0, column=0,columnspan=6, padx=5, pady=2)
-        # RANK
-        self.lbl5 = tk.Label(fm_status,text = 'G_rank')
+        # GUILD
+        self.lbl5 = tk.Label(fm_status,text = 'GUILD')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
         self.cbo2 = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
         self.cbo2['values']=('G', 'F', 'E', 'D', 'C', 'B', 'A', 'S')

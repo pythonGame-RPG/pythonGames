@@ -77,8 +77,8 @@ class dbaccess:
         self.cur.execute(sql)
 
         return self.cur.fetchall()
-        
-    """
+
+    # カラム指定    
     def SELECT_Column(self, table_name, *input_column_name):
         for i in range(len(input_column_name)):
             if i == 0:
@@ -89,7 +89,6 @@ class dbaccess:
         self.cur.execute(sql)
 
         return self.cur.fetchall()
-    """
 
     # デストラクタ
     def __del__(self):
