@@ -2,7 +2,7 @@ import tkinter as tk
 from DbAccess import *
 from settings import *
 
-class talent:
+class Talent:
     def __init__(self):
         self.race_name = tk.StringVar()
         self.p_HP = tk.IntVar()

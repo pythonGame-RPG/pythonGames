@@ -5,11 +5,16 @@ import random
 import DTO.characters as chara
 import DTO.genes as genes
 import DTO.races as races
+import DTO.classes as classes
+import DTO.talents as talents
+import DTO.locations as locations
+# from DAO import * いつかはこっちのほうがいいかも
 import DAO.charactersDAO as _chara
 import DAO.genesDAO as _genes
 import DAO.racesDAO as _races
 import DAO.classesDAO as _classes
 import DAO.talentsDAO as _talents
+import DAO.locationsDAO as _locations
 import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
@@ -30,9 +35,15 @@ class Signup(tk.Tk):
         self.ch = chara.Character()
         self.ge = genes.Gene()
         self.ra = races.Race()
+        self.cl = classes.Class()
+        self.ta = talents.Talent()
+        self.lo = locations.Location()
         self.ch_dao = _chara.CharacterDAO()
         self.ge_dao = _genes.GeneDAO()
         self.ra_dao = _races.RaceDAO()
+        self.cl_dao = _classes.ClassDAO()
+        self.ta_dao = _talents.TalentDAO()
+        self.lo_dao = _locations.LocationDAO()
 
         # chara桁数制限
         self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
@@ -93,8 +104,8 @@ class Signup(tk.Tk):
         # location
         self.lblo = tk.Label(fm_left_1,text = 'location')
         self.lblo.grid(row=4, column=2, padx=5, pady=2)
-        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.ch.location_id,width=18)
-        # self.cboo['values']=self.lo.set_location_name()
+        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.lo.location_id,width=18)
+        self.cboo['values']=self.lo_dao.set_location()
         self.cboo.set("")
         self.cboo.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
 
@@ -247,39 +258,41 @@ class Signup(tk.Tk):
         self.lbl_s = tk.Label(fm_specify,text = '特技')
         self.lbl_s.grid(row=0, column=0,columnspan=4, padx=5, pady=2)
         # Class1
-        self.lbl13 = tk.Label(fm_specify,text = 'class')
+        self.lbl13 = tk.Label(fm_specify,text = 'class' )
         self.lbl13.grid(row=1, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.class1 ,width=12)
-        self.cbo2['values']=('無職', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("無職")
-        self.cbo2.grid(row=1, column=1, padx=5, pady=2)
+        self.cbo13 = ttk.Combobox(fm_specify, textvariable=self.ch.class1 ,width=12)
+        class_list=self.cl_dao.set_class()
+        self.cbo13['values']=class_list
+        self.cbo13.set(class_list[1])
+        self.cbo13.grid(row=1, column=1, padx=5, pady=2)
         # Class2
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.class2 ,width=12)
-        self.cbo2['values']=('ナイト', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("")
-        self.cbo2.grid(row=1, column=2, padx=5, pady=2)
+        self.cbo14 = ttk.Combobox(fm_specify, textvariable=self.ch.class2 ,width=12)
+        self.cbo14['values']=self.cl_dao.set_class()
+        self.cbo14.set("")
+        self.cbo14.grid(row=1, column=2, padx=5, pady=2)
         # Class3
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.class3 ,width=12)
-        self.cbo2['values']=('ナイト', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("")
-        self.cbo2.grid(row=1, column=3, padx=5, pady=2)
+        self.cbo15 = ttk.Combobox(fm_specify, textvariable=self.ch.class3 ,width=12)
+        self.cbo15['values']=self.cl_dao.set_class()
+        self.cbo15.set("")
+        self.cbo15.grid(row=1, column=3, padx=5, pady=2)
         # talent1
         self.lbl16 = tk.Label(fm_specify,text = 'talent')
         self.lbl16.grid(row=2, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.talent1 ,width=12)
-        self.cbo2['values']=('なし', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("なし")
-        self.cbo2.grid(row=2, column=1, padx=5, pady=2)
+        self.cbo16 = ttk.Combobox(fm_specify, textvariable=self.ch.talent1 ,width=12)
+        talent_list=self.ta_dao.set_talent()
+        self.cbo16['values']=talent_list
+        self.cbo16.set(talent_list[1])
+        self.cbo16.grid(row=2, column=1, padx=5, pady=2)
         # talent2
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.talent2 ,width=12)
-        self.cbo2['values']=('なし', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("")
-        self.cbo2.grid(row=2, column=2, padx=5, pady=2)
+        self.cbo17 = ttk.Combobox(fm_specify, textvariable=self.ch.talent2 ,width=12)
+        self.cbo17['values']=self.ta_dao.set_talent()
+        self.cbo17.set("")
+        self.cbo17.grid(row=2, column=2, padx=5, pady=2)
         # talent3
-        self.cbo2 = ttk.Combobox(fm_specify, textvariable=self.ch.talent3 ,width=12)
-        self.cbo2['values']=('なし', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
-        self.cbo2.set("")
-        self.cbo2.grid(row=2, column=3, padx=5, pady=2)
+        self.cbo18 = ttk.Combobox(fm_specify, textvariable=self.ch.talent3 ,width=12)
+        self.cbo18['values']=self.ta_dao.set_talent()
+        self.cbo18.set("")
+        self.cbo18.grid(row=2, column=3, padx=5, pady=2)
 
         # 特殊フレーム
         fm_flg = tk.Frame(pw_left, bd=2, relief="ridge")

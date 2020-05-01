@@ -58,6 +58,9 @@ MST_CLASSES = "classes"
 MST_TALENTS = "talents"
 MST_PERSONALITIES = "personalities"
 MST_DANGEONS = "dangeons"
+MST_FIELDS = "fields"
+MST_LOCATIONS = "locations"
+MST_SPOTS = "spots"
 
 # エラーコード
 ERR_MESSAGE1 = "{}は半角英数字で入力してください。"
