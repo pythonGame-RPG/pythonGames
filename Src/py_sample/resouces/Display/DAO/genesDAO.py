@@ -7,7 +7,8 @@ class GeneDAO():
     def __init__(self):
         self.gene_name = [""] 
         self.gene_list = {}
-        self.gene_cbo = []
+        self.gene_cbo = [""]
+        self.genes = None
     
     def execute(self, sql):
         return dbaccess().exe_sql(sql)
@@ -15,17 +16,23 @@ class GeneDAO():
     # select文を作成
     def select_gene(self):
         _comb = ('gene_id', 'g_rank', 'gene_name')
-        return dbaccess().SELECT_Column(MST_GENES,'gene_id', 'gene_name', 'g_rank')
+        return dbaccess().SELECT_Column(MST_GENES, '*', ' concat(g_rank, ":", gene_name) as gene_cbo')
     
     # gene_nameをセット
     def set_gene(self):
-        genes = self.select_gene()
-        for gene in genes:
+        self.genes = self.select_gene()
+        for gene in self.genes:
             # コンボボックスのリストに追加
-            self.gene_list[gene['gene_id']] = gene['g_rank'] + ':' + gene['gene_name']
-            # self.gene_cbo.append(gene['gene_name'])
+            # self.gene_list[gene['gene_id']] = gene['g_rank'] + ':' + gene['gene_name']
+            self.gene_cbo.append(gene['gene_cbo'])
+        # self.gene_cbo.append("")
 
         # geneデータ
-        return self.gene_list
+        return self.gene_cbo
+
+    def pickup_gene(self, gene_cbo):
+        s_gene = [gene for gene in self.genes if gene['gene_cbo'] == gene_cbo]
+        return s_gene[0]
+
 
     # def select

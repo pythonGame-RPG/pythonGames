@@ -1,4 +1,5 @@
 import tkinter as tk
+from datetime import *
 from DbAccess import *
 from settings import *
 
@@ -17,15 +18,15 @@ class Gene:
         self.s_agi = tk.IntVar()
         self.total_sense = tk.IntVar()
         self.gene_rank = tk.StringVar()
-        self.ins_date = None
-        self.ins_id = None
-        self.upd_date = None
-        self.upd_id = None
-
-        self.bk_num = 0
-        self.bk_total_sense = 0
+        self.ins_date = datetime.now()
+        self.ins_id = tk.StringVar()
+        self.upd_date = datetime.now()
+        self.upd_id = tk.StringVar()
+        self.variables = locals()
 
     def init(self):
+        self.gene_name.set("")
+        self.is_gene_name.set(0)
         self.personal_code.set(1)
         self.s_HP.set(1)
         self.s_MP.set(1)
@@ -38,6 +39,20 @@ class Gene:
 
     def insert_gene(self):
         dbaccess().insert(self, MST_GENES)
+
+    def set_select_gene(self, s_gene):
+        self.gene_name.set(s_gene['gene_name'])
+        self.is_gene_name.set(s_gene['is_gene_name'])
+        self.personal_code.set(s_gene['personal_code'])
+        self.s_HP.set(s_gene['s_HP'])
+        self.s_MP.set(s_gene['s_MP'])
+        self.s_sta.set(s_gene['s_sta'])
+        self.s_atk.set(s_gene['s_atk'])
+        self.s_bit.set(s_gene['s_bit'])
+        self.s_mag.set(s_gene['s_mag'])
+        self.s_des.set(s_gene['s_def'])
+        self.s_agi.set(s_gene['s_agi'])
+
 
     
 

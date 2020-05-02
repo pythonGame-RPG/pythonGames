@@ -1,4 +1,5 @@
 import tkinter as tk
+from datetime import *
 from DbAccess import *
 from settings import *
 
@@ -15,9 +16,9 @@ class Race:
         self.p_agi = tk.IntVar()
         self.total_sense = tk.IntVar()
         self.race_rank = tk.StringVar()
-        self.ins_date = None
+        self.ins_date = datetime.now()
         self.ins_id = None
-        self.upd_date = None
+        self.upd_date = datetime.now()
         self.upd_id = None
 
         self.bk_num = 0

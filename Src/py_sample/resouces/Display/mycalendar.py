@@ -41,8 +41,9 @@ class mycalendar():
         self.previous_month.bind("<1>",self.change_month)
         self.previous_month.pack(side = "left", padx = 10)
 
-        # yearの出力→コンボボックスに変更
-        self.current_year = tk.Entry(frame_top, font = ("",18), width=4, textvariable=self.year)
+        # yearの出力→コンボボックスに変更?
+        self.current_year = tk.Entry(frame_top, font = ("",18), width=4)
+        self.current_year.delete(tk.END)
         self.current_year.insert(tk.END, self.year)
         self.current_year.pack(side = "left")
         # monthの出力→コンボボックスに変更
@@ -81,7 +82,6 @@ class mycalendar():
           
     def create_calendar(self,year,month):
         "指定した年(year),月(month)のカレンダーウィジェットを作成する"
-    
 
         # ボタンがある場合には削除する（初期化）
         try:

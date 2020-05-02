@@ -6,7 +6,7 @@ from settings import *
 class RaceDAO:
 
     def __init__(self):
-        self.race_name = [""]  
+        self.race_name = []  
         self.race_list = {}
         self.race_cbo = []
 
@@ -34,3 +34,5 @@ class RaceDAO:
 
         # raceデータ取得
         return self.race_list
+
+    

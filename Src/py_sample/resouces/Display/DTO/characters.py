@@ -1,12 +1,13 @@
 import tkinter as tk
+from datetime import *
 
 
 class Character:
     def __init__(self):
         self.name = tk.StringVar()
         self.sex = tk.IntVar()
-        self.gene_id = tk.IntVar()
-        self.race_id = tk.IntVar()      
+        self.gene_id = tk.StringVar()
+        self.race_id = tk.StringVar()      
         self.location_id = tk.IntVar()
         self.age = tk.IntVar()
         self.birth = tk.StringVar()
@@ -45,19 +46,19 @@ class Character:
         self.dangeon_id = tk.IntVar()
         self.master_id = tk.IntVar()
         self.user_id = tk.StringVar()
-        self.ins_date = None
+        self.ins_date = datetime.now()
         self.ins_id = None
-        self.upd_date = None
+        self.upd_date = datetime.now()
         self.upd_id = None
 
         
     def init(self):
         
-        self.level = tk.IntVar()
-        self.charisma = tk.IntVar()
-        self.karma = tk.IntVar()
-        self.fortune = tk.IntVar()
-        self.intelligence = tk.IntVar()
+        self.level.set(1)
+        self.charisma.set(1)
+        self.karma.set(1)
+        self.fortune.set(1)
+        self.intelligence.set(1)
         
 
     # def get_name
