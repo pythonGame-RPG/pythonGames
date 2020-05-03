@@ -38,36 +38,31 @@ class dbaccess:
         sql = self.sql_DBactive + DBname
         self.cur.execute(sql)
 
-    # createはおそらく使わない
-    """
-    def CREATETABLE_City_ID_Name(self, table_name):
-        self.table_name = table_name
-        sql = self.sql_cretable +\
-                self.table_name +\
-                " (ID INT," +\
-                "City CHAR(100)," +\
-                "Country CHAR(100))"
-        self.cur.execute(sql)
-    """
-
-    def INSERT_Column(self, DTO_data, table_name):
-        sql = []
-        key = []
-        value = []
-        sql.append(self.sql_insert)
-        sql.append(table_name)
-        sql.append(" ( ")
+    def INSERT_Column(self, table_name, DTO_data):
+        sql = self.sql_insert
+        key = ''
+        value = ''
+        sql = sql + table_name
+        sql = sql + " ( "
         for (dkey,dval) in DTO_data.items():
-            # keyをセット
-            key.append(dkey)
-            key.append(" , ")
             # valueをセット
-            value.append(dval)
-            value.append(" , ")
-        
+            if len(str(dval)) == 0 and len(key) != 0:
+                value = value + 'null'
+                value = value + " ,"
+            else:
+                value = value + "'{}'".format(str(dval))
+                value = value + " ,"
 
-                
-        self.cur.executemany(sql, DTO_data)
+            # keyをセット
+            key = key + str(dkey)
+            key = key + " ,"
+            
+        sql = sql + key[:-1]
+        sql = sql + ' ) VALUES ('
+        sql = sql + value[:-1]
+        sql = sql + ' ) '
+            
+        self.cur.execute(sql)
         self.db.commit()
 
     # 表示用取得

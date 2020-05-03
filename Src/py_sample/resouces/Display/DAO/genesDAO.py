@@ -5,7 +5,6 @@ from settings import *
 
 class GeneDAO():
     def __init__(self):
-        self.gene_name = [""] 
         self.gene_list = {}
         self.gene_cbo = [""]
         self.genes = None
@@ -15,7 +14,6 @@ class GeneDAO():
 
     # select文を作成
     def select_gene(self):
-        _comb = ('gene_id', 'g_rank', 'gene_name')
         return dbaccess().SELECT_Column(MST_GENES, '*', ' concat(g_rank, ":", gene_name) as gene_cbo')
     
     # gene_nameをセット
@@ -30,9 +28,32 @@ class GeneDAO():
         # geneデータ
         return self.gene_cbo
 
+    # レベル異存なし取得
     def pickup_gene(self, gene_cbo):
         s_gene = [gene for gene in self.genes if gene['gene_cbo'] == gene_cbo]
         return s_gene[0]
 
+    # 一件登録
+    def insert_gene(self, genes):
+        g_list = {}
+        g_list['gene_name'] = genes.gene_name.get()
+        g_list['is_gene_name'] = genes.is_gene_name.get()
+        g_list['personal_code'] = genes.personal_code.get()
+        g_list['s_HP'] = genes.s_HP.get()
+        g_list['s_MP'] = genes.s_MP.get()
+        g_list['s_sta'] = genes.s_sta.get()
+        g_list['s_atk'] = genes.s_atk.get()
+        g_list['s_bit'] = genes.s_bit.get()
+        g_list['s_mag'] = genes.s_mag.get()
+        g_list['s_des'] = genes.s_des.get()
+        g_list['s_agi'] = genes.s_agi.get()
+        g_list['total_sense'] = genes.total_sense.get()
+        g_list['g_rank'] = genes.g_rank.get()
+        g_list['ins_date'] = genes.ins_date
+        g_list['ins_id'] = genes.ins_id.get()
+        g_list['upd_date'] = genes.upd_date
+        g_list['upd_id'] = genes.upd_id.get()
 
-    # def select
+        dbaccess().INSERT_Column(MST_GENES, g_list)
+
+

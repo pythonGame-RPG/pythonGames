@@ -5,10 +5,10 @@ from datetime import *
 class Character:
     def __init__(self):
         self.name = tk.StringVar()
-        self.sex = tk.IntVar()
+        self.sex = tk.StringVar()
         self.gene_id = tk.StringVar()
         self.race_id = tk.StringVar()      
-        self.location_id = tk.IntVar()
+        self.location_id = tk.StringVar()
         self.age = tk.IntVar()
         self.birth = tk.StringVar()
         self.birthplace = tk.StringVar()
@@ -17,13 +17,13 @@ class Character:
         self.class2 = tk.StringVar()
         self.class3 = tk.StringVar()
         self.ep = tk.IntVar()
-        self.level = tk.IntVar()
+        self.level = tk.StringVar()
         self.guild_rank = tk.StringVar()
         self.state = tk.IntVar()  # 編集なし
-        self.charisma = tk.IntVar()
-        self.karma = tk.IntVar()
-        self.fortune = tk.IntVar()
-        self.intelligence = tk.IntVar()
+        self.charisma = tk.StringVar()
+        self.karma = tk.StringVar()
+        self.fortune = tk.StringVar()
+        self.intelligence = tk.StringVar()
         self.HP = tk.IntVar()
         self.MP = tk.IntVar()
         self.sta = tk.IntVar()
@@ -32,9 +32,9 @@ class Character:
         self.mag = tk.IntVar()
         self.des = tk.IntVar()
         self.agi = tk.IntVar()
-        self.talent1 = tk.IntVar()
-        self.talent2 = tk.IntVar()
-        self.talent3 = tk.IntVar()
+        self.talent1 = tk.StringVar()
+        self.talent2 = tk.StringVar()
+        self.talent3 = tk.StringVar()
         self.is_leader = tk.IntVar()
         self.party1 = tk.IntVar()
         self.party2 = tk.IntVar()
@@ -54,6 +54,7 @@ class Character:
         
     def init(self):
         
+        self.sex.set(0)
         self.level.set(1)
         self.charisma.set(1)
         self.karma.set(1)

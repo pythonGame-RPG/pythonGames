@@ -15,6 +15,13 @@ class CharacterDAO:
         sql = "Select * from {}".format(Dbname)
         return sql
     
+    # 一件登録
+    def insert_character(self, characters):
+        g_list = []
+        for dkey, dval in [characters][0].items():
+            g_list.append({dkey, dval.get()})
+        dbaccess().INSERT_Column(MST_characterS, g_list)
+    
 
     def where(self, select, datas, bigger = None, smaller = None):
         where_list = []

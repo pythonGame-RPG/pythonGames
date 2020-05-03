@@ -6,9 +6,9 @@ from settings import *
 class LocationDAO:
 
     def __init__(self):
-        self.place_name = [""]  
         self.location_list = {}
         self.location_cbo = []
+        self.locations = None
 
     def execute(self, sql):
         return dbaccess().exe_sql(sql)
@@ -21,16 +21,21 @@ class LocationDAO:
     
    # select文を作成
     def select_location(self):
-        # _comb = ('location_id', 'p_rank', 'place_name')
-        return dbaccess().SELECT_Column(MST_LOCATIONS,'location_id', 'place_name', 'p_rank')
+        return dbaccess().SELECT_Column(MST_LOCATIONS, '*', ' concat(l_rank, ":", location_name) as location_cbo')
     
     # place_nameをセット
-    def set_location(self):
-        locations = self.select_location()
-        for location in locations:
+    def set_location(self, ):
+        self.location_cbo = []
+        self.locations = self.select_location()
+        for location in self.locations:
             # コンボボックスのリストに追加
-            self.location_list[location['location_id']] = location['p_rank'] + ':' + location['place_name']
-            # self.location_cbo.append(location['place_name'])
+            self.location_cbo.append(location['location_cbo'])
+        # self.location_cbo.append("")
 
-        # locationデータ取得
-        return self.location_list
+        # locationデータ
+        return self.location_cbo
+
+    # TODO:レベル比例で取得可能ランク変動
+    def pickup_location(self, location_cbo):
+        s_location = [location for location in self.locations if location['location_cbo'] == location_cbo]
+        return s_location[0]

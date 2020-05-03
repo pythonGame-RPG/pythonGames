@@ -14,11 +14,13 @@ import DAO.genesDAO as _genes
 import DAO.racesDAO as _races
 import DAO.classesDAO as _classes
 import DAO.talentsDAO as _talents
+import DAO.fieldsDAO as _fields
 import DAO.locationsDAO as _locations
 import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
 from turtle import *
+from datetime import *
 
 # Login classes(GUIで実装)
 class Signup(tk.Tk):
@@ -31,7 +33,12 @@ class Signup(tk.Tk):
         self.title('make character')
         self.chk_dangeonchar = tk.IntVar()
 
+        # 選択したコンボボックスの値を格納
         self.selected_date = tk.StringVar()
+        self.cbo_gene_list = tk.StringVar()
+        self.cbo_race_list = tk.StringVar()
+        self.cbo_location_list = tk.StringVar()
+
         self.ch = chara.Character()
         self.ge = genes.Gene()
         self.ra = races.Race()
@@ -43,7 +50,14 @@ class Signup(tk.Tk):
         self.ra_dao = _races.RaceDAO()
         self.cl_dao = _classes.ClassDAO()
         self.ta_dao = _talents.TalentDAO()
+        self.fi_dao = _fields.FieldDAO()
         self.lo_dao = _locations.LocationDAO()
+
+        # システム日付
+        self.tdatetime = datetime.now()
+
+        # 日付チェック
+        self.selected_date.trace("w", lambda *args: self.date_limit(self.selected_date))
 
         # chara桁数制限
         # self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
@@ -52,7 +66,7 @@ class Signup(tk.Tk):
         self.ch.karma.trace("w", lambda *args: self.character_limit(self.ch.karma, 3))
         self.ch.fortune.trace("w", lambda *args: self.character_limit(self.ch.fortune, 3))
         self.ch.intelligence.trace("w", lambda *args: self.character_limit(self.ch.intelligence, 3))
-        self.ch.gene_id.trace("w", lambda *args: self.select_gene(self.ch.gene_id))
+        self.cbo_gene_list.trace("w", lambda *args: self.select_gene(self.cbo_gene_list))
         # gene桁数制限
         self.ge.s_HP.trace("w", lambda *args: self.character_limit(self.ge.s_HP, 3))
         self.ge.s_MP.trace("w", lambda *args: self.character_limit(self.ge.s_MP, 3))
@@ -63,11 +77,14 @@ class Signup(tk.Tk):
         self.ge.s_des.trace("w", lambda *args: self.character_limit(self.ge.s_des, 3))
         self.ge.s_agi.trace("w", lambda *args: self.character_limit(self.ge.s_agi, 3))
 
+        # 合計
         self.total = tk.IntVar()
         self.ge.total_sense.trace("w", lambda *args: self.character_limit(self.total, 4))
 
-        id = None
-        password = None
+        # リスト取得
+        self.class_list = self.cl_dao.set_class()
+        self.talent_list = self.ta_dao.set_talent()
+
         # ウィンドウを分ける
         pw_main = tk.PanedWindow(self.root, orient='horizontal')
         pw_main.pack(expand=True, fill = tk.BOTH, side="left")
@@ -100,9 +117,9 @@ class Signup(tk.Tk):
         # location
         self.lblo = tk.Label(fm_left_1,text = 'location')
         self.lblo.grid(row=4, column=2, padx=5, pady=2)
-        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.lo.location_id,width=18)
+        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.cbo_location_list,width=18)
         self.cboo['values']=self.lo_dao.set_location()
-        self.cboo.set("")
+        self.cboo.current(0)
         self.cboo.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
 
         # dangeon_chara
@@ -111,13 +128,13 @@ class Signup(tk.Tk):
         # gene
         self.lbl2 = tk.Label(fm_left_1,text = 'gene')
         self.lbl2.grid(row=3, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_left_1, textvariable=self.ch.gene_id,width=10)
+        self.cbo2 = ttk.Combobox(fm_left_1, textvariable=self.cbo_gene_list,width=10)
         self.cbo2['values']=self.ge_dao.set_gene()
         self.cbo2.grid(row=3, column=1, padx=5, pady=2)
         # race
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
-        self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.ch.race_id,width=10)
+        self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.cbo_race_list,width=10)
         self.cbo3['values']=self.ra_dao.set_race()
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
         
@@ -131,15 +148,14 @@ class Signup(tk.Tk):
 
         # 日付選択アイコン
         self.i_birth = tk.Button(fm_left_1, text = "日付選択", font = ("",8),command=self.sub_root.openDialog)
-        #self.i_birth.bind("<1>",self.select_birth)
         self.i_birth.grid(row=5, column=4, padx=5, pady=2)
 
         # birthplace
         self.lbl5a = tk.Label(fm_left_1,text = 'birthplace')
         self.lbl5a.grid(row=5, column=0, padx=5, pady=2)
         self.cbo5a = ttk.Combobox(fm_left_1, textvariable=self.ch.birthplace,width=10)
-        self.cbo5a['values']=('Foo', 'Bar', 'Baz')
-        self.cbo5a.set("Foo")
+        self.cbo5a['values']=self.fi_dao.set_field()
+        self.cbo5a.current(0)
         self.cbo5a.grid(row=5, column=1, padx=5, pady=2)
 
         # ステータスフレーム
@@ -153,7 +169,7 @@ class Signup(tk.Tk):
         self.lbl5 = tk.Label(fm_status,text = 'GUILD')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
         self.cbo2 = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
-        self.cbo2['values']=('G', 'F', 'E', 'D', 'C', 'B', 'A', 'S')
+        self.cbo2['values']=('G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS')
         self.cbo2.set("G")
         self.cbo2.grid(row=1, column=1, padx=5, pady=2)
         # LEVEL
@@ -255,37 +271,37 @@ class Signup(tk.Tk):
         self.lbl13 = tk.Label(fm_specify,text = 'class' )
         self.lbl13.grid(row=1, column=0, padx=5, pady=2)
         self.cbo13 = ttk.Combobox(fm_specify, textvariable=self.ch.class1 ,width=12)
-        class_list=self.cl_dao.set_class()
-        self.cbo13['values']=class_list
-        self.cbo13.set(class_list[1])
+        self.cbo13['values']=self.class_list
+        try:
+            self.cbo13.current(0)
+        except:
+            pass
         self.cbo13.grid(row=1, column=1, padx=5, pady=2)
         # Class2
         self.cbo14 = ttk.Combobox(fm_specify, textvariable=self.ch.class2 ,width=12)
-        self.cbo14['values']=self.cl_dao.set_class()
-        self.cbo14.set("")
+        self.cbo14['values']=self.class_list
         self.cbo14.grid(row=1, column=2, padx=5, pady=2)
         # Class3
         self.cbo15 = ttk.Combobox(fm_specify, textvariable=self.ch.class3 ,width=12)
-        self.cbo15['values']=self.cl_dao.set_class()
-        self.cbo15.set("")
+        self.cbo15['values']=self.class_list
         self.cbo15.grid(row=1, column=3, padx=5, pady=2)
         # talent1
         self.lbl16 = tk.Label(fm_specify,text = 'talent')
         self.lbl16.grid(row=2, column=0, padx=5, pady=2)
         self.cbo16 = ttk.Combobox(fm_specify, textvariable=self.ch.talent1 ,width=12)
-        talent_list=self.ta_dao.set_talent()
-        self.cbo16['values']=talent_list
-        self.cbo16.set(talent_list[1])
+        self.cbo16['values']=self.talent_list
+        try:
+            self.cbo16.current(0)
+        except:
+            pass
         self.cbo16.grid(row=2, column=1, padx=5, pady=2)
         # talent2
         self.cbo17 = ttk.Combobox(fm_specify, textvariable=self.ch.talent2 ,width=12)
-        self.cbo17['values']=self.ta_dao.set_talent()
-        self.cbo17.set("")
+        self.cbo17['values']=self.talent_list
         self.cbo17.grid(row=2, column=2, padx=5, pady=2)
         # talent3
         self.cbo18 = ttk.Combobox(fm_specify, textvariable=self.ch.talent3 ,width=12)
-        self.cbo18['values']=self.ta_dao.set_talent()
-        self.cbo18.set("")
+        self.cbo18['values']=self.talent_list
         self.cbo18.grid(row=2, column=3, padx=5, pady=2)
 
         # 特殊フレーム
@@ -312,11 +328,16 @@ class Signup(tk.Tk):
         self.ge.init()
 
         # ランダムボタン
-        self.btn = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
-        self.btn.grid(row=7, column=0, columnspan=2, padx=5, pady=2)
+        self.btn1 = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
+        self.btn1.grid(row=7, column=0, padx=5, pady=2)
+
         # 登録ボタン
-        self.btn = tk.Button(fm_flg, text='登録', command=self.submit)
-        self.btn.grid(row=7, column=2, columnspan=2, padx=5, pady=2)
+        self.btn2 = tk.Button(fm_flg, text='登録', command=self.submit)
+        self.btn2.grid(row=7, column=1, padx=5, pady=2)
+
+        # 連続登録ボタン
+        self.btn3 = tk.Button(fm_flg, text='連続登録', command=self.continuous_submit)
+        self.btn3.grid(row=7, column=2, padx=5, pady=2)
 
         self.running = True
         self.user_id = None
@@ -343,11 +364,7 @@ class Signup(tk.Tk):
             # ステータス設定→
             if key in 's_' or key in 'level':
                 val.set(self.rand_three())
-            
-
-
-        
-    
+             
     def rand_three(self):
         num = random.randint(1,100)
         return num
@@ -366,14 +383,30 @@ class Signup(tk.Tk):
     def get_combo(self):
         pass
 
-
     # ボタン押下後処理
     def submit(self):
-        self.user_id = self.ent1.get()
-        self.passwd = self.ent2.get()
-        self.data = {'user_id':self.user_id, 'password':self.passwd}
-        # validateを実行
-        self.error = self.valid(self.data)
+        # gene登録
+        if len(self.ch.gene_id.get()) > 0:
+            pass
+        else:
+            self.ge_dao.insert_gene(self.ge)
+        
+        # 年齢設定
+        d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
+        b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
+        d_birth = date(b_birth.year, b_birth.month, b_birth.day)
+        self.age = (d_today - d_birth).years
+        
+        # character実ステータス設定
+        self.ch.HP.set(int(self.ge.s_HP.get()) * int(self.ch.level.get()) + int(self.ra.p_HP.get()))
+        self.ch.MP.set(int(self.ge.s_MP.get()) * int(self.ch.level.get()) + int(self.ra.p_MP.get()))
+        self.ch.sta.set(int(self.ge.s_sta.get()) * int(self.ch.level.get()) + int(self.ra.p_sta.get()))
+        self.ch.atk.set(int(self.ge.s_atk.get()) * int(self.ch.level.get()) + int(self.ra.p_atk.get()))
+        self.ch.bit.set(int(self.ge.s_bit.get()) * int(self.ch.level.get()) + int(self.ra.p_bit.get()))
+        self.ch.mag.set(int(self.ge.s_mag.get()) * int(self.ch.level.get()) + int(self.ra.p_mag.get()))
+        self.ch.des.set(int(self.ge.s_des.get()) * int(self.ch.level.get()) + int(self.ra.p_des.get()))
+        self.ch.agi.set(int(self.ge.s_agi.get()) * int(self.ch.level.get()) + int(self.ra.p_agi.get()))
+
         # エラーの場合エラー文を返す
         if(len(self.error['digit']) > 0 | len(self.error['length']) > 0):
             ++self.v_err
@@ -401,6 +434,21 @@ class Signup(tk.Tk):
         if(self.v_err >= MAX_ERR):
             return
 
+    def continuous_submit(self):
+        pass
+
+    # birthdayチェック
+    def date_limit(self, entry_text):
+        
+        tstr = self.tdatetime.strftime('%Y/%m/%d')
+        # 未来日の場合、システム日付を設定
+        if str(entry_text.get()) > str(tstr):
+            self.ent4.delete(0, tk.END)
+            self.ent4.insert(0, str(tstr))
+            self.selected_date.set(str(tstr))
+        self.ch.birth.set(self.selected_date.get())
+        
+
     # geneが選択された場合
     def select_gene(self, select_gene):
         # 対象をロック、空の場合は解除
@@ -416,10 +464,13 @@ class Signup(tk.Tk):
             self.entgn.configure(state = 'readonly')
             self.chkgn.configure(state = 'disable')
             # 選択したgeneを取得
-            s_gene = self.ge_dao.pickup_gene(self.ch.gene_id.get())
+            s_gene = self.ge_dao.pickup_gene(self.cbo_gene_list.get())
 
             # 対象に選択したgeneの値を反映
             self.ge.set_select_gene(s_gene)
+
+            # gene_idを設定
+            self.ch.gene_id = s_gene['gene_id']
         else:
             self.ge.init()
             self.ent7.configure(state = 'normal')
@@ -432,81 +483,89 @@ class Signup(tk.Tk):
             self.ent14.configure(state = 'normal')
             self.entgn.configure(state = 'normal')
             self.chkgn.configure(state = 'active')
+    
+    # raceが選択された場合
+    def select_race(self, select_race):
+        # 選択したraceを取得
+        s_race = self.ge_dao.pickup_race(self.cbo_race_list.get())
 
+        # 対象に選択したraceの値を反映
+        self.ge.set_select_race(s_race)
+
+        # race_idを設定
+        self.ch.race_id = s_race['race_id']
+    
+    # locationが選択された場合
+    def select_location(self, select_location):
+        # 選択したlocationを取得
+        s_location = self.ge_dao.pickup_location(self.cbo_location_list.get())
+
+        # 対象に選択したlocationの値を反映
+        self.ge.set_select_location(s_location)
+
+        # location_idを設定
+        self.ch.location_id = s_location['location_id']
 
     # 入力文字数制限
     def character_limit(self,entry_text, num):
         if len(str(entry_text.get())) > 0:
-            # 0が入力されたら1に
-            if int(entry_text.get()) <= 0:
+            # 不適切な値の場合は1に設定
+            if not str(entry_text.get()).isdecimal():
+                entry_text.set(1)
+            if int(str(entry_text.get())) <= 0:
                 entry_text.set(1)
             # 100より大きい数字が入力されたら100に
-            elif int(entry_text.get()) > 100:
+            elif int(str(entry_text.get())) > 100:
                 entry_text.set(100)
             entry_text.set(str(entry_text.get())[:num])
-            # total_sense集計
-            self.ge.total_sense.set(str(self.ge.s_HP.get()+self.ge.s_MP.get()+self.ge.s_sta.get()
-            +self.ge.s_atk.get()+self.ge.s_bit.get()+self.ge.s_mag.get()+self.ge.s_des.get()+self.ge.s_agi.get()))
-            # total集計
-            self.total.set(str(self.ge.total_sense.get()+self.ch.charisma.get()
-            +self.ch.karma.get()+self.ch.fortune.get()+self.ch.intelligence.get()))
+            try:
+                # total_sense集計
+                self.ge.total_sense.set(str(int(self.ge.s_HP.get())+int(self.ge.s_MP.get())
+                +int(self.ge.s_sta.get())+int(self.ge.s_atk.get())+int(self.ge.s_bit.get())
+                +int(self.ge.s_mag.get())+int(self.ge.s_des.get())+int(self.ge.s_agi.get())))
+                # total集計
+                self.total.set(str(int(self.ge.total_sense.get())+int(self.ch.charisma.get())
+                +int(self.ch.karma.get())+int(self.ch.fortune.get())+int(self.ch.intelligence.get())))
+            except:
+                pass
     
     # レベル制限導入
     def level_limit(self,entry_text, num):
         if len(str(entry_text.get())) > 0:
-            # 0が入力されたら1に
-            if int(entry_text.get()) <= 0:
+            # 不適切な値の場合は1に設定
+            if not str(entry_text.get()).isdecimal():
+                entry_text.set(1)
+            if int(str(entry_text.get())) <= 0:
                 entry_text.set(1)
             # クラス、タレント選択制限
-            if int(entry_text.get()) < 60:
+            if int(str(entry_text.get())) < 60:
                 self.cbo15.set("")
                 self.cbo15.configure(state = "disabled")
-            if int(entry_text.get()) < 50:
+            if int(str(entry_text.get())) < 50:
                 self.cbo18.set("")
                 self.cbo18.configure(state = "disabled")
-            if int(entry_text.get()) < 30:
+            if int(str(entry_text.get())) < 30:
                 self.cbo14.set("")
                 self.cbo14.configure(state = "disabled")
-            if int(entry_text.get()) < 20:
+            if int(str(entry_text.get())) < 20:
                 self.cbo17.set("")
                 self.cbo17.configure(state = "disabled")
-            if int(entry_text.get()) >= 60:
+            if int(str(entry_text.get())) >= 60:
+                self.cbo15.current(0)
                 self.cbo15.configure(state = "normal")
-            if int(entry_text.get()) >= 50:
+            if int(str(entry_text.get())) >= 50:
+                self.cbo18.current(0)
                 self.cbo18.configure(state = "normal")
-            if int(entry_text.get()) >= 30:
+            if int(str(entry_text.get())) >= 30:
+                self.cbo14.current(0)
                 self.cbo14.configure(state = "normal")
-            if int(entry_text.get()) >= 20:
+            if int(str(entry_text.get())) >= 20:
+                self.cbo17.current(0)
                 self.cbo17.configure(state = "normal")
             # 100より大きい数字が入力されたら100に
-            if int(entry_text.get()) > 100:
+            if int(str(entry_text.get())) > 100:
                 entry_text.set(100)
             entry_text.set(str(entry_text.get())[:num])
-        
-# 入力チェック
-    def valid(self, data):
-        v = validate()
-        # 入力値をループ
-        for dkey, dvalue in data.items():
-            # 半角英数字チェック
-            if(v.isdigit(dvalue) == True):
-                self.error['digit'].setdefault(dkey, ERR_MESSAGE1.format(dkey))
-            # 文字数制限チェック
-            if(v.v_length(dvalue, LOGIN_MAXNUM) == False):
-                self.error['length'].setdefault(dkey, ERR_MESSAGE2.format(dkey, LOGIN_MAXNUM))
-        return self.error
-
-    # validate後データ入力された情報をもとにuser情報を取得
-    def select_user(self, data):
-        self.sql = sql_query()
-        sql = self.sql.select(MST_USERS)
-        sql = self.sql.where(sql,data)
-
-        # sqlを実行してデータを取得
-        user_data = self.sql.execute(sql)
-        return user_data
-        
-        # エラーの場合エラー文を返す
 
      
 # import以外から呼び出された場合のみこのファイルを実行
