@@ -43,7 +43,7 @@ class GeneDAO():
         g_list['s_MP'] = genes.s_MP.get()
         g_list['s_sta'] = genes.s_sta.get()
         g_list['s_atk'] = genes.s_atk.get()
-        g_list['s_bit'] = genes.s_bit.get()
+        g_list['s_vit'] = genes.s_vit.get()
         g_list['s_mag'] = genes.s_mag.get()
         g_list['s_des'] = genes.s_des.get()
         g_list['s_agi'] = genes.s_agi.get()

@@ -7,7 +7,7 @@ class RaceDAO:
 
     def __init__(self):
         self.race_list = {}
-        self.race_cbo = [""]
+        self.race_cbo = []
         self.races = None
 
     def execute(self, sql):

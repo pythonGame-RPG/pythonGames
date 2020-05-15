@@ -6,15 +6,15 @@ from settings import *
 class Race:
     def __init__(self):
         self.race_name = tk.StringVar()
-        self.p_HP = tk.IntVar()
-        self.p_MP = tk.IntVar()
-        self.p_sta = tk.IntVar()
-        self.p_atk = tk.IntVar()
-        self.p_bit = tk.IntVar()
-        self.p_mag = tk.IntVar()
-        self.p_des = tk.IntVar()
-        self.p_agi = tk.IntVar()
-        self.total_sense = tk.IntVar()
+        self.p_HP = tk.StringVar()
+        self.p_MP = tk.StringVar()
+        self.p_sta = tk.StringVar()
+        self.p_atk = tk.StringVar()
+        self.p_vit = tk.StringVar()
+        self.p_mag = tk.StringVar()
+        self.p_des = tk.StringVar()
+        self.p_agi = tk.StringVar()
+        self.total_pattern = tk.IntVar()
         self.race_rank = tk.StringVar()
         self.ins_date = datetime.now()
         self.ins_id = None
@@ -25,12 +25,11 @@ class Race:
         self.bk_total_sense = 0
 
     def init(self):
-        self.personal_code.set(1)
         self.p_HP.set(1)
         self.p_MP.set(1)
         self.p_sta.set(1)
         self.p_atk.set(1)
-        self.p_bit.set(1)
+        self.p_vit.set(1)
         self.p_mag.set(1)
         self.p_des.set(1)
         self.p_agi.set(1)
@@ -50,3 +49,15 @@ class Race:
             race_name.append(data)
         
         return race_name
+
+    def set_select_race(self, s_race):
+        self.race_name.set(s_race['race_name'])
+        self.p_HP.set(s_race['p_HP'])
+        self.p_MP.set(s_race['p_MP'])
+        self.p_sta.set(s_race['p_sta'])
+        self.p_atk.set(s_race['p_atk'])
+        self.p_vit.set(s_race['p_vit'])
+        self.p_mag.set(s_race['p_mag'])
+        self.p_des.set(s_race['p_des'])
+        self.p_agi.set(s_race['p_agi'])
+        self.total_pattern.set(s_race['total_pattern'])

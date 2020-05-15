@@ -53,6 +53,27 @@ class Signup(tk.Tk):
         self.fi_dao = _fields.FieldDAO()
         self.lo_dao = _locations.LocationDAO()
 
+        # 表示ラベル編集用
+        self.HP = tk.StringVar()
+        self.MP = tk.StringVar()
+        self.sta = tk.StringVar()
+        self.atk = tk.StringVar()
+        self.vit = tk.StringVar()
+        self.mag = tk.StringVar()
+        self.des = tk.StringVar()
+        self.agi = tk.StringVar()
+        self.s_total = tk.StringVar()
+
+        self.HP_label = {'HP':self.HP}
+        self.MP_label = {'MP':self.MP}
+        self.sta_label = {'sta':self.sta}
+        self.atk_label = {'atk':self.atk}
+        self.vit_label = {'vit':self.vit}
+        self.mag_label = {'mag':self.mag}
+        self.des_label = {'des':self.des}
+        self.agi_label = {'agi':self.agi}
+        self.total_label = {'total':self.s_total}
+
         # システム日付
         self.tdatetime = datetime.now()
 
@@ -62,24 +83,35 @@ class Signup(tk.Tk):
         # chara桁数制限
         # self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
         self.ch.level.trace("w", lambda *args: self.level_limit(self.ch.level, 3))
-        self.ch.charisma.trace("w", lambda *args: self.character_limit(self.ch.charisma, 3))
-        self.ch.karma.trace("w", lambda *args: self.character_limit(self.ch.karma, 3))
-        self.ch.fortune.trace("w", lambda *args: self.character_limit(self.ch.fortune, 3))
-        self.ch.intelligence.trace("w", lambda *args: self.character_limit(self.ch.intelligence, 3))
+        self.ch.charisma.trace("w", lambda *args: self.character_limit(self.ch.charisma, 4))
+        self.ch.karma.trace("w", lambda *args: self.character_limit(self.ch.karma, 4))
+        self.ch.fortune.trace("w", lambda *args: self.character_limit(self.ch.fortune, 4))
+        self.ch.intelligence.trace("w", lambda *args: self.character_limit(self.ch.intelligence, 4))
         self.cbo_gene_list.trace("w", lambda *args: self.select_gene(self.cbo_gene_list))
+        self.cbo_race_list.trace("w", lambda *args: self.select_race(self.cbo_race_list))
         # gene桁数制限
-        self.ge.s_HP.trace("w", lambda *args: self.character_limit(self.ge.s_HP, 3))
-        self.ge.s_MP.trace("w", lambda *args: self.character_limit(self.ge.s_MP, 3))
-        self.ge.s_sta.trace("w", lambda *args: self.character_limit(self.ge.s_sta, 3))
-        self.ge.s_atk.trace("w", lambda *args: self.character_limit(self.ge.s_atk, 3))
-        self.ge.s_bit.trace("w", lambda *args: self.character_limit(self.ge.s_bit, 3))
-        self.ge.s_mag.trace("w", lambda *args: self.character_limit(self.ge.s_mag, 3))
-        self.ge.s_des.trace("w", lambda *args: self.character_limit(self.ge.s_des, 3))
-        self.ge.s_agi.trace("w", lambda *args: self.character_limit(self.ge.s_agi, 3))
+        self.ge.s_HP.trace("w", lambda *args: self.character_limit(self.ge.s_HP, 3, self.ch.HP, self.ra.p_HP))
+        self.ge.s_MP.trace("w", lambda *args: self.character_limit(self.ge.s_MP, 3, self.ch.MP, self.ra.p_MP))
+        self.ge.s_sta.trace("w", lambda *args: self.character_limit(self.ge.s_sta, 3, self.ch.sta, self.ra.p_sta))
+        self.ge.s_atk.trace("w", lambda *args: self.character_limit(self.ge.s_atk, 3, self.ch.atk, self.ra.p_atk))
+        self.ge.s_vit.trace("w", lambda *args: self.character_limit(self.ge.s_vit, 3, self.ch.vit, self.ra.p_vit))
+        self.ge.s_mag.trace("w", lambda *args: self.character_limit(self.ge.s_mag, 3, self.ch.mag, self.ra.p_mag))
+        self.ge.s_des.trace("w", lambda *args: self.character_limit(self.ge.s_des, 3, self.ch.des, self.ra.p_des))
+        self.ge.s_agi.trace("w", lambda *args: self.character_limit(self.ge.s_agi, 3, self.ch.agi, self.ra.p_agi))
+        
+        # characterステータス設定
+        self.ch.HP.trace("w", lambda *args: self.ch_status_set(self.HP_label,self.ch.HP.get()))
+        self.ch.MP.trace("w", lambda *args: self.ch_status_set(self.MP_label,self.ch.MP.get()))
+        self.ch.sta.trace("w", lambda *args: self.ch_status_set(self.sta_label,self.ch.sta.get()))
+        self.ch.atk.trace("w", lambda *args: self.ch_status_set(self.atk_label,self.ch.atk.get()))
+        self.ch.vit.trace("w", lambda *args: self.ch_status_set(self.vit_label,self.ch.vit.get()))
+        self.ch.mag.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.ch.mag.get()))
+        self.ch.des.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ch.des.get()))
+        self.ch.agi.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ch.agi.get()))
+        self.ch.total.trace("w", lambda *args: self.ch_status_set(self.total_label,self.ch.total.get()))
 
         # 合計
-        self.total = tk.IntVar()
-        self.ge.total_sense.trace("w", lambda *args: self.character_limit(self.total, 4))
+        self.ge.total_sense.trace("w", lambda *args: self.character_limit(self.ch.total, 4))
 
         # リスト取得
         self.class_list = self.cl_dao.set_class()
@@ -136,12 +168,13 @@ class Signup(tk.Tk):
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
         self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.cbo_race_list,width=10)
         self.cbo3['values']=self.ra_dao.set_race()
+        self.cbo3.current(0)
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
         
         # birth
         self.lbl4 = tk.Label(fm_left_1,text = 'birth')
         self.lbl4.grid(row=5, column=2, padx=5, pady=2)
-        self.ent4 = tk.Entry(fm_left_1, textvariable=self.selected_date,width=10)
+        self.ent4 = tk.Entry(fm_left_1, textvariable=self.ch.birth,width=10)
         self.ent4.grid(row=5, column=3, padx=5, pady=2)
         # birthをDTOにセット
         # self.ch.birth.set(self.ent4.get())
@@ -175,7 +208,7 @@ class Signup(tk.Tk):
         # LEVEL
         self.lbl6 = tk.Label(fm_status,text = 'level')
         self.lbl6.grid(row=1, column=2, padx=5, pady=2)
-        self.ent6 = tk.Entry(fm_status, textvariable=self.ch.level, width=7)
+        self.ent6 = tk.Entry(fm_status, textvariable=self.ch.level, width=4)
         self.ent6.grid(row=1, column=3, padx=5, pady=2)
         # is_gene_name
         self.chkgn = tk.Checkbutton(fm_status, variable=int, var=self.ge.is_gene_name, text='g_name')
@@ -184,14 +217,14 @@ class Signup(tk.Tk):
         self.entgn = tk.Entry(fm_status, textvariable=self.ge.gene_name, width=7)
         self.entgn.grid(row=1, column=5, padx=5, pady=2)
         # HP
-        self.lbl7 = tk.Label(fm_status,text = 'HP')
+        self.lbl7 = tk.Label(fm_status,textvariable=self.HP,width=9)
         self.lbl7.grid(row=2, column=0, padx=5, pady=2)
-        self.ent7 = tk.Entry(fm_status, textvariable=self.ge.s_HP, width=7)
+        self.ent7 = tk.Entry(fm_status, textvariable=self.ge.s_HP, width=4)
         self.ent7.grid(row=2, column=1, padx=5, pady=2)
         # MP
-        self.lbl8 = tk.Label(fm_status,text = 'MP')
+        self.lbl8 = tk.Label(fm_status,textvariable=self.MP,width=9)
         self.lbl8.grid(row=2, column=2, padx=5, pady=2)
-        self.ent8 = tk.Entry(fm_status, textvariable=self.ge.s_MP, width=7)
+        self.ent8 = tk.Entry(fm_status, textvariable=self.ge.s_MP, width=4)
         self.ent8.grid(row=2, column=3, padx=5, pady=2)
         # charisma
         self.lblcha = tk.Label(fm_status,text = 'charisma')
@@ -199,29 +232,29 @@ class Signup(tk.Tk):
         self.entcha = tk.Entry(fm_status, textvariable=self.ch.charisma, width=7)
         self.entcha.grid(row=2, column=5, padx=5, pady=2)
         # sta
-        self.lbl9 = tk.Label(fm_status,text = 'sta')
+        self.lbl9 = tk.Label(fm_status,textvariable=self.sta,width=9)
         self.lbl9.grid(row=3, column=0, padx=5, pady=2)
-        self.ent9 = tk.Entry(fm_status, textvariable=self.ge.s_sta, width=7)
+        self.ent9 = tk.Entry(fm_status, textvariable=self.ge.s_sta, width=4)
         self.ent9.grid(row=3, column=1, padx=5, pady=2)
         # atk
-        self.lbl10 = tk.Label(fm_status,text = 'atk')
+        self.lbl10 = tk.Label(fm_status,textvariable=self.atk,width=9)
         self.lbl10.grid(row=3, column=2, padx=5, pady=2)
-        self.ent10 = tk.Entry(fm_status, textvariable=self.ge.s_atk, width=7)
+        self.ent10 = tk.Entry(fm_status, textvariable=self.ge.s_atk, width=4)
         self.ent10.grid(row=3, column=3, padx=5, pady=2)
         # karma
         self.lblka = tk.Label(fm_status,text = 'karma')
         self.lblka.grid(row=3, column=4, padx=5, pady=2)
         self.entka = tk.Entry(fm_status, textvariable=self.ch.karma, width=7)
         self.entka.grid(row=3, column=5, padx=5, pady=2)
-        # bit
-        self.lbl11 = tk.Label(fm_status,text = 'bit')
+        # vit
+        self.lbl11 = tk.Label(fm_status,textvariable=self.vit,width=9)
         self.lbl11.grid(row=4, column=0, padx=5, pady=2)
-        self.ent11 = tk.Entry(fm_status, textvariable=self.ge.s_bit, width=7)
+        self.ent11 = tk.Entry(fm_status, textvariable=self.ge.s_vit, width=4)
         self.ent11.grid(row=4, column=1, padx=5, pady=2)
         # mag
-        self.lbl12 = tk.Label(fm_status,text = 'mag')
+        self.lbl12 = tk.Label(fm_status,textvariable=self.mag,width=9)
         self.lbl12.grid(row=4, column=2, padx=5, pady=2)
-        self.ent12 = tk.Entry(fm_status, textvariable=self.ge.s_mag, width=7)
+        self.ent12 = tk.Entry(fm_status, textvariable=self.ge.s_mag, width=4)
         self.ent12.grid(row=4, column=3, padx=5, pady=2)
         # fortune
         self.lblcha = tk.Label(fm_status,text = 'fortune')
@@ -229,14 +262,14 @@ class Signup(tk.Tk):
         self.entcha = tk.Entry(fm_status, textvariable=self.ch.fortune, width=7)
         self.entcha.grid(row=4, column=5, padx=5, pady=2)
         # des
-        self.lbl13 = tk.Label(fm_status,text = 'des')
+        self.lbl13 = tk.Label(fm_status,textvariable=self.des,width=9)
         self.lbl13.grid(row=5, column=0, padx=5, pady=2)
-        self.ent13 = tk.Entry(fm_status, textvariable=self.ge.s_des, width=7)
+        self.ent13 = tk.Entry(fm_status, textvariable=self.ge.s_des, width=4)
         self.ent13.grid(row=5, column=1, padx=5, pady=2)
         # agi
-        self.lbl14 = tk.Label(fm_status,text = 'agi')
+        self.lbl14 = tk.Label(fm_status,textvariable=self.agi,width=9)
         self.lbl14.grid(row=5, column=2, padx=5, pady=2)
-        self.ent14 = tk.Entry(fm_status, textvariable=self.ge.s_agi, width=7)
+        self.ent14 = tk.Entry(fm_status, textvariable=self.ge.s_agi, width=4)
         self.ent14.grid(row=5, column=3, padx=5, pady=2)
         # intelligence
         self.lblcha = tk.Label(fm_status,text = 'intelligence')
@@ -246,13 +279,13 @@ class Signup(tk.Tk):
         # total_sense
         self.lbl15 = tk.Label(fm_status,text = 'total_sense')
         self.lbl15.grid(row=6, column=2, padx=5, pady=2)
-        self.ent15 = tk.Entry(fm_status, textvariable=self.ge.total_sense, width=7)
+        self.ent15 = tk.Entry(fm_status, textvariable=self.ge.total_sense, width=4)
         self.ent15.grid(row=6, column=3, padx=5, pady=2)
         self.ent15.configure(state = 'readonly')
         # total
-        self.lbl16 = tk.Label(fm_status,text = 'total')
+        self.lbl16 = tk.Label(fm_status,textvariable=self.s_total,width=9)
         self.lbl16.grid(row=6, column=4, padx=5, pady=2)
-        self.ent16 = tk.Entry(fm_status, textvariable=self.total,  width=7)
+        self.ent16 = tk.Entry(fm_status, textvariable=self.ch.total,  width=7)
         self.ent16.grid(row=6, column=5, padx=5, pady=2)
         self.ent16.configure(state = 'readonly')
         # intelligence
@@ -323,9 +356,7 @@ class Signup(tk.Tk):
         self.chk16 = tk.Checkbutton(fm_flg, variable=int, var=self.ch.is_retire, text='is_retire')
         self.chk16.grid(row=1, column=3, padx=5, pady=2)
 
-        # テキスト初期化
-        self.ch.init()
-        self.ge.init()
+        
 
         # ランダムボタン
         self.btn1 = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
@@ -338,6 +369,11 @@ class Signup(tk.Tk):
         # 連続登録ボタン
         self.btn3 = tk.Button(fm_flg, text='連続登録', command=self.continuous_submit)
         self.btn3.grid(row=7, column=2, padx=5, pady=2)
+
+        # テキスト初期化
+        self.ge.init()
+        self.ra.init()
+        self.ch.init(self.ge, self.ra)
 
         self.running = True
         self.user_id = None
@@ -357,21 +393,54 @@ class Signup(tk.Tk):
         # self.after(10,self)
 
     def random_generate(self):
-        pass
-        # 最大3桁の数字を生成×12→関数でステータスに設定
-        # genesをループ
-        for key, val in self.gene.items():
-            # ステータス設定→
-            if key in 's_' or key in 'level':
-                val.set(self.rand_three())
-             
-    def rand_three(self):
-        num = random.randint(1,100)
-        return num
+        weight = 8
+        self.ch.birth.set(self.rand_date())
+        self.ge.s_HP.set(self.rand_num(3,weight))
+        self.ge.s_MP.set(self.rand_num(3,weight))
+        self.ge.s_sta.set(self.rand_num(3,weight))
+        self.ge.s_atk.set(self.rand_num(3,weight))
+        self.ge.s_vit.set(self.rand_num(3,weight))
+        self.ge.s_mag.set(self.rand_num(3,weight))
+        self.ge.s_des.set(self.rand_num(3,weight))
+        self.ge.s_agi.set(self.rand_num(3,weight))
+        self.ch.charisma.set(self.rand_num(4,weight))
+        self.ch.karma.set(self.rand_num(4,weight))
+        self.ch.fortune.set(self.rand_num(4,weight))
+        self.ch.intelligence.set(self.rand_num(4,weight))
+        self.ch.set_status_all(self.ge, self.ra)
 
-        # 1～100までの数字生成（level用）→関数でステータスに設定
-        # levelに応じた選択可能範囲の設定関数
-        # 標準偏差関数（かなりきわどいやつ）を設定（標準化のため）
+             
+    def rand_num(self, num, weight):
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # weight=3:強者が出やすくなる
+        a = np.arange(0,weight,0.1)
+        exp_a = np.exp(a)
+        sum_exp_a = np.sum(exp_a)
+        y = exp_a / sum_exp_a
+        rn_int = int(random.choice(y)*10**num)
+        if rn_int > 10**(num-1):
+            rn_int = 10**(num-1)
+        # plt.plot(a,y)
+        # plt.show()
+        # rad_int = random.randint(1,10**(num-1))
+
+        return rn_int
+
+    def rand_date(self):
+        rand_d = None
+        import calendar
+        cal = calendar.Calendar()
+        year = random.randint(1950,date.today().year)
+        month = self.convert_in2_2bytes(str(random.randint(1,12)))
+        # 指定した年月のカレンダーをリストで返す
+        days = cal.itermonthdates(year,month)
+        day = random.choice([date for date in days if date.month == month])
+        day = self.convert_in2_2bytes(str(day.day))
+        rand_d = str(year) + '/' + str(month) + '/' + str(day)
+        return rand_d
+        
         # コンボボックス用マップ作成(id, name)→gene, race, g_rank, birthplace 
         # コンボボックス用マップ作成(id, name)→class, talent（LEVEL制限あり）
         # 日付生成ランダム→これどうやるの？
@@ -395,45 +464,8 @@ class Signup(tk.Tk):
         d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
         b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
         d_birth = date(b_birth.year, b_birth.month, b_birth.day)
-        self.age = (d_today - d_birth).years
+        self.ch.age.set((d_today - d_birth).years)
         
-        # character実ステータス設定
-        self.ch.HP.set(int(self.ge.s_HP.get()) * int(self.ch.level.get()) + int(self.ra.p_HP.get()))
-        self.ch.MP.set(int(self.ge.s_MP.get()) * int(self.ch.level.get()) + int(self.ra.p_MP.get()))
-        self.ch.sta.set(int(self.ge.s_sta.get()) * int(self.ch.level.get()) + int(self.ra.p_sta.get()))
-        self.ch.atk.set(int(self.ge.s_atk.get()) * int(self.ch.level.get()) + int(self.ra.p_atk.get()))
-        self.ch.bit.set(int(self.ge.s_bit.get()) * int(self.ch.level.get()) + int(self.ra.p_bit.get()))
-        self.ch.mag.set(int(self.ge.s_mag.get()) * int(self.ch.level.get()) + int(self.ra.p_mag.get()))
-        self.ch.des.set(int(self.ge.s_des.get()) * int(self.ch.level.get()) + int(self.ra.p_des.get()))
-        self.ch.agi.set(int(self.ge.s_agi.get()) * int(self.ch.level.get()) + int(self.ra.p_agi.get()))
-
-        # エラーの場合エラー文を返す
-        if(len(self.error['digit']) > 0 | len(self.error['length']) > 0):
-            ++self.v_err
-            # TODO:長いのでerrorを項目ごとにブレイクさせる処理に修正
-            for dkey, dvalue in self.error.items():
-                for dkey1, dvalue1 in dvalue.items():
-                    try:
-                        # 複数エラーの場合は改行をかませる
-                        self.error_output[dkey1].join('/r/n' + dvalue1)
-                    except KeyError:
-                        self.error_output[dkey1] = dvalue1
-            self.lbl_er1['text'] = self.error_output['user_id']
-            self.lbl_er2['text'] = self.error_output['password']
-        else:
-            # ユーザ情報を取得
-            self.user_data = self.select_user(self.data)
-
-            # 取得判定
-            if(len(self.user_data) == 0):
-                ++self.v_err
-                self.lbl_er3['text'] = ERR_MESSAGE3
-            else:
-                self.destroy()
-                return self.user_data
-        if(self.v_err >= MAX_ERR):
-            return
-
     def continuous_submit(self):
         pass
 
@@ -473,6 +505,7 @@ class Signup(tk.Tk):
             self.ch.gene_id = s_gene['gene_id']
         else:
             self.ge.init()
+            self.ch.init(self.ge, self.ra)
             self.ent7.configure(state = 'normal')
             self.ent8.configure(state = 'normal')
             self.ent9.configure(state = 'normal')
@@ -487,13 +520,15 @@ class Signup(tk.Tk):
     # raceが選択された場合
     def select_race(self, select_race):
         # 選択したraceを取得
-        s_race = self.ge_dao.pickup_race(self.cbo_race_list.get())
+        s_race = self.ra_dao.pickup_race(self.cbo_race_list.get())
 
         # 対象に選択したraceの値を反映
-        self.ge.set_select_race(s_race)
+        self.ra.set_select_race(s_race)
 
         # race_idを設定
         self.ch.race_id = s_race['race_id']
+        # characterに反映
+        self.ch.set_status(self.ge, self.ra)
     
     # locationが選択された場合
     def select_location(self, select_location):
@@ -501,13 +536,13 @@ class Signup(tk.Tk):
         s_location = self.ge_dao.pickup_location(self.cbo_location_list.get())
 
         # 対象に選択したlocationの値を反映
-        self.ge.set_select_location(s_location)
+        self.lo.set_select_location(s_location)
 
         # location_idを設定
         self.ch.location_id = s_location['location_id']
 
     # 入力文字数制限
-    def character_limit(self,entry_text, num):
+    def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
         if len(str(entry_text.get())) > 0:
             # 不適切な値の場合は1に設定
             if not str(entry_text.get()).isdecimal():
@@ -515,22 +550,25 @@ class Signup(tk.Tk):
             if int(str(entry_text.get())) <= 0:
                 entry_text.set(1)
             # 100より大きい数字が入力されたら100に
-            elif int(str(entry_text.get())) > 100:
-                entry_text.set(100)
+            elif int(str(entry_text.get())) > 10**(num-1):
+                entry_text.set(10**(num-1))
             entry_text.set(str(entry_text.get())[:num])
-            try:
-                # total_sense集計
-                self.ge.total_sense.set(str(int(self.ge.s_HP.get())+int(self.ge.s_MP.get())
-                +int(self.ge.s_sta.get())+int(self.ge.s_atk.get())+int(self.ge.s_bit.get())
-                +int(self.ge.s_mag.get())+int(self.ge.s_des.get())+int(self.ge.s_agi.get())))
-                # total集計
-                self.total.set(str(int(self.ge.total_sense.get())+int(self.ch.charisma.get())
-                +int(self.ch.karma.get())+int(self.ch.fortune.get())+int(self.ch.intelligence.get())))
-            except:
-                pass
+            
+            if ch_text is not None:
+                self.ch.set_status(ch_text,entry_text.get(),ra_text.get())
+                try:
+                    # total_sense集計
+                    self.ge.total_sense.set(str(int(self.ge.s_HP.get())+int(self.ge.s_MP.get())
+                    +int(self.ge.s_sta.get())+int(self.ge.s_atk.get())+int(self.ge.s_vit.get())
+                    +int(self.ge.s_mag.get())+int(self.ge.s_des.get())+int(self.ge.s_agi.get())))
+                    # total集計   
+                    self.ch.calculate_total(self.ge, self.ra)     
+                except:
+                    pass
+        # self.ch.set_status(entry_text.get(), ra_text.get())
     
     # レベル制限導入
-    def level_limit(self,entry_text, num):
+    def level_limit(self,entry_text, num, ch_text=None, ra_text=None):
         if len(str(entry_text.get())) > 0:
             # 不適切な値の場合は1に設定
             if not str(entry_text.get()).isdecimal():
@@ -566,6 +604,19 @@ class Signup(tk.Tk):
             if int(str(entry_text.get())) > 100:
                 entry_text.set(100)
             entry_text.set(str(entry_text.get())[:num])
+        self.ch.set_status_all(self.ge, self.ra)
+
+
+    # ラベル編集
+    def ch_status_set(self,label_text,input_num):
+        for dkey, dval in label_text.items():
+            dval.set(dkey + '（{}）'.format(input_num))
+
+    def convert_in2_2bytes(self,str_number):
+        if len(str_number) == 1:
+            return int('0' + str_number)
+        else:
+            return int(str_number)
 
      
 # import以外から呼び出された場合のみこのファイルを実行
