@@ -181,21 +181,9 @@ main.pyの課題
 
 
 ■進捗
-→乱数生成イメージ→作成中
-illustrator導入メールアドレス
-kaxip83662@coalamails.com
+・gitでadobe系、office手順書をリポジトリから除外（ローカルには保持）
+・終了時、
 
-・確率の設定にソフトマックス関数を実装（↓はグラフ表示用）
-import numpy as np
-import matplotlib.pyplot as plt
-# num：桁数
-a = np.arange(0,8,0.1)
-exp_a = np.exp(a)
-sum_exp_a = np.sum(exp_a)
-y = exp_a / sum_exp_a
-
-plt.plot(a,y)
-plt.show()
 
 
 ■次回

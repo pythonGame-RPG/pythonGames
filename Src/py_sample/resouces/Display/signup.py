@@ -62,6 +62,7 @@ class Signup(tk.Tk):
         self.mag = tk.StringVar()
         self.des = tk.StringVar()
         self.agi = tk.StringVar()
+        self.t_sense = tk.StringVar()
         self.s_total = tk.StringVar()
 
         self.HP_label = {'HP':self.HP}
@@ -72,6 +73,7 @@ class Signup(tk.Tk):
         self.mag_label = {'mag':self.mag}
         self.des_label = {'des':self.des}
         self.agi_label = {'agi':self.agi}
+        self.total_sense_label = {'total_sense':self.t_sense}
         self.total_label = {'total':self.s_total}
 
         # システム日付
@@ -109,6 +111,7 @@ class Signup(tk.Tk):
         self.ch.des.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ch.des.get()))
         self.ch.agi.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ch.agi.get()))
         self.ch.total.trace("w", lambda *args: self.ch_status_set(self.total_label,self.ch.total.get()))
+        self.ge.total_sense.trace("w", lambda *args: self.set_g_rank(self.total_sense_label,self.ge.total_sense.get()))
 
         # 合計
         self.ge.total_sense.trace("w", lambda *args: self.character_limit(self.ch.total, 4))
@@ -277,7 +280,7 @@ class Signup(tk.Tk):
         self.entcha = tk.Entry(fm_status, textvariable=self.ch.intelligence, width=7)
         self.entcha.grid(row=5, column=5, padx=5, pady=2)
         # total_sense
-        self.lbl15 = tk.Label(fm_status,text = 'total_sense')
+        self.lbl15 = tk.Label(fm_status,textvariable=self.t_sense)
         self.lbl15.grid(row=6, column=2, padx=5, pady=2)
         self.ent15 = tk.Entry(fm_status, textvariable=self.ge.total_sense, width=4)
         self.ent15.grid(row=6, column=3, padx=5, pady=2)
@@ -409,6 +412,31 @@ class Signup(tk.Tk):
         self.ch.intelligence.set(self.rand_num(4,weight))
         self.ch.set_status_all(self.ge, self.ra)
 
+        self.set_g_rank()
+
+    def set_g_rank(self,text_label,data):
+
+        if int(data) > 700:
+            self.ge.g_rank.set('SSS')
+        elif int(data)  > 600:
+            self.ge.g_rank.set('SS')
+        elif int(data)  > 500:
+            self.ge.g_rank.set('S')
+        elif int(data)  > 400:
+            self.ge.g_rank.set('A')
+        elif int(data)  > 300:
+            self.ge.g_rank.set('B')
+        elif int(data)  > 200:
+            self.ge.g_rank.set('C')
+        elif int(data)  > 100:
+            self.ge.g_rank.set('D')
+        elif int(data)  > 50:
+            self.ge.g_rank.set('E')
+        else:
+            self.ge.g_rank.set('F')
+
+        self.ch_status_set(text_label,self.ge.g_rank.get())
+
              
     def rand_num(self, num, weight):
         import numpy as np
@@ -422,6 +450,8 @@ class Signup(tk.Tk):
         rn_int = int(random.choice(y)*10**num)
         if rn_int > 10**(num-1):
             rn_int = 10**(num-1)
+        if rn_int == 0:
+            rn_int = random.randint(1,10**(num-2))
         # plt.plot(a,y)
         # plt.show()
         # rad_int = random.randint(1,10**(num-1))
