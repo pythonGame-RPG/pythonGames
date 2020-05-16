@@ -396,7 +396,10 @@ class Signup(tk.Tk):
         # self.after(10,self)
 
     def random_generate(self):
-        weight = 8
+        # weight = 1.5 # 超レアガチャ
+        # weight = 2   # 高レアガチャ
+        # weight = 3   # レアガチャ
+        weight = 8   # ノーマルガチャ
         self.ch.birth.set(self.rand_date())
         self.ge.s_HP.set(self.rand_num(3,weight))
         self.ge.s_MP.set(self.rand_num(3,weight))
@@ -412,7 +415,7 @@ class Signup(tk.Tk):
         self.ch.intelligence.set(self.rand_num(4,weight))
         self.ch.set_status_all(self.ge, self.ra)
 
-        self.set_g_rank()
+        #self.set_g_rank()
 
     def set_g_rank(self,text_label,data):
 
@@ -437,12 +440,16 @@ class Signup(tk.Tk):
 
         self.ch_status_set(text_label,self.ge.g_rank.get())
 
+        # Bランク以上でファーストネームを取得
+        if int(data)  > 300:
+
+
+
              
     def rand_num(self, num, weight):
         import numpy as np
         import matplotlib.pyplot as plt
 
-        # weight=3:強者が出やすくなる
         a = np.arange(0,weight,0.1)
         exp_a = np.exp(a)
         sum_exp_a = np.sum(exp_a)
