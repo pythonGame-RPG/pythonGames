@@ -33,6 +33,7 @@ class dbaccess:
             rows = cursor.fetchall()
         return rows
 
+
     #method
     def DB_activate(self, DBname):
         sql = self.sql_DBactive + DBname

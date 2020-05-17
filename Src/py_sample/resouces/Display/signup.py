@@ -73,7 +73,7 @@ class Signup(tk.Tk):
         self.mag_label = {'mag':self.mag}
         self.des_label = {'des':self.des}
         self.agi_label = {'agi':self.agi}
-        self.total_sense_label = {'total_sense':self.t_sense}
+        self.total_sense_label = {'total_s':self.t_sense}
         self.total_label = {'total':self.s_total}
 
         # システム日付
@@ -110,7 +110,7 @@ class Signup(tk.Tk):
         self.ch.mag.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.ch.mag.get()))
         self.ch.des.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ch.des.get()))
         self.ch.agi.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ch.agi.get()))
-        self.ch.total.trace("w", lambda *args: self.ch_status_set(self.total_label,self.ch.total.get()))
+        #self.ch.total.trace("w", lambda *args: self.ch_total_set(self.total_label,self.ra.r_rank.get()))
         self.ge.total_sense.trace("w", lambda *args: self.set_g_rank(self.total_sense_label,self.ge.total_sense.get()))
 
         # 合計
@@ -170,8 +170,7 @@ class Signup(tk.Tk):
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
         self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.cbo_race_list,width=10)
-        self.cbo3['values']=self.ra_dao.set_race()
-        self.cbo3.current(0)
+        # レベル設定後に取得
         self.cbo3.grid(row=4, column=1, padx=5, pady=2)
         
         # birth
@@ -286,7 +285,8 @@ class Signup(tk.Tk):
         self.ent15.grid(row=6, column=3, padx=5, pady=2)
         self.ent15.configure(state = 'readonly')
         # total
-        self.lbl16 = tk.Label(fm_status,textvariable=self.s_total,width=9)
+        #self.lbl16 = tk.Label(fm_status,textvariable=self.s_total,width=9)
+        self.lbl16 = tk.Label(fm_status,text="total",width=9)
         self.lbl16.grid(row=6, column=4, padx=5, pady=2)
         self.ent16 = tk.Entry(fm_status, textvariable=self.ch.total,  width=7)
         self.ent16.grid(row=6, column=5, padx=5, pady=2)
@@ -399,8 +399,9 @@ class Signup(tk.Tk):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
-        weight = 8   # ノーマルガチャ
+        weight = random.random() + 7.5   # ノーマルガチャ
         self.ch.birth.set(self.rand_date())
+        self.ch.level.set(self.rand_num_hard(3,weight))
         self.ge.s_HP.set(self.rand_num(3,weight))
         self.ge.s_MP.set(self.rand_num(3,weight))
         self.ge.s_sta.set(self.rand_num(3,weight))
@@ -441,11 +442,9 @@ class Signup(tk.Tk):
         self.ch_status_set(text_label,self.ge.g_rank.get())
 
         # Bランク以上でファーストネームを取得
-        if int(data)  > 300:
+        # if int(data)  > 300:
 
 
-
-             
     def rand_num(self, num, weight):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -462,8 +461,18 @@ class Signup(tk.Tk):
         # plt.plot(a,y)
         # plt.show()
         # rad_int = random.randint(1,10**(num-1))
-
         return rn_int
+
+    def rand_num_hard(self, num, weight):
+        i = 1
+        rn_int = random.randint(1,10**(num-1))
+        while rn_int > 3*i:
+            rn_int = random.randint(1,10**(num-1))
+            i += 1
+        return rn_int
+
+
+        
 
     def rand_date(self):
         rand_d = None
@@ -501,7 +510,7 @@ class Signup(tk.Tk):
         d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
         b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
         d_birth = date(b_birth.year, b_birth.month, b_birth.day)
-        self.ch.age.set((d_today - d_birth).years)
+        self.ch.age.set((d_today - d_birth).year)
         
     def continuous_submit(self):
         pass
@@ -565,7 +574,7 @@ class Signup(tk.Tk):
         # race_idを設定
         self.ch.race_id = s_race['race_id']
         # characterに反映
-        self.ch.set_status(self.ge, self.ra)
+        self.ch.set_status_all(self.ge, self.ra)
     
     # locationが選択された場合
     def select_location(self, select_location):
@@ -578,7 +587,7 @@ class Signup(tk.Tk):
         # location_idを設定
         self.ch.location_id = s_location['location_id']
 
-    # 入力文字数制限
+    # 入力文字数制限NOTE:entry_text:gene,num:桁数
     def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
         if len(str(entry_text.get())) > 0:
             # 不適切な値の場合は1に設定
@@ -612,36 +621,41 @@ class Signup(tk.Tk):
                 entry_text.set(1)
             if int(str(entry_text.get())) <= 0:
                 entry_text.set(1)
-            # クラス、タレント選択制限
-            if int(str(entry_text.get())) < 60:
-                self.cbo15.set("")
-                self.cbo15.configure(state = "disabled")
-            if int(str(entry_text.get())) < 50:
-                self.cbo18.set("")
-                self.cbo18.configure(state = "disabled")
-            if int(str(entry_text.get())) < 30:
-                self.cbo14.set("")
-                self.cbo14.configure(state = "disabled")
-            if int(str(entry_text.get())) < 20:
-                self.cbo17.set("")
-                self.cbo17.configure(state = "disabled")
-            if int(str(entry_text.get())) >= 60:
-                self.cbo15.current(0)
-                self.cbo15.configure(state = "normal")
-            if int(str(entry_text.get())) >= 50:
-                self.cbo18.current(0)
-                self.cbo18.configure(state = "normal")
-            if int(str(entry_text.get())) >= 30:
-                self.cbo14.current(0)
-                self.cbo14.configure(state = "normal")
-            if int(str(entry_text.get())) >= 20:
-                self.cbo17.current(0)
-                self.cbo17.configure(state = "normal")
             # 100より大きい数字が入力されたら100に
             if int(str(entry_text.get())) > 100:
                 entry_text.set(100)
+            # クラス、タレント選択制限
             entry_text.set(str(entry_text.get())[:num])
-        self.ch.set_status_all(self.ge, self.ra)
+            level = entry_text.get()
+            if int(str(level)) < 60:
+                self.cbo15.set("")
+                self.cbo15.configure(state = "disabled")
+            if int(str(level)) < 50:
+                self.cbo18.set("")
+                self.cbo18.configure(state = "disabled")
+            if int(str(level)) < 30:
+                self.cbo14.set("")
+                self.cbo14.configure(state = "disabled")
+            if int(str(level)) < 20:
+                self.cbo17.set("")
+                self.cbo17.configure(state = "disabled")
+            if int(str(level)) >= 60:
+                self.cbo15.current(0)
+                self.cbo15.configure(state = "normal")
+            if int(str(level)) >= 50:
+                self.cbo18.current(0)
+                self.cbo18.configure(state = "normal")
+            if int(str(level)) >= 30:
+                self.cbo14.current(0)
+                self.cbo14.configure(state = "normal")
+            if int(str(level)) >= 20:
+                self.cbo17.current(0)
+                self.cbo17.configure(state = "normal")
+            
+        # race:levelに応じて選択可能種族を設定
+        self.cbo3['values']=self.ra_dao.set_target_race(level)
+        self.cbo3.current(0)
+        
 
 
     # ラベル編集

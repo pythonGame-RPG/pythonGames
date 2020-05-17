@@ -10,6 +10,7 @@ import time
 import datetime
 import csv
 from urllib.request import urlopen
+# import requests
 from bs4 import BeautifulSoup
 
 def main():
@@ -46,6 +47,8 @@ def main():
 
         # 各話の本文情報を取得
         for j in range(len(url_list)):
+            if j == 3:
+                break
             url = url_list[j]
             bs_obj = make_bs_obj(url)
             time.sleep(3)
@@ -65,9 +68,11 @@ def make_bs_obj(url):
     BeautifulSoupObjectを作成
     """
     html = urlopen(url)
+    # html = requests.get(url)
+    content_type_encoding = html.encoding if html.encoding != 'ISO-8859-1' else None
     logger.debug('access {} ...'.format(url))
 
-    return BeautifulSoup(html,"html.parser")
+    return BeautifulSoup(html,"html.parser",from_encoding=content_type_encoding)
 
 def get_main_text(bs_obj):
     """

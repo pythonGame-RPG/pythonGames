@@ -64,7 +64,7 @@ class Character:
         # self.set_status(gene,race)
 
     # gene値変更時
-    def set_status(self, ch_text, gene_data, race_data):
+    def set_status(self, ch_text, gene_data, race_data=None):
         # ステータス設定
         ch_text.set(self.calculate_status(gene_data, race_data))
         # self.total.set(self.calculate_total(gene, race))

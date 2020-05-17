@@ -16,11 +16,12 @@ class Race:
         self.p_agi = tk.StringVar()
         self.total_pattern = tk.IntVar()
         self.race_rank = tk.StringVar()
+        self.parent_race_id = tk.StringVar()
+        self.evolution_level = tk.StringVar()
         self.ins_date = datetime.now()
         self.ins_id = None
         self.upd_date = datetime.now()
         self.upd_id = None
-
         self.bk_num = 0
         self.bk_total_sense = 0
 
@@ -39,7 +40,7 @@ class Race:
 
     def select_race(self, where = None):
         dbaccess().SELECT_All(MST_RACES)
-    
+
     # race_nameをセット
     def set_race_name(self):
         race_name = [""]
@@ -61,3 +62,9 @@ class Race:
         self.p_des.set(s_race['p_des'])
         self.p_agi.set(s_race['p_agi'])
         self.total_pattern.set(s_race['total_pattern'])
+        #self.total_pattern.set(s_race['parent_race1_id'])
+        #self.total_pattern.set(s_race['evolution1_level'])
+        #self.total_pattern.set(s_race['parent_race2_id'])
+        #self.total_pattern.set(s_race['evolution2_level'])
+        #self.total_pattern.set(s_race['parent_race3_id'])
+        #self.total_pattern.set(s_race['evolution3_level'])

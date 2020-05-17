@@ -131,26 +131,43 @@ latexクリア
 →複数登録はexecutemanyで登録、DBアクセスを減らそう
 ・種族進化実装→rece_id、親コードを設定する。最終進化は親コード0
 
+→with recursive～　種族は再帰SQLを使用－完了済み
+
+課題①：種族作成ボックス作成
+課題②：拠点選択
+課題③：キャラクタ登録         
+課題④：名前の取得→クローリング＆スクレイピング
+課題⑤：
+
+
+
 
 
 main.pyの課題
 未起票の乱数生成コメントあり
 
 ■メモ
-・優先順位はLEVELUP、BATTLE、
-・create characterはsignupで可能。sub_characterの取得はテイム、ガチャなど。
-・ガチャとは別にcreate characterが可能。ランダム生成、アイテムを所持している場合は使用して作成が可能。
-・spriteに要素を追加する（ステータス）
-・LEVELUPはgenes,charactersを結合バッチ
-・コンボボックスの項目→汎用マスタから名称、コード取得？
-・geneコンボ→遺伝子マスタ　作成中
-・raceコンボ→種族マスタ　作成中
-・コンボボックスにkeyを設定できない件。valueからキーを導き出すしかない。あるいはvalueでデータ取得
-・valueに入るのは名称→
-・デスクトップでテーブルの作成：5.995s
-→遅いのでなんとかしたい。
-・データありDb作成13.301s→14.271sおっそ。
-→遅すぎPC買うレベル
+5/16
+from logging import getLogger, StreamHandler, DEBUG
+logger = getLogger(__name__)
+handler = StreamHandler()
+handler.setLevel(DEBUG)
+logger.setLevel(DEBUG)
+logger.addHandler(handler)
+logger.propagate = False
+
+↓スクレイピング用モジュール
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
+
+
+処理ログ出力確認用おまじない
+なろうのスクレイピング成功→保存時にデータの形式を変更可能
+
+
+
+
 戦争が始まる→firldsマスタのみではフィールド拡張割譲などの処理が厳しいかもしれない。
 【前提】人はみなどこかの国に属している→カリスマを持った人間が先導し戦争が起こる
 →戦場の設定、戦争後の土地の移動（すべてというわけではない）
