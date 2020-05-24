@@ -29,7 +29,7 @@ class Signup(tk.Tk):
         #　子画面
         self.sub_root = cal.mycalendar(self)
 
-        self.geometry('500x500')
+        self.geometry('500x540')
         self.title('make character')
         self.chk_dangeonchar = tk.IntVar()
 
@@ -37,7 +37,12 @@ class Signup(tk.Tk):
         self.selected_date = tk.StringVar()
         self.cbo_gene_list = tk.StringVar()
         self.cbo_race_list = tk.StringVar()
-        self.cbo_location_list = tk.StringVar()
+        self.stay_location = tk.StringVar()
+        self.stay_field = tk.StringVar()
+        self.stay_field_id = tk.StringVar()
+
+        # rank制限格納
+        self.rank_range = tk.StringVar()
 
         self.ch = chara.Character()
         self.ge = genes.Gene()
@@ -81,10 +86,13 @@ class Signup(tk.Tk):
 
         # 日付チェック
         self.selected_date.trace("w", lambda *args: self.date_limit(self.selected_date))
+        self.stay_field.trace("w", lambda *args: self.select_field())
+        self.stay_location.trace("w", lambda *args: self.select_location())
 
         # chara桁数制限
         # self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
         self.ch.level.trace("w", lambda *args: self.level_limit(self.ch.level, 3))
+        self.ch.guild_rank.trace("w", lambda *args: self.set_g_point(self.ch.guild_rank,self.ch.guild_point))
         self.ch.charisma.trace("w", lambda *args: self.character_limit(self.ch.charisma, 4))
         self.ch.karma.trace("w", lambda *args: self.character_limit(self.ch.karma, 4))
         self.ch.fortune.trace("w", lambda *args: self.character_limit(self.ch.fortune, 4))
@@ -149,13 +157,16 @@ class Signup(tk.Tk):
         self.rdo1.grid(row=3, column=3, padx=5, pady=2)
         self.rdo2 = tk.Radiobutton(fm_left_1, value=1, variable=self.ch.sex, text='female')
         self.rdo2.grid(row=3, column=4, padx=5, pady=2)
+        # field
+        self.lblf = tk.Label(fm_left_1,text = 'field')
+        self.lblf.grid(row=4, column=2, padx=5, pady=2)
+        self.cbof = ttk.Combobox(fm_left_1, textvariable=self.stay_field,width=18)
+        self.cbof.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
         # location
         self.lblo = tk.Label(fm_left_1,text = 'location')
-        self.lblo.grid(row=4, column=2, padx=5, pady=2)
-        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.cbo_location_list,width=18)
-        self.cboo['values']=self.lo_dao.set_location()
-        self.cboo.current(0)
-        self.cboo.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
+        self.lblo.grid(row=5, column=2, padx=5, pady=2)
+        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.ch.location_id,width=18)
+        self.cboo.grid(row=5, column=3, columnspan=2, padx=5, pady=2)
 
         # dangeon_chara
         self.chk13 = tk.Checkbutton(fm_left_1, variable=int, var=self.chk_dangeonchar, text='dangeon_chara')
@@ -175,15 +186,15 @@ class Signup(tk.Tk):
         
         # birth
         self.lbl4 = tk.Label(fm_left_1,text = 'birth')
-        self.lbl4.grid(row=5, column=2, padx=5, pady=2)
+        self.lbl4.grid(row=6, column=2, padx=5, pady=2)
         self.ent4 = tk.Entry(fm_left_1, textvariable=self.ch.birth,width=10)
-        self.ent4.grid(row=5, column=3, padx=5, pady=2)
+        self.ent4.grid(row=6, column=3, padx=5, pady=2)
         # birthをDTOにセット
         # self.ch.birth.set(self.ent4.get())
 
-        # 日付選択アイコン
+        # 日付選択ボタン
         self.i_birth = tk.Button(fm_left_1, text = "日付選択", font = ("",8),command=self.sub_root.openDialog)
-        self.i_birth.grid(row=5, column=4, padx=5, pady=2)
+        self.i_birth.grid(row=6, column=4, padx=5, pady=2)
 
         # birthplace
         self.lbl5a = tk.Label(fm_left_1,text = 'birthplace')
@@ -204,8 +215,7 @@ class Signup(tk.Tk):
         self.lbl5 = tk.Label(fm_status,text = 'GUILD')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
         self.cbo2 = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
-        self.cbo2['values']=('G', 'F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS')
-        self.cbo2.set("G")
+        
         self.cbo2.grid(row=1, column=1, padx=5, pady=2)
         # LEVEL
         self.lbl6 = tk.Label(fm_status,text = 'level')
@@ -365,8 +375,8 @@ class Signup(tk.Tk):
         self.btn1 = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
         self.btn1.grid(row=7, column=0, padx=5, pady=2)
 
-        # 登録ボタン
-        self.btn2 = tk.Button(fm_flg, text='登録', command=self.submit)
+        # gene登録ボタン
+        self.btn2 = tk.Button(fm_flg, text='登録', command=self.gene_register)
         self.btn2.grid(row=7, column=1, padx=5, pady=2)
 
         # 連続登録ボタン
@@ -472,8 +482,6 @@ class Signup(tk.Tk):
         return rn_int
 
 
-        
-
     def rand_date(self):
         rand_d = None
         import calendar
@@ -498,8 +506,55 @@ class Signup(tk.Tk):
     def get_combo(self):
         pass
 
+    # NOTE:rankに応じたguild_pointを設定
+    def set_g_point(self, entry_text, guild_point):
+        guild_p = 0
+        if entry_text.get() == 'SSS':
+            guild_p = 1000000
+        if entry_text.get() == 'SS':
+            guild_p = 200000
+        if entry_text.get() == 'S':
+            guild_p = 40000
+        if entry_text.get() == 'A':
+            guild_p = 8000
+        if entry_text.get() == 'B':
+            guild_p = 1600
+        if entry_text.get() == 'C':
+            guild_p = 320
+        if entry_text.get() == 'D':
+            guild_p = 64
+        if entry_text.get() == 'E':
+            guild_p = 16
+        if entry_text.get() == 'F':
+            guild_p = 4
+        guild_point.set(guild_p)
+
+    def set_rank_range(self, level):
+        acquired_rank = []
+        if int(level) >= 75:
+            acquired_rank.append("SSS")
+        if int(level) >= 65:
+            acquired_rank.append("SS")
+        if int(level) >= 55:
+            acquired_rank.append("S")
+        if int(level) >= 45:
+            acquired_rank.append("A")
+        if int(level) >= 35:
+            acquired_rank.append("B")
+        if int(level) >= 25:
+            acquired_rank.append("C")
+        if int(level) >= 20:
+            acquired_rank.append("D")
+        if int(level) >= 15:
+            acquired_rank.append("E")
+        if int(level) >= 10:
+            acquired_rank.append("F")
+        acquired_rank.append("G")
+
+        return acquired_rank
+
     # ボタン押下後処理
-    def submit(self):
+    def gene_register(self):
         # gene登録
         if len(self.ch.gene_id.get()) > 0:
             pass
@@ -576,16 +631,25 @@ class Signup(tk.Tk):
         # characterに反映
         self.ch.set_status_all(self.ge, self.ra)
     
+    # fieldが選択された場合
+    def select_field(self):
+        # 選択したfieldを取得
+        s_field = self.fi_dao.pickup_field(self.stay_field.get())
+
+        # 変数field_idを設定
+        self.stay_field_id.set(s_field['field_id'])
+
+        # NOTE:location:rank_rangeに応じて選択可能拠点を設定
+        self.cboo['values']=self.lo_dao.set_location({'field_id':self.stay_field_id.get()}, {'l_rank':self.rank_range})
+        self.cboo.current(0)
+    
     # locationが選択された場合
     def select_location(self, select_location):
         # 選択したlocationを取得
-        s_location = self.ge_dao.pickup_location(self.cbo_location_list.get())
-
-        # 対象に選択したlocationの値を反映
-        self.lo.set_select_location(s_location)
+        s_location = self.lo_dao.pickup_location(self.stay_location.get())
 
         # location_idを設定
-        self.ch.location_id = s_location['location_id']
+        self.ch.location_id.set(s_location['location_id'])
 
     # 入力文字数制限NOTE:entry_text:gene,num:桁数
     def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
@@ -652,9 +716,21 @@ class Signup(tk.Tk):
                 self.cbo17.current(0)
                 self.cbo17.configure(state = "normal")
             
-        # race:levelに応じて選択可能種族を設定
+        # NOTE:race:levelに応じて選択可能種族を設定
         self.cbo3['values']=self.ra_dao.set_target_race(level)
         self.cbo3.current(0)
+
+        # NOTE:levelに応じて選択可能ランクを設定
+        self.rank_range = self.set_rank_range(level)
+
+        # guild_rank
+        self.cbo2['values']=self.rank_range
+        self.cbo2.current(0)
+
+        # fiel
+        self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
+        self.cbof.current(0)
+
         
 
 

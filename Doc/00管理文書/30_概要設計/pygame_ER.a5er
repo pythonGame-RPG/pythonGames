@@ -67,6 +67,7 @@ Field="クラス１ID","class1_id","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="クラス２ID","class2_id","int",,,"","",$FFFFFFFF,""
 Field="クラス３ID","class3_id","int",,,"","",$FFFFFFFF,""
 Field="ギルドランク","guild_rank","char(3)","NOT NULL",,"\q  G\q","",$FFFFFFFF,""
+Field="ギルドポイント","guild_point","int","NOT NULL",,"0","0以上",$FFFFFFFF,""
 Field="称号コード","title_id","int","NOT NULL",,"0","",$FFFFFFFF,""
 Field="状態","state","int","NOT NULL",,"0","",$FFFFFFFF,""
 Field="カリスマ値","charisma","int(3)","NOT NULL",,"0","",$FFFFFFFF,""
@@ -108,7 +109,7 @@ Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200507205829
+ModifiedDateTime=20200518221031
 Position="MAIN",100,50,178,1068
 ZOrder=0
 
@@ -121,7 +122,7 @@ Page=MAIN
 Left=600
 Top=50
 Field="種族ID","race_id","int auto_increment","NOT NULL",0,"","",$FFFFFFFF,""
-Field="種族名","race_name","varchar(20)","NOT NULL",,"","",$FFFFFFFF,""
+Field="種族名","race_name","varchar(20)","NOT NULL",1,"","",$FFFFFFFF,""
 Field="HP傾向","p_HP","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="MP傾向","p_MP","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="スタミナ傾向","p_sta","int","NOT NULL",,"1","",$FFFFFFFF,""
@@ -142,10 +143,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,race_id ,race_name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200517002045
+ModifiedDateTime=20200518215728
 Position="MAIN",600,50,132,190
 ZOrder=1
 
@@ -172,10 +174,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成 ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,user_id ,password 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200423222418
+ModifiedDateTime=20200518215929
 Position="MAIN",400,500,173,376
 ZOrder=2
 
@@ -249,10 +252,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID ","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,gene_id ,gene_name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200507202549
+ModifiedDateTime=20200518215951
 Position="MAIN",800,350,151,356
 ZOrder=5
 
@@ -300,10 +304,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID ","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,dangeon_id ,name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200425204807
+ModifiedDateTime=20200518215810
 Position="MAIN",400,200,174,169
 ZOrder=7
 
@@ -471,10 +476,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID ","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,personal_code ,personal_name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200426173714
+ModifiedDateTime=20200518215754
 Position="MAIN",1050,500
 ZOrder=13
 
@@ -524,10 +530,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,class_id ,class_name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200507202539
+ModifiedDateTime=20200518215827
 Position="MAIN",700,750,138,198
 ZOrder=15
 
@@ -548,10 +555,11 @@ Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
+Index==1,talent_id ,talent_name 
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200426210937
+ModifiedDateTime=20200518215839
 Position="MAIN",800,1000,138,155
 ZOrder=16
 

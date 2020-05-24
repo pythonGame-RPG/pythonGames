@@ -21,21 +21,25 @@ class FieldDAO:
     
    # select文を作成
     def select_field(self):
-        return dbaccess().SELECT_Column(MST_FIELDS, '*', ' concat(f_rank, ":", field_name) as field_cbo')
+        return dbaccess().SELECT_Column(MST_FIELDS, ['*', ' concat(f_rank, ":", field_name) as field_cbo'])
     
-    # field_nameをセット
-    def set_field(self):
-        self.fields = self.select_field()
+    # place_nameをセット
+    def set_field(self, stay_field=None, rank_range=None):
+        self.field_cbo = []
+        # self.fields = self.select_field()
+        self.fields = self.set_target_field(stay_field, rank_range)
         for field in self.fields:
             # コンボボックスのリストに追加
-            # self.field_list[field['field_id']] = field['f_rank'] + ':' + field['field_name']
             self.field_cbo.append(field['field_cbo'])
-        # self.field_cbo.append("")
 
         # fieldデータ
         return self.field_cbo
 
-    # レベル異存なし取得
     def pickup_field(self, field_cbo):
         s_field = [field for field in self.fields if field['field_cbo'] == field_cbo]
         return s_field[0]
+
+    # rankによる取得制限あり
+    def set_target_field(self,stay_field, rank_range):
+        self.field_cbo = []
+        return dbaccess().SELECT_Column(MST_FIELDS,['*', ' concat(f_rank, ":", field_name) as field_cbo'],stay_field, rank_range)

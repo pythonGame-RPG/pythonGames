@@ -14,7 +14,7 @@ class GeneDAO():
 
     # select文を作成
     def select_gene(self):
-        return dbaccess().SELECT_Column(MST_GENES, '*', ' concat(g_rank, ":", gene_name) as gene_cbo')
+        return dbaccess().SELECT_Column(MST_GENES, ['*', ' concat(g_rank, ":", gene_name) as gene_cbo'])
     
     # gene_nameをセット
     def set_gene(self):

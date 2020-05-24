@@ -21,7 +21,7 @@ class RaceDAO:
     
    # select文を作成
     def select_race(self):
-        return dbaccess().SELECT_Column(MST_RACES, '*', ' concat(r_rank, ":", race_name) as race_cbo')
+        return dbaccess().SELECT_Column(MST_RACES, ['*', ' concat(r_rank, ":", race_name) as race_cbo'])
     
     # race_nameをセット
     def set_race(self):
@@ -30,7 +30,6 @@ class RaceDAO:
             # コンボボックスのリストに追加
             # self.race_list[race['race_id']] = race['r_rank'] + ':' + race['race_name']
             self.race_cbo.append(race['race_cbo'])
-        # self.race_cbo.append("")
 
         # raceデータ
         return self.race_cbo

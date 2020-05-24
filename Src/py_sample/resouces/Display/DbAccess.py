@@ -74,14 +74,47 @@ class dbaccess:
 
         return self.cur.fetchall()
 
-    # カラム指定    
-    def SELECT_Column(self, table_name, *input_column_name):
+    # セレクト文    
+    def SELECT_Column(self, table_name,input_column_name,where=None,_in=None):
         for i in range(len(input_column_name)):
             if i == 0:
                 column_name = input_column_name[0]
             else:
                 column_name = column_name + ',' + input_column_name[i]
         sql = "SELECT " + column_name + " from " + table_name
+
+        # WHERE条件付与
+        if where != None:
+            where_sql = ''
+            for dkey,dval in where.items():
+                if len(where_sql) != 0:
+                    where_sql = where_sql + ' AND /r/n'
+                where_sql = where_sql + dkey + ' = ' + str(dval)
+            sql = sql + ' WHERE ' + where_sql
+
+        # IN条件付与
+        if _in != None:
+            t_in = ''
+            if where == None:
+                t_in = ' WHERE '
+            else:
+                t_in = ' AND '
+            str_rank = ''
+            
+            for dkey,dval in _in.items():
+                """
+                for data in dval:
+                    if len(str_rank) != 0:
+                        str_rank = str_rank + ', '
+                    str_rank = str_rank + data
+                t_in = t_in + dkey + ' IN (' + str_rank + ')'
+                """
+                t_in = t_in + dkey + ' IN ' + str(dval)
+            t_in = t_in.replace('[', '(')
+            t_in = t_in.replace(']', ')')
+
+            sql = sql + t_in
+        
         self.cur.execute(sql)
 
         return self.cur.fetchall()

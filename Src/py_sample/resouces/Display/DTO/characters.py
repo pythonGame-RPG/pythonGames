@@ -19,6 +19,7 @@ class Character:
         self.ep = tk.IntVar()
         self.level = tk.StringVar()
         self.guild_rank = tk.StringVar()
+        self.guild_point = tk.StringVar()
         self.state = tk.IntVar()  # 編集なし
         self.charisma = tk.StringVar()
         self.karma = tk.StringVar()

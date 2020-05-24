@@ -1,29 +1,34 @@
 import tkinter as tk
 from DbAccess import *
 from settings import *
+from datetime import *
 
 class Field:
     def __init__(self):
-        self.grid_x = tk.IntVar()
-        self.grid_y = tk.IntVar()
-        self.lord_gene_id = tk.IntVar()
-        self.character_id = tk.IntVar()
-        self.place_name = tk.IntVar()
-        self.p_rank = tk.IntVar()
-        self.is_sea = tk.IntVar()
-        self.is_battle = tk.IntVar()
-        self.is_guild = tk.IntVar()
-        self.g_point = tk.IntVar()
-        self.g_rank = tk.IntVar()
-        self.is_church = tk.IntVar()
-        self.c_point = tk.IntVar()
-        self.c_rank = tk.IntVar()
-        self.is_blacksmith = tk.IntVar()
-        self.b_point = tk.IntVar()
-        self.b_rank = tk.IntVar()
-        self.assets = tk.IntVar()
-        self.civilization = tk.IntVar()
-        self.population = tk.IntVar()
+        self.field_id = tk.StringVar()
+        self.field_name = tk.StringVar()
+        self.f_rank = tk.StringVar()
+        self.king_gene_id = tk.StringVar()
+        self.character_id = tk.StringVar()
+        self.contract_id = tk.StringVar()
+        self.is_war = tk.StringVar()
+        self.castle = tk.StringVar()
+        self.area = tk.StringVar()
+        self.population = tk.StringVar()
+        self.p_density = tk.StringVar()
+        self.stress = tk.StringVar()
+        self.hate = tk.StringVar()
+        self.civil_point = tk.StringVar()
+        self.civilization = tk.StringVar()
+        self.victory = tk.StringVar()
+        self.defeat = tk.StringVar()
+        self.strength = tk.StringVar()
+        self.assets = tk.StringVar()
+        self.GDP = tk.StringVar()
+        self.ins_date = datetime.now()
+        self.ins_id = None
+        self.upd_date = datetime.now()
+        self.upd_id = None
 
         self.bk_num = 0
         self.bk_total_sense = 0

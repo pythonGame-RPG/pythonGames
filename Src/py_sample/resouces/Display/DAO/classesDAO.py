@@ -14,8 +14,7 @@ class ClassDAO():
 
     # select文を作成
     def select_class(self):
-        return dbaccess().SELECT_Column(MST_CLASSES, '*', ' concat(c_rank, ":", class_name) as class_cbo')
-    
+        return dbaccess().SELECT_Column(MST_CLASSES, ['*', ' concat(c_rank, ":", class_name) as class_cbo'])
     
     # class_nameをセット
     def set_class(self):
@@ -24,7 +23,6 @@ class ClassDAO():
             # コンボボックスのリストに追加
             # self.class_list[_class['class_id']] = _class['c_rank'] + ':' + _class['class_name']
             self.class_cbo.append(_class['class_cbo'])
-        # self.class_cbo.append("")
 
         # classデータ
         return self.class_cbo

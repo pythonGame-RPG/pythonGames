@@ -15,7 +15,7 @@ class TalentDAO():
 
     # select文を作成
     def select_talent(self):
-        return dbaccess().SELECT_Column(MST_TALENTS, '*', ' concat(t_rank, ":", talent_name) as talent_cbo')
+        return dbaccess().SELECT_Column(MST_TALENTS, ['*', ' concat(t_rank, ":", talent_name) as talent_cbo'])
     
     # talent_nameをセット
     def set_talent(self):

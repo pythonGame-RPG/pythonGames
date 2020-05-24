@@ -19,23 +19,27 @@ class LocationDAO:
         sql = "Select * from {}".format(Dbname)
         return sql
     
-   # select文を作成
+   # select文を実行
     def select_location(self):
-        return dbaccess().SELECT_Column(MST_LOCATIONS, '*', ' concat(l_rank, ":", location_name) as location_cbo')
+        return dbaccess().SELECT_Column(MST_LOCATIONS, ['*', ' concat(l_rank, ":", location_name) as location_cbo'])
     
     # place_nameをセット
-    def set_location(self, ):
+    def set_location(self,stay_location, rank_range):
         self.location_cbo = []
-        self.locations = self.select_location()
+        # self.locations = self.select_location()
+        self.locations = self.set_target_location(stay_location, rank_range)
         for location in self.locations:
             # コンボボックスのリストに追加
             self.location_cbo.append(location['location_cbo'])
-        # self.location_cbo.append("")
 
         # locationデータ
         return self.location_cbo
 
-    # TODO:レベル比例で取得可能ランク変動
     def pickup_location(self, location_cbo):
         s_location = [location for location in self.locations if location['location_cbo'] == location_cbo]
         return s_location[0]
+
+    # rankによる取得制限あり
+    def set_target_location(self,stay_location, rank_range):
+        self.location_cbo = []
+        return dbaccess().SELECT_Column(MST_LOCATIONS,['*', ' concat(l_rank, ":", location_name) as location_cbo'],stay_location, rank_range)
