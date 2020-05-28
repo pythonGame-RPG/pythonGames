@@ -7,9 +7,9 @@ class Name:
     def __init__(self):
         self.name = None
         self.users_num = 1
-        self.trend = 1
+        self.trend = 0
         self.is_deleted = 0
-        self.version = 1
+        self.version = 0
         self.ins_date = datetime.now()
         self.ins_id = None
         self.upd_date = datetime.now()

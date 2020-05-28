@@ -38,6 +38,7 @@ class NameDAO():
 
     def insert_name(self,name_list):
         # 取得したname_listを件数分ループ
+        print('■insert_name開始...')
         for _name in name_list:
             # 名前を取得
             self.ins_name['name'] = _name
@@ -47,7 +48,7 @@ class NameDAO():
     # trendを+1する
     def update_trend(self,name_list):
         # 取得したname_listを件数分ループ
-        print('update_trend開始...')
+        print('■update_trend開始...')
         res = 0
         for _name in name_list:
             sql = 'UPDATE names SET trend = trend + 1 WHERE name = "{}"'.format(_name)
@@ -58,7 +59,8 @@ class NameDAO():
     # nameを無作為に取得
     def select_randone(self):
         sql = 'SELECT name from names ORDER BY RAND() LIMIT 1'
-        return dbaccess().exe_sql(sql)
+        row = dbaccess().exe_sql(sql)
+        return row[0]['name']
 
     # versionを+1する
     def update_version(self,name_list):
@@ -69,7 +71,7 @@ class NameDAO():
             sql = 'UPDATE names SET version = version + 1 WHERE name = "{}"'.format(_name)
             dbaccess().upins_sql(sql)
             res = res + 1
-        print('登録・更新件数：{}件'.format(res))
+        print('◆◆　登録・更新件数：{}件'.format(res))
 
     def main(self):
         """
@@ -104,9 +106,10 @@ class NameDAO():
             # ストーリーを取得
             story_list = ["https://ncode.syosetu.com" + a_bs_obj.find("a").attrs["href"] for a_bs_obj in bs_obj.findAll("dd", {"class": "subtitle"})]
 
-            lim_num = 10
+            # スクレイピングする話数
+            lim_num = 3
             story_num = len(story_list)
-            if story_num < 10:
+            if story_num < lim_num:
                 lim_num = story_num
             rand_num = random.choices(range(len(story_list)), k=lim_num)
         
@@ -115,11 +118,11 @@ class NameDAO():
                 bs_obj = self.make_bs_obj(url)
                 nov_text = self.get_main_text(bs_obj)
 
-                story_name = re.findall('[\u30A1-\u30FF]{2,10}',nov_text)
-                name_list.extend(story_name)
+                kana_name = re.findall('[\u30A1-\u30FF]{2,10}',nov_text)
+                name_list.extend(kana_name)
                 scraping_list.extend(name_list)
 
-                print(story_name)
+                print(kana_name)
 
             # INSERT
             NameDAO().insert_name(name_list)
@@ -131,7 +134,7 @@ class NameDAO():
             name_list = []
 
         # 重複を除去しtrendを設定
-        rem_list = list(set(name_list))
+        rem_list = list(set(scraping_list))
         # UPDATE
         NameDAO().update_version(rem_list)
             
