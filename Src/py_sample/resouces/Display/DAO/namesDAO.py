@@ -55,6 +55,11 @@ class NameDAO():
             res = res + 1
         print('update_trend：{}件'.format(res))
 
+    # nameを無作為に取得
+    def select_randone(self):
+        sql = 'SELECT name from names ORDER BY RAND() LIMIT 1'
+        return dbaccess().exe_sql(sql)
+
     # versionを+1する
     def update_version(self,name_list):
         # 取得したname_listを件数分ループ

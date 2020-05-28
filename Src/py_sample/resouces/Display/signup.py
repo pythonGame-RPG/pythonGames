@@ -205,7 +205,8 @@ class Signup(tk.Tk):
         self.lbl5a.grid(row=5, column=0, padx=5, pady=2)
         self.cbo5a = ttk.Combobox(fm_left_1, textvariable=self.ch.birthplace,width=10)
         self.cbo5a['values']=self.fi_dao.set_field()
-        self.cbo5a.current(0)
+        if len(self.cbo5a['values']):
+            self.cbo5a.current(0) 
         self.cbo5a.grid(row=5, column=1, padx=5, pady=2)
 
         # ステータスフレーム
@@ -413,6 +414,7 @@ class Signup(tk.Tk):
         self.v_err = 0
         # self.after(10,self)
 
+    # ランダム生成押下時
     def random_generate(self):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
@@ -420,6 +422,7 @@ class Signup(tk.Tk):
         weight = random.random() + 7.5   # ノーマルガチャ
         self.ch.birth.set(self.rand_date())
         self.ch.level.set(self.rand_num_hard(3,weight))
+        self.ge.gene_name.set(self.na_dao.select_randone())
         self.ge.s_HP.set(self.rand_num(3,weight))
         self.ge.s_MP.set(self.rand_num(3,weight))
         self.ge.s_sta.set(self.rand_num(3,weight))
@@ -433,6 +436,7 @@ class Signup(tk.Tk):
         self.ch.fortune.set(self.rand_num(4,weight))
         self.ch.intelligence.set(self.rand_num(4,weight))
         self.ch.set_status_all(self.ge, self.ra)
+        
 
         #self.set_g_rank()
 
@@ -650,7 +654,8 @@ class Signup(tk.Tk):
 
         # NOTE:location:rank_rangeに応じて選択可能拠点を設定
         self.cboo['values']=self.lo_dao.set_location({'field_id':self.stay_field_id.get()}, {'l_rank':self.rank_range})
-        self.cboo.current(0)
+        if len(self.cboo['values']):
+            self.cboo.current(0)
     
     # locationが選択された場合
     def select_location(self, select_location):
@@ -700,45 +705,51 @@ class Signup(tk.Tk):
             # クラス、タレント選択制限
             entry_text.set(str(entry_text.get())[:num])
             level = entry_text.get()
-            if int(str(level)) < 60:
-                self.cbo15.set("")
-                self.cbo15.configure(state = "disabled")
-            if int(str(level)) < 50:
-                self.cbo18.set("")
-                self.cbo18.configure(state = "disabled")
-            if int(str(level)) < 30:
-                self.cbo14.set("")
-                self.cbo14.configure(state = "disabled")
-            if int(str(level)) < 20:
-                self.cbo17.set("")
-                self.cbo17.configure(state = "disabled")
-            if int(str(level)) >= 60:
-                self.cbo15.current(0)
-                self.cbo15.configure(state = "normal")
-            if int(str(level)) >= 50:
-                self.cbo18.current(0)
-                self.cbo18.configure(state = "normal")
-            if int(str(level)) >= 30:
-                self.cbo14.current(0)
-                self.cbo14.configure(state = "normal")
-            if int(str(level)) >= 20:
-                self.cbo17.current(0)
-                self.cbo17.configure(state = "normal")
+            try:
+                if int(str(level)) < 60:
+                    self.cbo15.set("")
+                    self.cbo15.configure(state = "disabled")
+                if int(str(level)) < 50:
+                    self.cbo18.set("")
+                    self.cbo18.configure(state = "disabled")
+                if int(str(level)) < 30:
+                    self.cbo14.set("")
+                    self.cbo14.configure(state = "disabled")
+                if int(str(level)) < 20:
+                    self.cbo17.set("")
+                    self.cbo17.configure(state = "disabled")
+                if int(str(level)) >= 60:
+                    self.cbo15.current(0)
+                    self.cbo15.configure(state = "normal")
+                if int(str(level)) >= 50:
+                    self.cbo18.current(0)
+                    self.cbo18.configure(state = "normal")
+                if int(str(level)) >= 30:
+                    self.cbo14.current(0)
+                    self.cbo14.configure(state = "normal")
+                if int(str(level)) >= 20:
+                    self.cbo17.current(0)
+                    self.cbo17.configure(state = "normal")
+            except:
+                pass
             
         # NOTE:race:levelに応じて選択可能種族を設定
         self.cbo3['values']=self.ra_dao.set_target_race(level)
-        self.cbo3.current(0)
+        if len(self.cbo3['values']):
+            self.cbo3.current(0)
 
         # NOTE:levelに応じて選択可能ランクを設定
         self.rank_range = self.set_rank_range(level)
 
         # guild_rank
         self.cbo2['values']=self.rank_range
-        self.cbo2.current(0)
+        if len(self.cbo2['values']):
+            self.cbo2.current(0)    
 
         # fiel
         self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
-        self.cbof.current(0)
+        if len(self.cbof['values']):
+            self.cbof.current(0)
 
         
 
