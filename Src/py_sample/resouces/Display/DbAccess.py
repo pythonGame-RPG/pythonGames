@@ -9,6 +9,7 @@ class dbaccess:
     sql_DBactive = "use "
     sql_cretable = "CREATE TABLE IF NOT EXISTS "
     sql_insert = "INSERT INTO "
+    sql_duplicate = "ON DUPLICATE KEY UPDATE "
 
     #constructor
     def __init__(self):
@@ -26,20 +27,26 @@ class dbaccess:
         self.cur.execute('SET CHARACTER SET utf8;')
         self.cur.execute('SET character_set_connection=utf8;')
     
-    # sql実行
+    # sql実行取得
+    def upins_sql(self, sql):
+        with closing(self.cur) as cursor:
+            cursor.execute(sql)
+            self.db.commit()
+    
+    # sql実行Update/Insert
     def exe_sql(self, sql):
         with closing(self.cur) as cursor:
             cursor.execute(sql)
             rows = cursor.fetchall()
         return rows
 
-
     #method
     def DB_activate(self, DBname):
         sql = self.sql_DBactive + DBname
         self.cur.execute(sql)
 
-    def INSERT_Column(self, table_name, DTO_data):
+    
+    def INSERT_Column(self, table_name, DTO_data, **duplicate):
         sql = self.sql_insert
         key = ''
         value = ''
@@ -62,6 +69,17 @@ class dbaccess:
         sql = sql + ' ) VALUES ('
         sql = sql + value[:-1]
         sql = sql + ' ) '
+        
+        # 重複を考慮する場合
+        if duplicate != None:
+            dup = ''
+            for dkey,dval in duplicate.items():
+                if len(dup) != 0:
+                    dup = dup + " , "
+                    dup = dup + "{0} = {0} + {1}".format(dkey,dval)
+                else:
+                    dup = "{0} = {0} + {1}".format(dkey,dval)
+            sql = sql + self.sql_duplicate + dup
             
         self.cur.execute(sql)
         self.db.commit()

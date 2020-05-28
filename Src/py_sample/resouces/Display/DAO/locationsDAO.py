@@ -2,7 +2,6 @@ from DbAccess import *
 import DTO.locations as DTO
 from settings import *
 
-
 class LocationDAO:
 
     def __init__(self):

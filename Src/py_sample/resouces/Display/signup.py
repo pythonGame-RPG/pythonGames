@@ -8,6 +8,7 @@ import DTO.races as races
 import DTO.classes as classes
 import DTO.talents as talents
 import DTO.locations as locations
+import DTO.names as names
 # from DAO import * いつかはこっちのほうがいいかも
 import DAO.charactersDAO as _chara
 import DAO.genesDAO as _genes
@@ -16,6 +17,7 @@ import DAO.classesDAO as _classes
 import DAO.talentsDAO as _talents
 import DAO.fieldsDAO as _fields
 import DAO.locationsDAO as _locations
+import DAO.namesDAO as _names
 import mycalendar as cal
 import tkinter as tk
 from tkinter import ttk
@@ -50,6 +52,7 @@ class Signup(tk.Tk):
         self.cl = classes.Class()
         self.ta = talents.Talent()
         self.lo = locations.Location()
+        self.na = names.Name()
         self.ch_dao = _chara.CharacterDAO()
         self.ge_dao = _genes.GeneDAO()
         self.ra_dao = _races.RaceDAO()
@@ -57,6 +60,7 @@ class Signup(tk.Tk):
         self.ta_dao = _talents.TalentDAO()
         self.fi_dao = _fields.FieldDAO()
         self.lo_dao = _locations.LocationDAO()
+        self.na_dao = _names.NameDAO()
 
         # 表示ラベル編集用
         self.HP = tk.StringVar()
@@ -383,6 +387,10 @@ class Signup(tk.Tk):
         self.btn3 = tk.Button(fm_flg, text='連続登録', command=self.continuous_submit)
         self.btn3.grid(row=7, column=2, padx=5, pady=2)
 
+        # スクレイピングボタン
+        self.btn3 = tk.Button(fm_flg, text='スクレイピング', command=self.get_name)
+        self.btn3.grid(row=7, column=3, padx=5, pady=2)
+
         # テキスト初期化
         self.ge.init()
         self.ra.init()
@@ -502,9 +510,10 @@ class Signup(tk.Tk):
         # ランダムビット生成→50%、30%
         # 名前のランダム生成→人名、国、class、talent
 
-    # コンボボックスの取得
-    def get_combo(self):
-        pass
+    # スクレイピングで名前の取得
+    def get_name(self):
+        self.na_dao.main()
+        
 
     # NOTE:rankに応じたguild_pointを設定
     def set_g_point(self, entry_text, guild_point):
