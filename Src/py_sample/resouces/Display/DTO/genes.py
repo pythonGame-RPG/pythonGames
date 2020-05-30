@@ -6,7 +6,7 @@ from settings import *
 class Gene:
     def __init__(self):
         self.gene_name = tk.StringVar()
-        self.is_gene_name = tk.StringVar()
+        self.is_gene_name = tk.IntVar()
         self.personal_code = tk.StringVar()
         self.s_HP = tk.StringVar()
         self.s_MP = tk.StringVar()

@@ -26,6 +26,10 @@ class NameDAO():
     def __init__(self):
         self.na = DTO.Name()
         self.ins_name = {}
+        # 小説数を設定
+        self.lim_novels = 1
+        # 話数を設定
+        self.lim_num = 2
         self.ins_name['name'] = self.na.name
         self.ins_name['users_num'] = self.na.users_num
         self.ins_name['trend'] = self.na.trend
@@ -60,7 +64,10 @@ class NameDAO():
     def select_randone(self):
         sql = 'SELECT name from names ORDER BY RAND() LIMIT 1'
         row = dbaccess().exe_sql(sql)
-        return row[0]['name']
+        try:
+            return row[0]['name']
+        except:
+            return ''
 
     # versionを+1する
     def update_version(self,name_list):
@@ -72,6 +79,23 @@ class NameDAO():
             dbaccess().upins_sql(sql)
             res = res + 1
         print('◆◆　登録・更新件数：{}件'.format(res))
+    
+    def delete_name(self):
+        sql = 'UPDATE names SET is_deleted = 1 WHERE names in ({})'.format(DELETE_NAME_LIST)
+        # IN条件付与
+        if _in != None:
+            t_in = ''
+            if where == None:
+                t_in = ' WHERE '
+            else:
+                t_in = ' AND '
+            str_rank = ''
+        for dkey,dval in DELETE_NAME_LIST.items():
+            t_in = t_in + dkey + ' IN ' + str(dval)
+        t_in = t_in.replace('[', '(')
+        t_in = t_in.replace(']', ')')
+        #sql = sql + t_in
+
 
     def main(self):
         """
@@ -98,7 +122,14 @@ class NameDAO():
         novel_list = [a_bs_obj.find("a").attrs["href"] for a_bs_obj in bs_obj.findAll("div", {"class": "rank_h"})]
         time.sleep(3)
 
-        rand_num = random.choices(range(len(novel_list)), k=10)
+        # スクレイピングする小説数
+        l_num = 0
+        story_num = len(novel_list)
+        if story_num < self.lim_novels:
+            l_num = story_num
+        else:
+            l_num = self.lim_novels
+        rand_num = random.choices(range(len(novel_list)), k=l_num)
         for i in rand_num:
 
             url = novel_list[i]
@@ -107,11 +138,13 @@ class NameDAO():
             story_list = ["https://ncode.syosetu.com" + a_bs_obj.find("a").attrs["href"] for a_bs_obj in bs_obj.findAll("dd", {"class": "subtitle"})]
 
             # スクレイピングする話数
-            lim_num = 3
+            l_num = 0
             story_num = len(story_list)
-            if story_num < lim_num:
-                lim_num = story_num
-            rand_num = random.choices(range(len(story_list)), k=lim_num)
+            if story_num < self.lim_num:
+                l_num = story_num
+            else:
+                l_num = self.lim_num
+            rand_num = random.choices(range(len(story_list)), k=l_num)
         
             for j in rand_num:
                 url = story_list[j]
@@ -126,6 +159,8 @@ class NameDAO():
 
             # INSERT
             NameDAO().insert_name(name_list)
+            # UPDATE(DELETE)
+            NameDAO().delete_name(name_list)
             # 重複を除去しtrendを設定
             rem_list = list(set(name_list))
             # UPDATE

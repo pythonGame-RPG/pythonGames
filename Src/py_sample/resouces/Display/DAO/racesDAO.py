@@ -161,8 +161,6 @@ class RaceDAO:
                 OR(evolution3_level <= {0}
                 AND over_evolution3_lv+1 > {0});
         """
-        # self.races = dbaccess().cur.execute(sql,(level,level,level,level,level,level))
-        # self.races = dbaccess().cur.execute(sql)
         sql = sql.format(level)
         self.races = dbaccess().exe_sql(sql)
         

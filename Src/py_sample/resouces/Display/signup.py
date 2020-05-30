@@ -88,6 +88,9 @@ class Signup(tk.Tk):
         # システム日付
         self.tdatetime = datetime.now()
 
+        # ランダム生成モード
+        self.mode = tk.IntVar()
+
         # 日付チェック
         self.selected_date.trace("w", lambda *args: self.date_limit(self.selected_date))
         self.stay_field.trace("w", lambda *args: self.select_field())
@@ -374,23 +377,41 @@ class Signup(tk.Tk):
         self.chk16 = tk.Checkbutton(fm_flg, variable=int, var=self.ch.is_retire, text='is_retire')
         self.chk16.grid(row=1, column=3, padx=5, pady=2)
 
+        # random_モードフレーム
+        fm_mode = tk.Frame(pw_right, bd=2, relief="ridge")
+        pw_right.add(fm_mode)
         
+        # random_モード
+        self.lbl17 = tk.Label(fm_mode,text = 'random_mode')
+        self.lbl17.grid(row=0, column=0, padx=5, pady=2)
+        self.rdo3 = tk.Radiobutton(fm_mode, value=0, variable=self.mode, text='gene')
+        self.rdo3.grid(row=2, column=0, padx=5, pady=2)
+        self.rdo4 = tk.Radiobutton(fm_mode, value=1, variable=self.mode, text='character')
+        self.rdo4.grid(row=3, column=0, padx=5, pady=2)
 
         # ランダムボタン
-        self.btn1 = tk.Button(fm_flg, text='ランダム生成', command=self.random_generate)
-        self.btn1.grid(row=7, column=0, padx=5, pady=2)
+        self.btn1 = tk.Button(fm_mode, text='ランダム生成', width=10, command=self.random_generate)
+        self.btn1.grid(row=4, column=0, padx=5, pady=4)
+
+        # random_modeフレーム
+        fm_button = tk.Frame(pw_right, bd=2, relief="ridge")
+        pw_right.add(fm_button)
+
+        # ボタン
+        self.lbl17 = tk.Label(fm_mode, text = 'random_mode')
+        self.lbl17.grid(row=0, column=0, padx=5, pady=2)
 
         # gene登録ボタン
-        self.btn2 = tk.Button(fm_flg, text='登録', command=self.gene_register)
-        self.btn2.grid(row=7, column=1, padx=5, pady=2)
+        self.btn2 = tk.Button(fm_button, text='登録', width=10, command=self.submit)
+        self.btn2.grid(row=5, column=0, padx=5, pady=4)
 
         # 連続登録ボタン
-        self.btn3 = tk.Button(fm_flg, text='連続登録', command=self.continuous_submit)
-        self.btn3.grid(row=7, column=2, padx=5, pady=2)
+        self.btn3 = tk.Button(fm_button, text='連続登録', width=10, command=self.continuous_submit)
+        self.btn3.grid(row=6, column=0, padx=5, pady=4)
 
-        # スクレイピングボタン
-        self.btn3 = tk.Button(fm_flg, text='スクレイピング', command=self.get_name)
-        self.btn3.grid(row=7, column=3, padx=5, pady=2)
+        # 名称取得
+        self.btn3 = tk.Button(fm_button, text='名称取得', width=10, command=self.get_name)
+        self.btn3.grid(row=7, column=0, padx=5, pady=4)
 
         # テキスト初期化
         self.ge.init()
@@ -419,24 +440,28 @@ class Signup(tk.Tk):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
-        weight = random.random() + 7.5   # ノーマルガチャ
-        self.ch.birth.set(self.rand_date())
-        self.ch.level.set(self.rand_num_hard(3,weight))
-        self.ge.gene_name.set(self.na_dao.select_randone())
-        self.ge.s_HP.set(self.rand_num(3,weight))
-        self.ge.s_MP.set(self.rand_num(3,weight))
-        self.ge.s_sta.set(self.rand_num(3,weight))
-        self.ge.s_atk.set(self.rand_num(3,weight))
-        self.ge.s_vit.set(self.rand_num(3,weight))
-        self.ge.s_mag.set(self.rand_num(3,weight))
-        self.ge.s_des.set(self.rand_num(3,weight))
-        self.ge.s_agi.set(self.rand_num(3,weight))
-        self.ch.charisma.set(self.rand_num(4,weight))
-        self.ch.karma.set(self.rand_num(4,weight))
-        self.ch.fortune.set(self.rand_num(4,weight))
-        self.ch.intelligence.set(self.rand_num(4,weight))
-        self.ch.set_status_all(self.ge, self.ra)
-        
+        if self.mode.get() == 0:
+            weight = random.random() + 7.5   # ノーマルガチャ
+            self.ch.birth.set(self.rand_date())
+            self.ch.level.set(self.rand_num_hard(3,weight))
+            self.ge.gene_name.set(self.na_dao.select_randone())
+            self.ge.s_HP.set(self.rand_num(3,weight))
+            self.ge.s_MP.set(self.rand_num(3,weight))
+            self.ge.s_sta.set(self.rand_num(3,weight))
+            self.ge.s_atk.set(self.rand_num(3,weight))
+            self.ge.s_vit.set(self.rand_num(3,weight))
+            self.ge.s_mag.set(self.rand_num(3,weight))
+            self.ge.s_des.set(self.rand_num(3,weight))
+            self.ge.s_agi.set(self.rand_num(3,weight))
+            self.ch.charisma.set(self.rand_num(4,weight))
+            self.ch.karma.set(self.rand_num(4,weight))
+            self.ch.fortune.set(self.rand_num(4,weight))
+            self.ch.intelligence.set(self.rand_num(4,weight))
+            self.ch.set_status_all(self.ge, self.ra)
+        elif self.mode.get() == 1:
+            pass
+            # geneをランダムで設定
+
 
         #self.set_g_rank()
 
@@ -464,8 +489,10 @@ class Signup(tk.Tk):
         self.ch_status_set(text_label,self.ge.g_rank.get())
 
         # Bランク以上でファーストネームを取得
-        # if int(data)  > 300:
-
+        if int(data)  > 300:
+            self.ge.is_gene_name.set(1)
+        else:
+            self.ge.is_gene_name.set(0)
 
     def rand_num(self, num, weight):
         import numpy as np
@@ -517,7 +544,6 @@ class Signup(tk.Tk):
     # スクレイピングで名前の取得
     def get_name(self):
         self.na_dao.main()
-        
 
     # NOTE:rankに応じたguild_pointを設定
     def set_g_point(self, entry_text, guild_point):
@@ -567,8 +593,8 @@ class Signup(tk.Tk):
         return acquired_rank
 
     # ボタン押下後処理
-    def gene_register(self):
-        # gene登録
+    def submit(self):
+        # gene_idの入力がない場合
         if len(self.ch.gene_id.get()) > 0:
             pass
         else:
@@ -750,9 +776,6 @@ class Signup(tk.Tk):
         self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
         if len(self.cbof['values']):
             self.cbof.current(0)
-
-        
-
 
     # ラベル編集
     def ch_status_set(self,label_text,input_num):
