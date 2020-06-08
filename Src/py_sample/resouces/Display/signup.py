@@ -19,17 +19,22 @@ import DAO.fieldsDAO as _fields
 import DAO.locationsDAO as _locations
 import DAO.namesDAO as _names
 import mycalendar as cal
+import create_race as c_ra
 import tkinter as tk
 from tkinter import ttk
 from turtle import *
 from datetime import *
+from tkinter import messagebox
 
 # Login classes(GUIで実装)
 class Signup(tk.Tk):
     def __init__(self, user_id = None):
         self.root = tk.Tk.__init__(self)
         #　子画面
+        # カレンダー
         self.sub_root = cal.mycalendar(self)
+        # 種族作成
+        self.sub_race = c_ra.create_race(self)
 
         self.geometry('500x540')
         self.title('make character')
@@ -181,15 +186,15 @@ class Signup(tk.Tk):
         # gene
         self.lbl2 = tk.Label(fm_left_1,text = 'gene')
         self.lbl2.grid(row=3, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_left_1, textvariable=self.cbo_gene_list,width=10)
-        self.cbo2['values']=self.ge_dao.set_gene()
-        self.cbo2.grid(row=3, column=1, padx=5, pady=2)
+        self.cboGene = ttk.Combobox(fm_left_1, textvariable=self.cbo_gene_list,width=10)
+        self.cboGene['values']=self.ge_dao.set_gene()
+        self.cboGene.grid(row=3, column=1, padx=5, pady=2)
         # race
         self.lbl3 = tk.Label(fm_left_1,text = 'race')
         self.lbl3.grid(row=4, column=0, padx=5, pady=2)
-        self.cbo3 = ttk.Combobox(fm_left_1, textvariable=self.cbo_race_list,width=10)
+        self.cboRace = ttk.Combobox(fm_left_1, textvariable=self.cbo_race_list,width=10)
         # レベル設定後に取得
-        self.cbo3.grid(row=4, column=1, padx=5, pady=2)
+        self.cboRace.grid(row=4, column=1, padx=5, pady=2)
         
         # birth
         self.lbl4 = tk.Label(fm_left_1,text = 'birth')
@@ -222,9 +227,9 @@ class Signup(tk.Tk):
         # GUILD
         self.lbl5 = tk.Label(fm_status,text = 'GUILD')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
-        self.cbo2 = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
+        self.cboGene = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
         
-        self.cbo2.grid(row=1, column=1, padx=5, pady=2)
+        self.cboGene.grid(row=1, column=1, padx=5, pady=2)
         # LEVEL
         self.lbl6 = tk.Label(fm_status,text = 'level')
         self.lbl6.grid(row=1, column=2, padx=5, pady=2)
@@ -410,8 +415,12 @@ class Signup(tk.Tk):
         self.btn3.grid(row=6, column=0, padx=5, pady=4)
 
         # 名称取得
-        self.btn3 = tk.Button(fm_button, text='名称取得', width=10, command=self.get_name)
-        self.btn3.grid(row=7, column=0, padx=5, pady=4)
+        self.btn4 = tk.Button(fm_button, text='名称取得', width=10, command=self.get_name)
+        self.btn4.grid(row=7, column=0, padx=5, pady=4)
+
+        # 種族作成
+        self.btnCreateRace = tk.Button(fm_button, text = "種族作成", width=10, command=self.sub_race.openDialog)
+        self.btnCreateRace.grid(row=8, column=0, padx=4)
 
         # テキスト初期化
         self.ge.init()
@@ -440,8 +449,8 @@ class Signup(tk.Tk):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
+        weight = random.random() + 7.5   # ノーマルガチャ
         if self.mode.get() == 0:
-            weight = random.random() + 7.5   # ノーマルガチャ
             self.ch.birth.set(self.rand_date())
             self.ch.level.set(self.rand_num_hard(3,weight))
             self.ge.gene_name.set(self.na_dao.select_randone())
@@ -459,16 +468,15 @@ class Signup(tk.Tk):
             self.ch.intelligence.set(self.rand_num(4,weight))
             self.ch.set_status_all(self.ge, self.ra)
         elif self.mode.get() == 1:
-            # 年齢設定
-            d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
-            b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
-            d_birth = date(b_birth.year, b_birth.month, b_birth.day)
-            self.ch.age.set((d_today - d_birth).year)
 
             # geneをランダムで設定
-            self.ch.gene_id.set(random.choice(self.cbo2['values']))
+            self.cbo_gene_list.set(random.choice(self.cboGene['values']))
+            self.cbo_race_list.set(random.choice(self.cboRace['values']))
             self.ch.birth.set(self.rand_date())
             self.ch.level.set(self.rand_num_hard(3,weight))
+            # 年齢設定
+            b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
+            self.ch.age.set(self.calculate_age(b_birth.year, b_birth.month, b_birth.day))
             self.ch.charisma.set(self.rand_num(4,weight))
             self.ch.karma.set(self.rand_num(4,weight))
             self.ch.fortune.set(self.rand_num(4,weight))
@@ -612,6 +620,8 @@ class Signup(tk.Tk):
             pass
         else:
             self.ge_dao.insert_gene(self.ge)
+            # OKポップアップ
+            messagebox.showinfo('確認', '登録が完了しました。')
 
         
     def continuous_submit(self):
@@ -628,11 +638,10 @@ class Signup(tk.Tk):
             self.selected_date.set(str(tstr))
         self.ch.birth.set(self.selected_date.get())
         
-
     # geneが選択された場合
-    def select_gene(self, select_gene):
+    def select_gene(self, _gene):
         # 対象をロック、空の場合は解除
-        if len(select_gene.get()) > 0:
+        if len(_gene.get()) > 0:
             self.ent7.configure(state = 'readonly')
             self.ent8.configure(state = 'readonly')
             self.ent9.configure(state = 'readonly')
@@ -666,9 +675,9 @@ class Signup(tk.Tk):
             self.chkgn.configure(state = 'active')
     
     # raceが選択された場合
-    def select_race(self, select_race):
+    def select_race(self, _race):
         # 選択したraceを取得
-        s_race = self.ra_dao.pickup_race(self.cbo_race_list.get())
+        s_race = self.ra_dao.pickup_race(_race.get())
 
         # 対象に選択したraceの値を反映
         self.ra.set_select_race(s_race)
@@ -768,17 +777,17 @@ class Signup(tk.Tk):
                 pass
             
         # NOTE:race:levelに応じて選択可能種族を設定
-        self.cbo3['values']=self.ra_dao.set_target_race(level)
-        if len(self.cbo3['values']):
-            self.cbo3.current(0)
+        self.cboRace['values']=self.ra_dao.set_target_race(level)
+        if len(self.cboRace['values']):
+            self.cboRace.current(0)
 
         # NOTE:levelに応じて選択可能ランクを設定
         self.rank_range = self.set_rank_range(level)
 
         # guild_rank
-        self.cbo2['values']=self.rank_range
-        if len(self.cbo2['values']):
-            self.cbo2.current(0)    
+        self.cboGene['values']=self.rank_range
+        if len(self.cboGene['values']):
+            self.cboGene.current(0)    
 
         # fiel
         self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
@@ -795,6 +804,27 @@ class Signup(tk.Tk):
             return int('0' + str_number)
         else:
             return int(str_number)
+    
+    # 年齢計算
+    def calculate_age(self, year, month, day):
+        """年齢を返す"""
+        today = date.today()
+        birth = date(year, month, day)
+        date_delta = today - birth
+
+        age = 0
+        total_days = date_delta.days
+        for year in range(birth.year, today.year):
+            # 400で割り切れるか、4では割り切れるが100で割り切れないなら閏年
+            if year % 400 == 0 or (year % 4 == 0 and year % 100 != 0):
+                day = 366
+            else:
+                day = 365
+
+            if total_days >= day:
+                age += 1
+                total_days -= day
+        return age
 
      
 # import以外から呼び出された場合のみこのファイルを実行

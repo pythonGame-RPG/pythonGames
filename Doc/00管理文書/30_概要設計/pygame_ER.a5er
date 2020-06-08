@@ -817,7 +817,7 @@ Page=MAIN
 Left=200
 Top=1250
 Field="名前","name","varchar(20)","NOT NULL",,"","",$FFFFFFFF,""
-Field="使用回数","users_num","int","NOT NULL",,"1","",$FFFFFFFF,""
+Field="使用人数","users_num","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="流行度","trend","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
 Field="削除フラグ","is_deleted","tinyint","NOT NULL",,"","",$FFFFFFFF,""
@@ -829,6 +829,6 @@ Index==1,name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200606140249
+ModifiedDateTime=20200527210538
 Position="MAIN",200,1250
 ZOrder=26
