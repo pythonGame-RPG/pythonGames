@@ -21,6 +21,7 @@ import tkinter as tk
 from DbAccess import * 
 import DTO.names as DTO
 from settings import *
+import collections
 
 class NameDAO():
     def __init__(self):
@@ -157,10 +158,13 @@ class NameDAO():
 
                 print(kana_name)
 
+            # リストを集計
+            # c = collections.Counter(name_list)
+
             # INSERT
             NameDAO().insert_name(name_list)
             # UPDATE(DELETE)
-            NameDAO().delete_name(name_list)
+            # NameDAO().delete_name()
             # 重複を除去しtrendを設定
             rem_list = list(set(name_list))
             # UPDATE

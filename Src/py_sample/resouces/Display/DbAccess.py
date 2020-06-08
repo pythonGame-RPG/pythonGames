@@ -71,7 +71,7 @@ class dbaccess:
         sql = sql + ' ) '
         
         # 重複を考慮する場合
-        if duplicate != None:
+        if duplicate != None and len(duplicate) !=0:
             dup = ''
             for dkey,dval in duplicate.items():
                 if len(dup) != 0:

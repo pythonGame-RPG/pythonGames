@@ -385,9 +385,9 @@ class Signup(tk.Tk):
         self.lbl17 = tk.Label(fm_mode,text = 'random_mode')
         self.lbl17.grid(row=0, column=0, padx=5, pady=2)
         self.rdo3 = tk.Radiobutton(fm_mode, value=0, variable=self.mode, text='gene')
-        self.rdo3.grid(row=2, column=0, padx=5, pady=2)
+        self.rdo3.grid(row=2, column=0, padx=5, sticky=tk.W, pady=2)
         self.rdo4 = tk.Radiobutton(fm_mode, value=1, variable=self.mode, text='character')
-        self.rdo4.grid(row=3, column=0, padx=5, pady=2)
+        self.rdo4.grid(row=3, column=0, padx=5, sticky=tk.W, pady=2)
 
         # ランダムボタン
         self.btn1 = tk.Button(fm_mode, text='ランダム生成', width=10, command=self.random_generate)
@@ -459,8 +459,21 @@ class Signup(tk.Tk):
             self.ch.intelligence.set(self.rand_num(4,weight))
             self.ch.set_status_all(self.ge, self.ra)
         elif self.mode.get() == 1:
-            pass
+            # 年齢設定
+            d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
+            b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
+            d_birth = date(b_birth.year, b_birth.month, b_birth.day)
+            self.ch.age.set((d_today - d_birth).year)
+
             # geneをランダムで設定
+            self.ch.gene_id.set(random.choice(self.cbo2['values']))
+            self.ch.birth.set(self.rand_date())
+            self.ch.level.set(self.rand_num_hard(3,weight))
+            self.ch.charisma.set(self.rand_num(4,weight))
+            self.ch.karma.set(self.rand_num(4,weight))
+            self.ch.fortune.set(self.rand_num(4,weight))
+            self.ch.intelligence.set(self.rand_num(4,weight))
+            self.ch.set_status_all(self.ge, self.ra)
 
 
         #self.set_g_rank()
@@ -599,12 +612,7 @@ class Signup(tk.Tk):
             pass
         else:
             self.ge_dao.insert_gene(self.ge)
-        
-        # 年齢設定
-        d_today = date(self.tdatetime.year, self.tdatetime.month, self.tdatetime.day)
-        b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
-        d_birth = date(b_birth.year, b_birth.month, b_birth.day)
-        self.ch.age.set((d_today - d_birth).year)
+
         
     def continuous_submit(self):
         pass
