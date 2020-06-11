@@ -1,56 +1,32 @@
-import pygame as pg
+from tkinter import *
 
-def main():
-       screen = pg.display.set_mode((640, 480))
-       font = pg.font.Font(None, 32)
-       clock = pg.time.Clock()
-       input_box = pg.Rect(100, 100, 140, 32)
-       color_inactive = pg.Color('lightskyblue3')
-       color_active = pg.Color('dodgerblue2')
-       color = color_inactive
-       active = False
-       text = ''
-       done = False
+class App:
+       def __init__(self, root):
+           self.entry = []
+           self.sv = []
+           self.root = root
+           self.canvas = Canvas(self.root, background="#ffffff", borderwidth=0)
+           self.frame = Frame(self.canvas, background="#ffffff")
+           self.scrolly = Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+           self.scrollx = Scrollbar(self.root, orient="horizontal", command=self.canvas.xview)
+           self.canvas.configure(yscrollcommand=self.scrolly.set)#, xscrollcommand=self.scrollx.set)
+           self.canvas.create_window((4,4), window=self.frame, anchor="nw", tags="self.frame")
+           self.scrolly.pack(side="left", fill="y")
+           self.canvas.pack(side="top", fill="both", expand=True)
+           self.scrollx.pack(side="bottom", fill="x")
+           self.frame.bind("<Configure>", self.onFrameConfigure)
+           for i in range(15):
+               self.entry.append([])
+               self.sv.append([])
+               for c in range(30):
+                   self.sv[i].append(StringVar())
+                   self.sv[i][c].trace("w", lambda name, index, mode, sv=self.sv[i][c], i=i, c=c: self.callback(sv, i, c))
+                   self.entry[i].append(Entry(self.frame, textvariable=self.sv[i][c]).grid(row=c, column=i))
+       def onFrameConfigure(self, event):
+           self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+       def callback(self, sv, column, row):
+           print("Column: "+str(column)+", Row: "+str(row)+" = "+sv.get())
 
-       while not done:
-           for event in pg.event.get():
-               if event.type == pg.QUIT:
-                   done = True
-               if event.type == pg.MOUSEBUTTONDOWN:
-                   # If the user clicked on the input_box rect.
-                   if input_box.collidepoint(event.pos):
-                       # Toggle the active variable.
-                       active = not active
-                   else:
-                       active = False
-                   # Change the current color of the input box.
-                   color = color_active if active else color_inactive
-               if event.type == pg.KEYDOWN:
-                   if active:
-                       if event.key == pg.K_RETURN:
-                           print(text)
-                           text = ''
-                       elif event.key == pg.K_BACKSPACE:
-                           text = text[:-1]
-                       else:
-                           text += event.unicode
-
-           screen.fill((30, 30, 30))
-           # Render the current text.
-           txt_surface = font.render(text, True, color)
-           # Resize the box if the text is too long.
-           width = max(200, txt_surface.get_width()+10)
-           input_box.w = width
-           # Blit the text.
-           screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
-           # Blit the input_box rect.
-           pg.draw.rect(screen, color, input_box, 2)
-
-           pg.display.flip()
-           clock.tick(30)
-
-
-if __name__ == '__main__':
-       pg.init()
-       main()
-       pg.quit()
+root = Tk()
+App(root)
+root.mainloop()

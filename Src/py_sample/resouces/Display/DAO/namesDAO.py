@@ -81,7 +81,9 @@ class NameDAO():
             res = res + 1
         print('◆◆　登録・更新件数：{}件'.format(res))
     
-    def delete_name(self):
+    
+    # TODO
+    def delete_name(self, _in, where):
         sql = 'UPDATE names SET is_deleted = 1 WHERE names in ({})'.format(DELETE_NAME_LIST)
         # IN条件付与
         if _in != None:

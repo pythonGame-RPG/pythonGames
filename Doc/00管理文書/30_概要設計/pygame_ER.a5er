@@ -139,15 +139,16 @@ Field="親種族2","parent_race2_id","int",,,"","0:真祖",$FFFFFFFF,""
 Field="進化2レベル","evolution2_level","tinyint",,,"","",$FFFFFFFF,""
 Field="親種族3","parent_race3_id","int",,,"","0:真祖",$FFFFFFFF,""
 Field="進化3レベル","evolution3_level","tinyint",,,"","",$FFFFFFFF,""
+Field="進化元フラグ","initial_flg","tinyint",,,"","1:進化元",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,race_id ,race_name 
+Index==1,race_id,race_name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215728
+ModifiedDateTime=20200611213126
 Position="MAIN",600,50,132,190
 ZOrder=1
 

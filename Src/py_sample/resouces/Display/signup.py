@@ -227,9 +227,9 @@ class Signup(tk.Tk):
         # GUILD
         self.lbl5 = tk.Label(fm_status,text = 'GUILD')
         self.lbl5.grid(row=1, column=0, padx=5, pady=2)
-        self.cboGene = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
-        
-        self.cboGene.grid(row=1, column=1, padx=5, pady=2)
+        self.cboGUILD = ttk.Combobox(fm_status, textvariable=self.ch.guild_rank,width=3)
+        self.cboGUILD.grid(row=1, column=1, padx=5, pady=2)
+
         # LEVEL
         self.lbl6 = tk.Label(fm_status,text = 'level')
         self.lbl6.grid(row=1, column=2, padx=5, pady=2)
@@ -785,9 +785,9 @@ class Signup(tk.Tk):
         self.rank_range = self.set_rank_range(level)
 
         # guild_rank
-        self.cboGene['values']=self.rank_range
-        if len(self.cboGene['values']):
-            self.cboGene.current(0)    
+        self.cboGUILD['values']=self.rank_range
+        if len(self.cboGUILD['values']):
+            self.cboGUILD.current(0)    
 
         # fiel
         self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
