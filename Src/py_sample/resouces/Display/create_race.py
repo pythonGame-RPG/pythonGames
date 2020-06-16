@@ -35,10 +35,10 @@ class create_race():
         pw_main.add(pw_left)
         pw_right = tk.PanedWindow(pw_main, bg="yellow", orient='vertical')
         pw_main.add(pw_right)
-        # self.window→pw_right_up（右上画面ツリービュー）
+        # self.window→pw_right_up（右上画面登録部）
         pw_right_up = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
         pw_right.add(pw_right_up)
-        # self.window→pw_right_down（右下画面ツリービュー）
+        # self.window→pw_right_down（右下画面ボタン部）
         pw_right_down = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
         pw_right.add(pw_right_down)
 
@@ -87,6 +87,9 @@ class create_race():
         self.lbl14.grid(row=5, column=2, padx=5, pady=2)
         self.ent14 = tk.Entry(frame_top, textvariable=self.ra.p_agi, width=4)
         self.ent14.grid(row=5, column=3, padx=5, pady=2)
+
+        # ツリービュー部
+        self.tree=ttk.Treeview(master)
 
         mainloop()
 
