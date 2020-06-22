@@ -39,6 +39,20 @@ class RaceDAO:
         s_race = [race for race in self.races if race['race_cbo'] == race_cbo]
         return s_race[0]
 
+    # SELECT SQL
+    def select_races(self):
+        sql="""
+            SELECT 
+            *
+            FROM dbo.races 
+            WHERE is_deleted = 0
+            ORDER BY race_id
+        """
+        self.races = dbaccess().exe_sql(sql)
+
+    def insert_race(self, race):
+        pass
+
     # NOTE:レベルによって選択可能データを制限
     def set_target_race(self,level):
         self.race_cbo = []

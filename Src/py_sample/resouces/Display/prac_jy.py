@@ -1,12 +1,27 @@
-import numpy as np
-import matplotlib.pyplot as plt
-# num：桁数
-x = np.arange(0,6,0.1)         # 0から3まで0.1刻みで表示
-exp_X = np.exp(x)
-sum_exp_X = np.sum(exp_X)
-y = exp_X / sum_exp_X         # ソフトマックス関数
+from tkinter import *
+import tkinter.ttk as ttk
 
-plt.plot(x,y)
-plt.show()
+class TreeViewSampleInsert(ttk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.create_widgets()
+        self.pack()
+
+    def create_widgets(self):
+        insertButton = ttk.Button(self,text="insert",command=self.insertData)
+        insertButton.pack()
+        self.tree = ttk.Treeview(self)
+        self.tree.pack()
+
+    def insertData(self):
+        iid = self.tree.insert("",index="end",text="testData")
+        
+        print(iid)
 
 
+if __name__ == '__main__':
+    master = Tk()
+    master.title("TreeViewSampleInsert")
+    master.geometry("300x250")
+    TreeViewSampleInsert(master)
+    master.mainloop()

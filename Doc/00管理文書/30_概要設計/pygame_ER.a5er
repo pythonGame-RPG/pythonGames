@@ -140,6 +140,8 @@ Field="進化2レベル","evolution2_level","tinyint",,,"","",$FFFFFFFF,""
 Field="親種族3","parent_race3_id","int",,,"","0:真祖",$FFFFFFFF,""
 Field="進化3レベル","evolution3_level","tinyint",,,"","",$FFFFFFFF,""
 Field="進化元フラグ","initial_flg","tinyint",,,"","1:進化元",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
@@ -148,7 +150,7 @@ Index==1,race_id,race_name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200611213126
+ModifiedDateTime=20200622224539
 Position="MAIN",600,50,132,190
 ZOrder=1
 
@@ -158,12 +160,11 @@ LName=ユーザマスタ
 Comment=
 TableOption=
 Page=MAIN
-Left=400
+Left=450
 Top=500
 Field="ユーザーID","user_id","varchar(20)","NOT NULL",0,"","",$FFFFFFFF,""
 Field="パスワード","password","varchar(255)","NOT NULL",1,"","",$FFFFFFFF,""
 Field="ユーザ名","name","varchar(16)","NOT NULL",2,"","",$FFFFFFFF,""
-Field="削除フラグ","is_deleted","tinyint",,,"0","",$FFFFFFFF,""
 Field="管理者フラグ","is_admin","tinyint",,,"0","",$FFFFFFFF,""
 Field="セキュリティフラグ","is_sec","tinyint",,,"0","",$FFFFFFFF,""
 Field="セーブフラグ","is_save","tinyint",,,"","",$FFFFFFFF,""
@@ -171,16 +172,18 @@ Field="プレイ時間","play_time","varchar(8)",,,"\q0\q","",$FFFFFFFF,""
 Field="合計時間","total_amount","decimal(10,3)",,,"","",$FFFFFFFF,""
 Field="所持金","money","int(20)",,,"0","",$FFFFFFFF,""
 Field="使用金額","cost","int(20)",,,"0","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"0","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成 ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,user_id ,password 
+Index==1,user_id,password
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215929
-Position="MAIN",400,500,173,376
+ModifiedDateTime=20200622224832
+Position="MAIN",450,500,173,376
 ZOrder=2
 
 [Relation]
@@ -249,15 +252,17 @@ Field="魔防センス","s_des","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="素早さセンス","s_agi","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="センス合計","total_sense","int",,,"8","",$FFFFFFFF,""
 Field="遺伝子ランク","g_rank","char(3)",,,"\qE\q","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID ","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,gene_id ,gene_name 
+Index==1,gene_id,gene_name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215951
+ModifiedDateTime=20200622224707
 Position="MAIN",800,350,151,356
 ZOrder=5
 
@@ -301,15 +306,17 @@ Field="魔防センス","s_def","int",,,"1","",$FFFFFFFF,""
 Field="素早さセンス","s_agi","int",,,"1","",$FFFFFFFF,""
 Field="センス合計","total_sense","int",,,"7","",$FFFFFFFF,""
 Field="遺伝子ランク","d_rank","char(3)",,,"\qE\q","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID ","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,dangeon_id ,name 
+Index==1,dangeon_id,name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215810
+ModifiedDateTime=20200622224619
 Position="MAIN",400,200,174,169
 ZOrder=7
 
@@ -527,15 +534,17 @@ Field="魔防上昇","u_des","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="素早さ上昇","u_agi","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="上昇合計","total_pattern","int","NOT NULL",,"8","8項目の合計",$FFFFFFFF,""
 Field="クラスランク","c_rank","char(3)","NOT NULL",,"\q  E\q","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,class_id ,class_name 
+Index==1,class_id,class_name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215827
+ModifiedDateTime=20200622224912
 Position="MAIN",700,750,138,198
 ZOrder=15
 
@@ -552,15 +561,17 @@ Field="タレント名","talent_name","varchar(20)","NOT NULL",,"","",$FFFFFFFF,
 Field="増加量","up_point","int","NOT NULL",,"1","1-100、割合",$FFFFFFFF,""
 Field="増加項目","up_code","varchar(20)","NOT NULL",,"1","1:HP",$FFFFFFFF,""
 Field="タレントランク","t_rank","char(3)","NOT NULL",,"\q  G\q","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
 Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
-Index==1,talent_id ,talent_name 
+Index==1,talent_id,talent_name
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200518215839
+ModifiedDateTime=20200622225003
 Position="MAIN",800,1000,138,155
 ZOrder=16
 
@@ -680,6 +691,8 @@ Field="敗北数","defeat","tinyint","NOT NULL",,"1","",$FFFFFFFF,""
 Field="強度","strength","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="資産","assets","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="GDP","GDP","int","NOT NULL",,"1","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
@@ -687,7 +700,7 @@ Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200503174442
+ModifiedDateTime=20200622225045
 Position="MAIN",500,1200,157,225
 ZOrder=21
 
@@ -711,6 +724,8 @@ Field="地主ID","character_id","int",,,"0","",$FFFFFFFF,""
 Field="資産","assets","int","NOT NULL",,"0","",$FFFFFFFF,""
 Field="文明P","civil_point","int",,,"0","",$FFFFFFFF,""
 Field="家族数","family","tinyint",,,"0","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
@@ -718,7 +733,7 @@ Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200503174557
+ModifiedDateTime=20200622225157
 Position="MAIN",1150,1200,157,251
 ZOrder=22
 
@@ -754,6 +769,8 @@ Field="文明度","civilization","int",,,"","平均",$FFFFFFFF,""
 Field="人口","population","int",,,"1","",$FFFFFFFF,""
 Field="資産","assets","int","NOT NULL",,"1","",$FFFFFFFF,""
 Field="GDP","GDP","int",,,"","",$FFFFFFFF,""
+Field="バージョン","version","tinyint",,,"","",$FFFFFFFF,""
+Field="削除フラグ","is_deleted","tinyint",,,"","",$FFFFFFFF,""
 Field="作成日","ins_date","datetime",,,"","",$FFFFFFFF,""
 Field="作成ID","ins_id","varchar(10)",,,"","",$FFFFFFFF,""
 Field="更新日","upd_date","datetime",,,"","",$FFFFFFFF,""
@@ -761,7 +778,7 @@ Field="更新ID","upd_id","varchar(10)",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200503174507
+ModifiedDateTime=20200622225124
 Position="MAIN",800,1200,166,225
 ZOrder=23
 
