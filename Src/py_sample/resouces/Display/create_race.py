@@ -15,6 +15,7 @@ class create_race():
         import datetime
         self.parent = parent
         self.dialog = None
+        self.targetRa = tk.StringVar()
         self.mode = tk.IntVar()
         self.iid=""
         self.rootiid=""
@@ -62,15 +63,15 @@ class create_race():
         treeFrame = tk.PanedWindow(pw_main, bg="cyan", orient='vertical')
         self.tree = ttk.Treeview(treeFrame)
         # ツリーの項目が選択されたら、選択された種族を表示する
-        # self.tree.bind("<<TreeviewSelect>>",self.select_races)
+        self.tree.bind("<<TreeviewSelect>>",self.targetRace)
         # 列名をつける
         self.tree.heading("#0",text="race_tree")
         self.tree.pack()
-        # 種族ツリー作成
-        self.makeTree()
         # rootのiidを登録
         self.rootiid = self.tree.insert("","end",text="Home")
         self.iid = self.rootiid
+        # 種族ツリー作成
+        self.makeTree()
         return treeFrame
 
     def setMode(self,pw_right):
@@ -140,7 +141,7 @@ class create_race():
 
         # 選択したraceを取得
         self.s_race = self.ra_dao.select_races()
-        initial_race = [race for race in s_race if race['initial_flg'] == 1]
+        initial_race = [race for race in self.s_race if race['initial_flg'] == 1]
         
         # ツリーごとの種族要素を取得
         self.setRaceTree(initial_race)
@@ -148,43 +149,62 @@ class create_race():
     # raceのツリー構造を生成
     def setRaceTree(self,_addTree):
 
-        race_flg = True
-
+        # _addTree:アクティブツリーのノード
         for _race in _addTree:
             
-            addRace = [race for race in s_race if race['parent_race1_id'] == _race['race_id'] 
-                or race['parent_race2_id'] == _race['race_id'] or race['parent_race3_id'] == _race['race_id']]
+            self.rootiid = self.tree.insert(self.iid,"end",text=str(_race['race_id']) + ':' + _race['race_name'])
+            self.iid = self.rootiid
 
+            # 進化先raceを取得
+            addRace = [race for race in self.s_race if _race['parent_race1_id'] == race['race_id'] 
+                or _race['parent_race2_id'] == race['race_id'] or _race['parent_race3_id'] == race['race_id']]
+
+            # 進化先が存在する場合
             if addRace is not None:
-                self.insertRace(_race['race_id'], addRace)
+                self.raceTree[self.iid] = addRace
                 # None出ない場合子種族を件数分るループ
-                setRaceTree(addTree)
-            else:
-                return
-        
+                self.setRaceTree(addRace)
+
+    # 指定されたディレクトリを反映
+    def targetRace(self,event):
+        self.iid = self.tree.focus()
+        if self.iid:
+            if self.mode.get() == 0:
+                # 新規登録の場合、右画面の項目を初期化
+                self.ra.init()
+                
+                if self.iid == 'I001':
+                    # 進化元フラグON
+                    self.ra.initial_flg.set(1)
+                else:
+                    self.ra.initial_flg.set(0)
+                    self.ra.parent_race1_id == self.tree.item(self.iid,"text")
 
 
-    #指定されたディレクトリに子階層を加える
-    def insertRace(self, _race_iid, addRace):
-        # ディレクトリ名がない場合は処理しない
-        if addRace != "":
+            elif self.mode.get() == 1 and self.iid is not 'I001':
+                # 編集の場合、選択ツリーのraceを右画面に表示
+                race = self.raceTree[self.iid][0]
 
-            """
-            children = self.tree.get_children(_race_iid)
-            
-            # 同じ階層に同じ名前で作成は不可
-            for child in children:
-                childname = self.tree.item(child,"text")
-                if childname == addRace:
-                    messagebox.showerror("登録エラー","既に登録されています")
-                    return
-            """
-            # addRaceを件数分ツリーに追加
-            for child in addRace:
-                self.tree.insert(_race_iid,"end",text=addRace['race_id'])
-                # ツリーリストに追加
-                self.raceTree[_race_iid] = addRace
-            
+                self.ra.race_name.set(race['race_name'])
+                self.ra.race_rank.set(race['r_rank'])
+                self.ra.p_HP.set(race['p_HP'])
+                self.ra.p_MP.set(race['p_MP'])
+                self.ra.p_sta.set(race['p_sta'])
+                self.ra.p_atk.set(race['p_atk'])
+                self.ra.p_vit.set(race['p_vit'])
+                self.ra.p_mag.set(race['p_mag'])
+                self.ra.p_des.set(race['p_des'])
+                self.ra.p_agi.set(race['p_agi'])
+                self.ra.parent_race1_id.set(race['parent_race1_id'])
+                self.ra.evolution1_level.set(race['evolution1_level'])
+                self.ra.parent_race2_id.set(race['parent_race2_id'])
+                self.ra.evolution2_level.set(race['evolution2_level'])
+                self.ra.parent_race3_id.set(race['parent_race3_id'])
+                self.ra.evolution3_level.set(race['evolution3_level'])
+                self.ra.initial_flg.set(race['initial_flg'])
+
+
+
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304

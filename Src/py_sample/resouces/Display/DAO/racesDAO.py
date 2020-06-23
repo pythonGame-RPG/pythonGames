@@ -49,6 +49,7 @@ class RaceDAO:
             ORDER BY race_id
         """
         self.races = dbaccess().exe_sql(sql)
+        return self.races
 
     def insert_race(self, race):
         pass
