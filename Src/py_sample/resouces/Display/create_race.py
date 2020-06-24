@@ -17,14 +17,21 @@ class create_race():
         self.dialog = None
         self.targetRa = tk.StringVar()
         self.mode = tk.IntVar()
+        self.evoLevel = tk.IntVar()
+        self.choosedRace = tk.StringVar()
         self.iid=""
         self.rootiid=""
+        self.raceRoot = {}
         self.raceTree = {}
         self.s_race = []
 
         # DBアクセス用
         self.ra = races.Race()
         self.ra_dao = _races.RaceDAO()
+
+        #モード変更イベント
+        self.mode.trace("w", lambda *args: self.changeMode())
+
 
     def openDialog(self):        
        # 子画面クラス
@@ -51,6 +58,10 @@ class create_race():
         # self.window→pw_right_up2（右上画面登録部）
         pw_right_up2 = self.createStatus(pw_right)
         pw_right.add(pw_right_up2)
+
+        # self.window→pw_right_up3（右下画面登録部）
+        pw_right_up3 = self.createRace(pw_right)
+        pw_right.add(pw_right_up3)
 
         # self.window→pw_right_down（右下画面ボタン部）
         pw_right_down = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
@@ -80,13 +91,43 @@ class create_race():
         # sex
         self.lblmode = tk.Label(pw_right_up1,text = 'mode')
         self.lblmode.grid(row=3, column=2, padx=5, pady=2)
-        self.rdo1 = tk.Radiobutton(pw_right_up1, value=0, variable=self.mode, text='新規登録')
-        self.rdo1.grid(row=3, column=3, padx=5, pady=2)
-        self.rdo2 = tk.Radiobutton(pw_right_up1, value=1, variable=self.mode, text='編集')
-        self.rdo2.grid(row=3, column=4, padx=5, pady=2)
+        self.rdoEdit = tk.Radiobutton(pw_right_up1, value=0, variable=self.mode, text='編集')
+        self.rdoEdit.grid(row=3, column=3, padx=5, pady=2)
+        self.rdoNew = tk.Radiobutton(pw_right_up1, value=1, variable=self.mode, text='新規登録')
+        self.rdoNew.grid(row=3, column=4, padx=5, pady=2)
 
         return pw_right_up1
 
+    # 名前部作成
+    def createRace(self,pw_right):
+        pw_right_up3 = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
+
+        self.lbl_titleName = tk.Label(pw_right_up3,text="name",width=9)
+        self.lbl_titleName.grid(row=0, column=0, padx=5, pady=2, columnspan = 4)
+
+        # 種族選択
+        self.lblChoice = tk.Label(pw_right_up3,text="種族選択",width=9)
+        self.lblChoice.grid(row=1, column=0, padx=5, pady=2)
+        self.cboChoice = ttk.Combobox(pw_right_up3, textvariable=self.choosedRace, width=14)
+        self.cboChoice.grid(row=1, column=1, padx=5, pady=2)
+        self.cboChoice['values'] = self.getRaceValue()
+        # 種族名
+        self.lblName = tk.Label(pw_right_up3,text="種族名",width=9)
+        self.lblName.grid(row=2, column=0, padx=5, pady=2)
+        self.entName = tk.Entry(pw_right_up3, textvariable=self.ra.race_name, width=16)
+        self.entName.grid(row=2, column=1, padx=5, pady=2)
+        # 進化レベル
+        self.lblLevel = tk.Label(pw_right_up3,text="進化レベル",width=9)
+        self.lblLevel.grid(row=4, column=0, padx=5, pady=2)
+        self.entLevel = tk.Entry(pw_right_up3, textvariable=self.evoLevel, width=6)
+        self.entLevel.grid(row=4, column=1, padx=5, pady=2)
+
+        # 種族選択イベント
+        self.choosedRace.trace("w", lambda *args: self.select_race(self.choosedRace))
+
+        return pw_right_up3
+
+    # ステータス部作成
     def createStatus(self, pw_right):
 
         pw_right_up2 = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
@@ -154,6 +195,8 @@ class create_race():
             
             self.rootiid = self.tree.insert(self.iid,"end",text=str(_race['race_id']) + ':' + _race['race_name'])
             self.iid = self.rootiid
+            # 選択種族を格納
+            self.raceRoot[self.iid] = _race
 
             # 進化先raceを取得
             addRace = [race for race in self.s_race if _race['parent_race1_id'] == race['race_id'] 
@@ -165,43 +208,99 @@ class create_race():
                 # None出ない場合子種族を件数分るループ
                 self.setRaceTree(addRace)
 
-    # 指定されたディレクトリを反映
+    # 種族選択時
     def targetRace(self,event):
         self.iid = self.tree.focus()
-        if self.iid:
+
+        # ホームでない場合
+        if self.iid != 'I001':
+
+            # 編集：アクティブ
+            self.rdoEdit.configure(state = 'normal')
+            
+            #race:選択ツリー
+            race = self.raceRoot[self.iid]
+
+            # 進化先がすべて埋まっている場合→新規登録不可
+            if race['parent_race1_id'] != None and race['parent_race2_id'] != None and race['parent_race2_id'] != None:
+                self.rdoNew.configure(state = 'disabled')
+                self.mode.set(0)
+            elif race['r_rank'] == 'SSS':
+                self.rdoNew.configure(state = 'disabled')
+                self.mode.set(0)
+            else:
+                self.rdoNew.configure(state = 'normal')
+                self.rdoEdit.configure(state = 'normal')
+                self.mode.set(0)
+
             if self.mode.get() == 0:
+                # 編集の場合、選択ツリーのraceを右画面に表示
+                self.ra.set_select_race(race)
+
+            elif self.mode.get() == 1:
                 # 新規登録の場合、右画面の項目を初期化
                 self.ra.init()
-                
-                if self.iid == 'I001':
-                    # 進化元フラグON
-                    self.ra.initial_flg.set(1)
-                else:
-                    self.ra.initial_flg.set(0)
-                    self.ra.parent_race1_id == self.tree.item(self.iid,"text")
 
+                self.ra.initial_flg.set(0)
+                self.ra.parent_race1_id == self.tree.item(self.iid,"text")
 
-            elif self.mode.get() == 1 and self.iid is not 'I001':
-                # 編集の場合、選択ツリーのraceを右画面に表示
-                race = self.raceTree[self.iid][0]
+        else:
+            # 編集不可
+            self.rdoEdit.configure(state = 'disabled')
+            self.mode.set(1)
+            self.ra.init()
 
-                self.ra.race_name.set(race['race_name'])
-                self.ra.race_rank.set(race['r_rank'])
-                self.ra.p_HP.set(race['p_HP'])
-                self.ra.p_MP.set(race['p_MP'])
-                self.ra.p_sta.set(race['p_sta'])
-                self.ra.p_atk.set(race['p_atk'])
-                self.ra.p_vit.set(race['p_vit'])
-                self.ra.p_mag.set(race['p_mag'])
-                self.ra.p_des.set(race['p_des'])
-                self.ra.p_agi.set(race['p_agi'])
-                self.ra.parent_race1_id.set(race['parent_race1_id'])
-                self.ra.evolution1_level.set(race['evolution1_level'])
-                self.ra.parent_race2_id.set(race['parent_race2_id'])
-                self.ra.evolution2_level.set(race['evolution2_level'])
-                self.ra.parent_race3_id.set(race['parent_race3_id'])
-                self.ra.evolution3_level.set(race['evolution3_level'])
-                self.ra.initial_flg.set(race['initial_flg'])
+            # 進化元フラグON
+            self.ra.initial_flg.set(1)
+    def getRaceValue(self):
+        raceList = {}
+        acquired_rank = self.getRaceRank(self.raceRoot[self.iid]['r_rank'])
+
+        for data in self.raceRoot.values():
+            if data['r_rank'] in acquired_rank:
+                raceList[data['race_id']] = data['r_rank'] + ':' + data['race_name']
+        
+        return raceList.values()
+
+    def getRaceRank(self, r_rank):
+        acquired_rank = []
+        if r_rank == 'SS':
+            acquired_rank.append("SSS")
+        if r_rank == 'S':
+            acquired_rank.append("SS")
+        if r_rank == 'A':
+            acquired_rank.append("S")
+        if r_rank == 'B':
+            acquired_rank.append("A")
+        if r_rank == 'C':
+            acquired_rank.append("B")
+        if r_rank == 'D':
+            acquired_rank.append("C")
+        if r_rank == 'E':
+            acquired_rank.append("D")
+        if r_rank == 'F':
+            acquired_rank.append("E")
+        if r_rank == 'G':
+            acquired_rank.append("F")
+        
+        return acquired_rank
+            
+    # raceが選択された場合
+    def select_race(self, _race):
+        # 選択したraceを取得
+        s_race = self.ra_dao.pickup_race(_race.get())
+
+        # 対象に選択したraceの値を反映
+        self.ra.set_select_race(s_race)
+
+    def changeMode(self):
+        if self.mode.get() == 0:
+            # 種族コンボボックス選択可
+            self.cboChoice.configure(state = 'disabled')
+        else:
+            # 種族コンボボックス選択不可
+                self.cboChoice.configure(state = 'normal')
+
 
 
 

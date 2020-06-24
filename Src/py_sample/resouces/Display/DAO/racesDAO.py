@@ -36,7 +36,7 @@ class RaceDAO:
 
     # レベル異存なし取得
     def pickup_race(self, race_cbo):
-        s_race = [race for race in self.races if race['race_cbo'] == race_cbo]
+        s_race = [race for race in self.races if race['r_rank'] + ':' + race['race_name'] == race_cbo]
         return s_race[0]
 
     # SELECT SQL
