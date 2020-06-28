@@ -5,6 +5,7 @@ import datetime
 # from turtle import *
 import DAO.racesDAO as _races
 import DTO.races as races
+import Base.basic_module as bs
 
 selected_d = ''
 
@@ -24,13 +25,14 @@ class create_race():
         self.raceRoot = {}
         self.raceTree = {}
         self.s_race = []
+        self.bs = bs.MyStack()
 
         # DBアクセス用
         self.ra = races.Race()
         self.ra_dao = _races.RaceDAO()
 
         #モード変更イベント
-        self.mode.trace("w", lambda *args: self.changeMode())
+        #self.mode.trace("w", lambda *args: self.changeMode())
 
 
     def openDialog(self):        
@@ -110,7 +112,7 @@ class create_race():
         self.lblChoice.grid(row=1, column=0, padx=5, pady=2)
         self.cboChoice = ttk.Combobox(pw_right_up3, textvariable=self.choosedRace, width=14)
         self.cboChoice.grid(row=1, column=1, padx=5, pady=2)
-        self.cboChoice['values'] = self.getRaceValue()
+        
         # 種族名
         self.lblName = tk.Label(pw_right_up3,text="種族名",width=9)
         self.lblName.grid(row=2, column=0, padx=5, pady=2)
@@ -174,6 +176,22 @@ class create_race():
         self.lbl14.grid(row=5, column=2, padx=5, pady=2)
         self.ent14 = tk.Entry(pw_right_up2, textvariable=self.ra.p_agi, width=6)
         self.ent14.grid(row=5, column=3, padx=5, pady=2)
+        # total
+        self.lbl16 = tk.Label(pw_right_up2,text="total",width=9)
+        self.lbl16.grid(row=6, column=0, padx=5, pady=2)
+        self.ent16 = tk.Entry(pw_right_up2, textvariable=self.ra.total_pattern,  width=7)
+        self.ent16.grid(row=6, column=1, padx=5, pady=2)
+        self.ent16.configure(state = 'readonly')
+
+        # gene桁数制限
+        self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 3))
+        self.ra.p_MP.trace("w", lambda *args: self.character_limit(self.ra.p_MP, 3))
+        self.ra.p_sta.trace("w", lambda *args: self.character_limit(self.ra.p_sta, 3))
+        self.ra.p_atk.trace("w", lambda *args: self.character_limit(self.ra.p_atk, 3))
+        self.ra.p_vit.trace("w", lambda *args: self.character_limit(self.ra.p_vit, 3))
+        self.ra.p_mag.trace("w", lambda *args: self.character_limit(self.ra.p_mag, 3))
+        self.ra.p_des.trace("w", lambda *args: self.character_limit(self.ra.p_des, 3))
+        self.ra.p_agi.trace("w", lambda *args: self.character_limit(self.ra.p_agi, 3))
 
         return pw_right_up2
 
@@ -185,32 +203,36 @@ class create_race():
         initial_race = [race for race in self.s_race if race['initial_flg'] == 1]
         
         # ツリーごとの種族要素を取得
-        self.setRaceTree(initial_race)
+        self.setRaceTree(initial_race,self.iid)
 
     # raceのツリー構造を生成
-    def setRaceTree(self,_addTree):
+    def setRaceTree(self,_addTree,_iid):
 
         # _addTree:アクティブツリーのノード
         for _race in _addTree:
             
-            self.rootiid = self.tree.insert(self.iid,"end",text=str(_race['race_id']) + ':' + _race['race_name'])
-            self.iid = self.rootiid
+            rootiid = self.tree.insert(_iid,"end",text=str(_race['race_id']) + ':' + _race['race_name'])
+            iid = rootiid
+            # 選択イベント用
+            self.iid = iid
             # 選択種族を格納
-            self.raceRoot[self.iid] = _race
+            self.raceRoot[iid] = _race
 
             # 進化先raceを取得
             addRace = [race for race in self.s_race if _race['parent_race1_id'] == race['race_id'] 
                 or _race['parent_race2_id'] == race['race_id'] or _race['parent_race3_id'] == race['race_id']]
 
             # 進化先が存在する場合
-            if addRace is not None:
-                self.raceTree[self.iid] = addRace
-                # None出ない場合子種族を件数分るループ
-                self.setRaceTree(addRace)
+            if len(addRace) != 0:
+                self.raceTree[iid] = addRace
+                self.setRaceTree(addRace,iid)
 
     # 種族選択時
     def targetRace(self,event):
         self.iid = self.tree.focus()
+
+        # 種族選択コンボボックス編集
+        self.cboChoice['values'] = self.getRaceValue()
 
         # ホームでない場合
         if self.iid != 'I001':
@@ -222,7 +244,7 @@ class create_race():
             race = self.raceRoot[self.iid]
 
             # 進化先がすべて埋まっている場合→新規登録不可
-            if race['parent_race1_id'] != None and race['parent_race2_id'] != None and race['parent_race2_id'] != None:
+            if race['parent_race1_id'] != None and race['parent_race2_id'] != None and race['parent_race3_id'] != None:
                 self.rdoNew.configure(state = 'disabled')
                 self.mode.set(0)
             elif race['r_rank'] == 'SSS':
@@ -252,6 +274,8 @@ class create_race():
 
             # 進化元フラグON
             self.ra.initial_flg.set(1)
+
+    # 上位ランク取得
     def getRaceValue(self):
         raceList = {}
         acquired_rank = self.getRaceRank(self.raceRoot[self.iid]['r_rank'])
@@ -260,28 +284,28 @@ class create_race():
             if data['r_rank'] in acquired_rank:
                 raceList[data['race_id']] = data['r_rank'] + ':' + data['race_name']
         
-        return raceList.values()
+        return list(raceList.values())
 
     def getRaceRank(self, r_rank):
         acquired_rank = []
         if r_rank == 'SS':
-            acquired_rank.append("SSS")
+            acquired_rank = ['SSS']
         if r_rank == 'S':
-            acquired_rank.append("SS")
+            acquired_rank = ['SSS','SS']
         if r_rank == 'A':
-            acquired_rank.append("S")
+            acquired_rank = ['SSS','SS','S']
         if r_rank == 'B':
-            acquired_rank.append("A")
+            acquired_rank = ['SSS','SS','S','A']
         if r_rank == 'C':
-            acquired_rank.append("B")
+            acquired_rank = ['SSS','SS','S','A','B']
         if r_rank == 'D':
-            acquired_rank.append("C")
+            acquired_rank = ['SSS','SS','S','A','B','C']
         if r_rank == 'E':
-            acquired_rank.append("D")
+            acquired_rank = ['SSS','SS','S','A','B','C','D']
         if r_rank == 'F':
-            acquired_rank.append("E")
+            acquired_rank = ['SSS','SS','S','A','B','C','D','E']
         if r_rank == 'G':
-            acquired_rank.append("F")
+            acquired_rank = ['SSS','SS','S','A','B','C','D','E','F']
         
         return acquired_rank
             
@@ -293,17 +317,37 @@ class create_race():
         # 対象に選択したraceの値を反映
         self.ra.set_select_race(s_race)
 
+    # mode変更時の判定は必要ない
+    """
     def changeMode(self):
         if self.mode.get() == 0:
             # 種族コンボボックス選択可
-            self.cboChoice.configure(state = 'disabled')
+            self.cboChoice.configure(state = 'normal')
         else:
             # 種族コンボボックス選択不可
-                self.cboChoice.configure(state = 'normal')
+                self.cboChoice.configure(state = 'disabled')
+    """
 
-
-
-
+    # 入力文字数制限NOTE:entry_text:gene,num:桁数
+    def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
+        if len(str(entry_text.get())) > 0:
+            # 不適切な値の場合は1に設定
+            if not str(entry_text.get()).isdecimal():
+                entry_text.set(1)
+            if int(str(entry_text.get())) <= 0:
+                entry_text.set(1)
+            # 100より大きい数字が入力されたら100に
+            elif int(str(entry_text.get())) > 10**(num-1):
+                entry_text.set(10**(num-1))
+            entry_text.set(str(entry_text.get())[:num])
+        
+            try:
+                # total_pattern集計
+                self.ra.total_pattern.set(str(int(self.ra.p_HP.get())+int(self.ra.p_MP.get())
+                +int(self.ra.p_sta.get())+int(self.ra.p_atk.get())+int(self.ra.p_vit.get())
+                +int(self.ra.p_mag.get())+int(self.ra.p_des.get())+int(self.ra.p_agi.get())))   
+            except:
+                pass
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304
