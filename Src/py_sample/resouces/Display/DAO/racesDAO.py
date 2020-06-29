@@ -187,6 +187,99 @@ class RaceDAO:
 
         # raceデータ
         return self.race_cbo
+    
+    # 一件登録
+    def insert_race(self, races):
+        r_list = {}
+        r_list['race_name'] = races.race_name.get()
+        r_list['p_HP'] = races.p_HP.get()
+        r_list['p_MP'] = races.p_MP.get()
+        r_list['p_sta'] = races.p_sta.get()
+        r_list['p_atk'] = races.p_atk.get()
+        r_list['p_vit'] = races.p_vit.get()
+        r_list['p_mag'] = races.p_mag.get()
+        r_list['p_des'] = races.p_des.get()
+        r_list['p_agi'] = races.p_agi.get()
+        r_list['total_pattern'] = races.total_pattern.get()
+        r_list['r_rank'] = races.r_rank.get()
+        r_list['parent_race1_id'] = 0
+        r_list['evolution1_level'] = 100
+        r_list['initial_flg'] = races.initial_flg.get()
+        r_list['version'] = 1
+        r_list['ins_date'] = races.ins_date
+        r_list['ins_id'] = races.ins_id
+        r_list['upd_date'] = races.upd_date
+        r_list['upd_id'] = races.upd_id
+
+        res = dbaccess().INSERT_Column(MST_races, r_list)
+        return res
+    
+    # 進化先種族の更新
+    def update_race(self, races):
+        # 更新項目を設定
+        r_list = {}
+        r_list['race_name'] = races.race_name.get()
+        r_list['p_HP'] = races.p_HP.get()
+        r_list['p_MP'] = races.p_MP.get()
+        r_list['p_sta'] = races.p_sta.get()
+        r_list['p_atk'] = races.p_atk.get()
+        r_list['p_vit'] = races.p_vit.get()
+        r_list['p_mag'] = races.p_mag.get()
+        r_list['p_des'] = races.p_des.get()
+        r_list['p_agi'] = races.p_agi.get()
+        r_list['total_pattern'] = races.total_pattern.get()
+        r_list['r_rank'] = races.r_rank.get()
+        r_list['parent_race1_id'] = races.parent_race1_id.get()
+        r_list['evolution1_level'] = races.evolution1_level.get()
+        r_list['parent_race2_id'] = races.parent_race2_id.get()
+        r_list['evolution2_level'] = races.evolution2_level.get()
+        r_list['parent_race3_id'] = races.parent_race3_id.get()
+        r_list['evolution3_level'] = races.evolution3_level.get()
+        r_list['initial_flg'] = races.initial_flg.get()
+        r_list['version'] = races.version.get() + 1
+        r_list['upd_date'] = races.upd_date
+        r_list['upd_id'] = races.upd_id
+
+        # 抽出条件を設定
+        where = {}
+        where['race_id'] = races.race_id.get()
+        where['is_deleted'] = 0
+
+        res = dbaccess().UPDATE_Column(MST_RACES, r_list, where)
+
+    # 子種族の更新
+    def update_child_race(self, races, inRace):
+        # 更新項目を設定
+        r_list = {}
+        r_list['parent_race1_id'] = """
+                                    case when parent_race1_id == 0 
+                                    then  {0} 
+                                    end 
+                                    """.format(inRace.race_id.get())
+        r_list['parent_race2_id'] = """
+                                    case when parent_race1_id != 0 
+                                          and parent_race2_id == null
+                                    then  {0} 
+                                    end 
+                                    """.format(inRace.race_id.get())
+        r_list['parent_race3_id'] = """
+                                    case when parent_race1_id != 0 
+                                          and parent_race2_id != null 
+                                    then  {0} 
+                                    end 
+                                    """.format(inRace.race_id.get())
+        r_list['version'] = races.version + 1
+        r_list['upd_date'] = races.upd_date
+        r_list['upd_id'] = races.upd_id.get()
+
+        # 抽出条件を設定
+        where = {}
+        where['race_id'] = races.race_id.get()
+        where['is_deleted'] = 0
+
+        dbaccess().UPDATE_Column(MST_RACES, r_list, where)
+
+
         
     
 

@@ -5,6 +5,7 @@ from settings import *
 
 class Race:
     def __init__(self):
+        self.race_id = tk.StringVar()
         self.race_name = tk.StringVar()
         self.p_HP = tk.StringVar()
         self.p_MP = tk.StringVar()
@@ -15,7 +16,7 @@ class Race:
         self.p_des = tk.StringVar()
         self.p_agi = tk.StringVar()
         self.total_pattern = tk.IntVar()
-        self.race_rank = tk.StringVar()
+        self.r_rank = tk.StringVar()
         self.parent_race1_id = tk.StringVar()
         self.evolution1_level = tk.StringVar()
         self.parent_race2_id = tk.StringVar()
@@ -23,6 +24,7 @@ class Race:
         self.parent_race3_id = tk.StringVar()
         self.evolution3_level = tk.StringVar()
         self.initial_flg = tk.IntVar()
+        self.version = tk.IntVar()
         self.ins_date = datetime.now()
         self.ins_id = None
         self.upd_date = datetime.now()
@@ -31,14 +33,14 @@ class Race:
         self.bk_total_sense = 0
 
     def init(self):
-        self.p_HP.set(1)
-        self.p_MP.set(1)
-        self.p_sta.set(1)
-        self.p_atk.set(1)
-        self.p_vit.set(1)
-        self.p_mag.set(1)
-        self.p_des.set(1)
-        self.p_agi.set(1)
+        self.p_HP.set(0)
+        self.p_MP.set(0)
+        self.p_sta.set(0)
+        self.p_atk.set(0)
+        self.p_vit.set(0)
+        self.p_mag.set(0)
+        self.p_des.set(0)
+        self.p_agi.set(0)
 
     def insert_race(self):
         dbaccess().insert(self, )
@@ -57,6 +59,7 @@ class Race:
         return race_name
 
     def set_select_race(self, s_race):
+        self.race_id.set(s_race['race_id'])
         self.race_name.set(s_race['race_name'])
         self.p_HP.set(s_race['p_HP'])
         self.p_MP.set(s_race['p_MP'])
@@ -67,6 +70,7 @@ class Race:
         self.p_des.set(s_race['p_des'])
         self.p_agi.set(s_race['p_agi'])
         self.total_pattern.set(s_race['total_pattern'])
+        self.r_rank.set(s_race['r_rank'])
         self.parent_race1_id.set(s_race['parent_race1_id'])
         self.evolution1_level.set(s_race['evolution1_level'])
         self.parent_race2_id.set(s_race['parent_race2_id'])

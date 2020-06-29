@@ -10,6 +10,7 @@ class dbaccess:
     sql_cretable = "CREATE TABLE IF NOT EXISTS "
     sql_insert = "INSERT INTO "
     sql_duplicate = "ON DUPLICATE KEY UPDATE "
+    sql_update = "UPDATE {} SET "
 
     #constructor
     def __init__(self):
@@ -45,7 +46,8 @@ class dbaccess:
         sql = self.sql_DBactive + DBname
         self.cur.execute(sql)
 
-    
+    # 登録処理
+    # param = テーブル名、DTO、重複ディクショナリ
     def INSERT_Column(self, table_name, DTO_data, **duplicate):
         sql = self.sql_insert
         key = ''
@@ -53,7 +55,7 @@ class dbaccess:
         sql = sql + table_name
         sql = sql + " ( "
         for (dkey,dval) in DTO_data.items():
-            # valueをセット
+            # valueをカンマ区切りのstrで取得
             if len(str(dval)) == 0 and len(key) != 0:
                 value = value + 'null'
                 value = value + " ,"
@@ -61,7 +63,7 @@ class dbaccess:
                 value = value + "'{}'".format(str(dval))
                 value = value + " ,"
 
-            # keyをセット
+            # keyをカンマ区切りのstrで取得
             key = key + str(dkey)
             key = key + " ,"
             
@@ -80,6 +82,40 @@ class dbaccess:
                 else:
                     dup = "{0} = {0} + {1}".format(dkey,dval)
             sql = sql + self.sql_duplicate + dup
+            
+        self.cur.execute(sql)
+        self.db.commit()
+
+    # 更新処理
+    # param = テーブル名、DTO、抽出条件ディクショナリ
+    def UPDATE_Column(self, table_name, DTO_data, where):
+        sql = self.sql_update.format(table_name)
+        dataList = []
+        # 更新項目を編集
+        for (dkey,dval) in DTO_data.items():
+            # 更新項目をリストで取得
+            if len(str(dval)) == 0:
+                dataList.append(dkey + ' = null')
+            else:
+                dataList.append(dkey + ' = ' + str(dval))
+        
+        data_str = " ,".join(dataList)
+        sql = sql + data_str
+
+        # where条件を編集
+
+        if where != None and len(where) !=0:
+            wh = ''
+            # 更新項目を編集
+            for (dkey,dval) in where.items():
+                # 更新項目をリストで取得
+                if len(str(dval)) == 0:
+                    dataList.append(dkey + ' = null')
+                else:
+                    dataList.append(dkey + ' = ' + str(dval))
+        
+            data_str = " ,".join(dataList)
+            sql = sql + data_str
             
         self.cur.execute(sql)
         self.db.commit()

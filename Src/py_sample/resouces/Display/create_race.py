@@ -65,9 +65,10 @@ class create_race():
         pw_right_up3 = self.createRace(pw_right)
         pw_right.add(pw_right_up3)
 
-        # self.window→pw_right_down（右下画面ボタン部）
-        pw_right_down = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
-        pw_right.add(pw_right_down)
+        # self.window→pw_right_up4（右下画面ボタン部）
+        pw_right_up4 = self.createButton(pw_right)
+        pw_right.add(pw_right_up4)
+
         
         # TODO:いらなくなったら消す
         self.parent.mainloop()
@@ -195,6 +196,14 @@ class create_race():
 
         return pw_right_up2
 
+    def createButton(self, pw_right):
+        pw_right_up4 = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
+        # 登録ボタンボタン
+        self.btn1 = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
+        self.btn1.grid(row=4, column=0, padx=5, pady=4)
+
+        return pw_right_up4
+
     # textの内容のリセットself.yearに格納
     def makeTree(self):
 
@@ -263,6 +272,7 @@ class create_race():
                 # 新規登録の場合、右画面の項目を初期化
                 self.ra.init()
 
+                # 進化元フラグOFF
                 self.ra.initial_flg.set(0)
                 self.ra.parent_race1_id == self.tree.item(self.iid,"text")
 
@@ -278,7 +288,13 @@ class create_race():
     # 上位ランク取得
     def getRaceValue(self):
         raceList = {}
-        acquired_rank = self.getRaceRank(self.raceRoot[self.iid]['r_rank'])
+        try:
+            acquired_rank = self.getRaceRank(self.raceRoot[self.iid]['r_rank'])
+            self.cboChoice.configure(state = 'normal')
+        except:
+            acquired_rank = []
+            self.cboChoice.configure(state = 'disabled')
+
 
         for data in self.raceRoot.values():
             if data['r_rank'] in acquired_rank:
@@ -311,11 +327,16 @@ class create_race():
             
     # raceが選択された場合
     def select_race(self, _race):
+
         # 選択したraceを取得
         s_race = self.ra_dao.pickup_race(_race.get())
 
-        # 対象に選択したraceの値を反映
-        self.ra.set_select_race(s_race)
+        # コンボボックスの種族が存在しない場合初期化
+        try:
+            # 対象に選択したraceの値を反映
+            self.ra.set_select_race(s_race)
+        except:
+            self.ra.init()
 
     # mode変更時の判定は必要ない
     """
@@ -348,6 +369,26 @@ class create_race():
                 +int(self.ra.p_mag.get())+int(self.ra.p_des.get())+int(self.ra.p_agi.get())))   
             except:
                 pass
+    
+    # 種族登録更新処理
+    def entryRace(self):
+
+        s_race = self.ra
+
+        # TODO:重複チェック実装
+        # TODO:登録確認ポップアップ表示
+
+        # 親種族の更新
+        if self.mode.get() == 0:
+            # 種族更新 
+            self.ra_dao.update_race(s_race)
+        else:
+            # 種族登録 戻り値にInsertした種族を取得
+            res = self.ra_dao.insert_race(s_race)
+            # 子種族の更新
+            if s_race.initial_flg == 0:
+                self.ra_dao.update_child_race(s_race,res)
+        
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304
