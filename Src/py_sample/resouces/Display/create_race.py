@@ -2,7 +2,7 @@ from settings import *
 import tkinter as tk
 import tkinter.ttk as ttk
 import datetime
-# from turtle import *
+import random
 import DAO.racesDAO as _races
 import DTO.races as races
 import Base.basic_module as bs
@@ -183,6 +183,12 @@ class create_race():
         self.ent16 = tk.Entry(pw_right_up2, textvariable=self.ra.total_pattern,  width=7)
         self.ent16.grid(row=6, column=1, padx=5, pady=2)
         self.ent16.configure(state = 'readonly')
+        # rank
+        self.lbl17 = tk.Label(pw_right_up2,text="rank",width=9)
+        self.lbl17.grid(row=6, column=2, padx=5, pady=2)
+        self.ent17 = tk.Entry(pw_right_up2, textvariable=self.ra.rank,  width=7)
+        self.ent17.grid(row=6, column=3, padx=5, pady=2)
+        self.ent17.configure(state = 'readonly')
 
         # gene桁数制限
         self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 3))
@@ -198,8 +204,11 @@ class create_race():
 
     def createButton(self, pw_right):
         pw_right_up4 = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
-        # 登録ボタンボタン
+        # 登録ボタン
         self.btn1 = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
+        self.btn1.grid(row=4, column=0, padx=5, pady=4)
+        # 登録ボタンボタン
+        self.btn1 = tk.Button(pw_right_up4, text='ランダム', width=10, command=self.randomNum)
         self.btn1.grid(row=4, column=0, padx=5, pady=4)
 
         return pw_right_up4
@@ -369,14 +378,21 @@ class create_race():
                 +int(self.ra.p_mag.get())+int(self.ra.p_des.get())+int(self.ra.p_agi.get())))   
             except:
                 pass
-    
+
     # 種族登録更新処理
     def entryRace(self):
 
         s_race = self.ra
 
-        # TODO:重複チェック実装
-        # TODO:登録確認ポップアップ表示
+        # 重複チェック実装
+        res = [race for race in self.raceTree if s_race.race_name.get() == race.race_name 
+                                             and s_race.r_rank.get() == race.r_rank ]
+        if len(res) != 0:
+            bs.Popup.ShowInfo(self,E0001)
+            return
+
+        # 登録確認ポップアップ表示
+        bs.Popup.OKCancelPopup(self,Q0001)
 
         # 親種族の更新
         if self.mode.get() == 0:
@@ -388,7 +404,38 @@ class create_race():
             # 子種族の更新
             if s_race.initial_flg == 0:
                 self.ra_dao.update_child_race(s_race,res)
-        
+
+    # ランダム生成押下時
+    def random_generate(self):
+        # weight = 1.5 # 超レアガチャ
+        # weight = 2   # 高レアガチャ
+        # weight = 3   # レアガチャ
+        weight = random.random() + 7.5   # ノーマルガチャ
+        if self.mode.get() == 0:
+            self.ra.level.set(self.rand_num_hard(3,weight))
+            self.ra.p_HP.set(self.rand_num(3,weight))
+            self.ra.p_MP.set(self.rand_num(3,weight))
+            self.ra.p_sta.set(self.rand_num(3,weight))
+            self.ra.p_atk.set(self.rand_num(3,weight))
+            self.ra.p_vit.set(self.rand_num(3,weight))
+            self.ra.p_mag.set(self.rand_num(3,weight))
+            self.ra.p_des.set(self.rand_num(3,weight))
+            self.ra.p_agi.set(self.rand_num(3,weight))
+        elif self.mode.get() == 1:
+
+            # geneをランダムで設定
+            self.cbo_gene_list.set(random.choice(self.cboGene['values']))
+            self.cbo_race_list.set(random.choice(self.cboRace['values']))
+            self.ch.birth.set(self.rand_date())
+            self.ch.level.set(self.rand_num_hard(3,weight))
+            # 年齢設定
+            b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
+            self.ch.age.set(self.calculate_age(b_birth.year, b_birth.month, b_birth.day))
+            self.ch.charisma.set(self.rand_num(4,weight))
+            self.ch.karma.set(self.rand_num(4,weight))
+            self.ch.fortune.set(self.rand_num(4,weight))
+            self.ch.intelligence.set(self.rand_num(4,weight))
+            self.ch.set_status_all(self.ge, self.ra)
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304
