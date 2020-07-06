@@ -29,7 +29,18 @@ class create_race():
 
         # DBアクセス用
         self.ra = races.Race()
+        self.entry_ra = races.Race()
         self.ra_dao = _races.RaceDAO()
+
+        self.entry_ra.p_HP.trace("w", lambda *args: self.character_limit(self.entry_ra.p_HP, 5))
+        self.entry_ra.p_MP.trace("w", lambda *args: self.character_limit(self.entry_ra.p_MP, 5))
+        self.entry_ra.p_sta.trace("w", lambda *args: self.character_limit(self.entry_ra.p_sta, 5))
+        self.entry_ra.p_atk.trace("w", lambda *args: self.character_limit(self.entry_ra.p_atk, 5))
+        self.entry_ra.p_vit.trace("w", lambda *args: self.character_limit(self.entry_ra.p_vit, 5))
+        self.entry_ra.p_mag.trace("w", lambda *args: self.character_limit(self.entry_ra.p_mag, 5))
+        self.entry_ra.p_des.trace("w", lambda *args: self.character_limit(self.entry_ra.p_des, 5))
+        self.entry_ra.p_agi.trace("w", lambda *args: self.character_limit(self.entry_ra.p_agi, 5))
+
 
         #モード変更イベント
         #self.mode.trace("w", lambda *args: self.changeMode())
@@ -138,67 +149,67 @@ class create_race():
         self.lbl_title = tk.Label(pw_right_up2,text="status",width=9)
         self.lbl_title.grid(row=0, column=0, padx=5, pady=2, columnspan = 4)
         # HP
-        self.lbl7 = tk.Label(pw_right_up2,text="HP",width=9)
+        self.lbl7 = tk.Label(pw_right_up2,text="HP(" + str(self.ra.p_HP.get()) + ")",width=9)
         self.lbl7.grid(row=2, column=0, padx=5, pady=2)
-        self.ent7 = tk.Entry(pw_right_up2, textvariable=self.ra.p_HP, width=6)
+        self.ent7 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_HP, width=6)
         self.ent7.grid(row=2, column=1, padx=5, pady=2)
         # MP
-        self.lbl8 = tk.Label(pw_right_up2,text="MP",width=9)
+        self.lbl8 = tk.Label(pw_right_up2,text="MP(" + str(self.ra.p_MP.get()) + ")",width=9)
         self.lbl8.grid(row=2, column=2, padx=5, pady=2)
-        self.ent8 = tk.Entry(pw_right_up2, textvariable=self.ra.p_MP, width=6)
+        self.ent8 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_MP, width=6)
         self.ent8.grid(row=2, column=3, padx=5, pady=2)
         # sta
-        self.lbl9 = tk.Label(pw_right_up2,text="sta",width=9)
+        self.lbl9 = tk.Label(pw_right_up2,text="sta(" + str(self.ra.p_sta.get()) + ")",width=9)
         self.lbl9.grid(row=3, column=0, padx=5, pady=2)
-        self.ent9 = tk.Entry(pw_right_up2, textvariable=self.ra.p_sta, width=6)
+        self.ent9 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_sta, width=6)
         self.ent9.grid(row=3, column=1, padx=5, pady=2)
         # atk
-        self.lbl10 = tk.Label(pw_right_up2,text="atk",width=9)
+        self.lbl10 = tk.Label(pw_right_up2,text="atk(" + str(self.ra.p_atk.get()) + ")",width=9)
         self.lbl10.grid(row=3, column=2, padx=5, pady=2)
-        self.ent10 = tk.Entry(pw_right_up2, textvariable=self.ra.p_atk, width=6)
+        self.ent10 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_atk, width=6)
         self.ent10.grid(row=3, column=3, padx=5, pady=2)
         # vit
-        self.lbl11 = tk.Label(pw_right_up2,text="vit",width=9)
+        self.lbl11 = tk.Label(pw_right_up2,text="vit(" + str(self.ra.p_vit.get()) + ")",width=9)
         self.lbl11.grid(row=4, column=0, padx=5, pady=2)
-        self.ent11 = tk.Entry(pw_right_up2, textvariable=self.ra.p_vit, width=6)
+        self.ent11 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_vit, width=6)
         self.ent11.grid(row=4, column=1, padx=5, pady=2)
         # mag
-        self.lbl12 = tk.Label(pw_right_up2,text="mag",width=9)
+        self.lbl12 = tk.Label(pw_right_up2,text="mag(" + str(self.ra.p_mag.get()) + ")",width=9)
         self.lbl12.grid(row=4, column=2, padx=5, pady=2)
-        self.ent12 = tk.Entry(pw_right_up2, textvariable=self.ra.p_mag, width=6)
+        self.ent12 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_mag, width=6)
         self.ent12.grid(row=4, column=3, padx=5, pady=2)
         # des
-        self.lbl13 = tk.Label(pw_right_up2,text="des",width=9)
+        self.lbl13 = tk.Label(pw_right_up2,text="des(" + str(self.ra.p_des.get()) + ")",width=9)
         self.lbl13.grid(row=5, column=0, padx=5, pady=2)
-        self.ent13 = tk.Entry(pw_right_up2, textvariable=self.ra.p_des, width=6)
+        self.ent13 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_des, width=6)
         self.ent13.grid(row=5, column=1, padx=5, pady=2)
         # agi
-        self.lbl14 = tk.Label(pw_right_up2,text="agi",width=9)
+        self.lbl14 = tk.Label(pw_right_up2,text="agi(" + str(self.ra.p_agi.get()) + ")",width=9)
         self.lbl14.grid(row=5, column=2, padx=5, pady=2)
-        self.ent14 = tk.Entry(pw_right_up2, textvariable=self.ra.p_agi, width=6)
+        self.ent14 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_agi, width=6)
         self.ent14.grid(row=5, column=3, padx=5, pady=2)
         # total
-        self.lbl16 = tk.Label(pw_right_up2,text="total",width=9)
+        self.lbl16 = tk.Label(pw_right_up2,text="total(" + str(self.ra.total_pattern.get()) + ")",width=9)
         self.lbl16.grid(row=6, column=0, padx=5, pady=2)
-        self.ent16 = tk.Entry(pw_right_up2, textvariable=self.ra.total_pattern,  width=7)
+        self.ent16 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.total_pattern,  width=7)
         self.ent16.grid(row=6, column=1, padx=5, pady=2)
         self.ent16.configure(state = 'readonly')
         # rank
-        self.lbl17 = tk.Label(pw_right_up2,text="rank",width=9)
+        self.lbl17 = tk.Label(pw_right_up2,text="rank(" + self.ra.r_rank.get() + ")",width=9)
         self.lbl17.grid(row=6, column=2, padx=5, pady=2)
-        self.ent17 = tk.Entry(pw_right_up2, textvariable=self.ra.rank,  width=7)
+        self.ent17 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.r_rank,  width=7)
         self.ent17.grid(row=6, column=3, padx=5, pady=2)
         self.ent17.configure(state = 'readonly')
 
         # gene桁数制限
-        self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 3))
-        self.ra.p_MP.trace("w", lambda *args: self.character_limit(self.ra.p_MP, 3))
-        self.ra.p_sta.trace("w", lambda *args: self.character_limit(self.ra.p_sta, 3))
-        self.ra.p_atk.trace("w", lambda *args: self.character_limit(self.ra.p_atk, 3))
-        self.ra.p_vit.trace("w", lambda *args: self.character_limit(self.ra.p_vit, 3))
-        self.ra.p_mag.trace("w", lambda *args: self.character_limit(self.ra.p_mag, 3))
-        self.ra.p_des.trace("w", lambda *args: self.character_limit(self.ra.p_des, 3))
-        self.ra.p_agi.trace("w", lambda *args: self.character_limit(self.ra.p_agi, 3))
+        self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 5))
+        self.ra.p_MP.trace("w", lambda *args: self.character_limit(self.ra.p_MP, 5))
+        self.ra.p_sta.trace("w", lambda *args: self.character_limit(self.ra.p_sta, 5))
+        self.ra.p_atk.trace("w", lambda *args: self.character_limit(self.ra.p_atk, 5))
+        self.ra.p_vit.trace("w", lambda *args: self.character_limit(self.ra.p_vit, 5))
+        self.ra.p_mag.trace("w", lambda *args: self.character_limit(self.ra.p_mag, 5))
+        self.ra.p_des.trace("w", lambda *args: self.character_limit(self.ra.p_des, 5))
+        self.ra.p_agi.trace("w", lambda *args: self.character_limit(self.ra.p_agi, 5))
 
         return pw_right_up2
 
@@ -207,9 +218,9 @@ class create_race():
         # 登録ボタン
         self.btn1 = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
         self.btn1.grid(row=4, column=0, padx=5, pady=4)
-        # 登録ボタンボタン
-        self.btn1 = tk.Button(pw_right_up4, text='ランダム', width=10, command=self.randomNum)
-        self.btn1.grid(row=4, column=0, padx=5, pady=4)
+        # ランダムボタン
+        self.btnRand = tk.Button(pw_right_up4, text='ランダム', width=10, command=self.randomNum)
+        self.btnRand.grid(row=4, column=0, padx=5, pady=4)
 
         return pw_right_up4
 
@@ -293,8 +304,19 @@ class create_race():
 
             # 進化元フラグON
             self.ra.initial_flg.set(1)
+        
+        self.entry_ra.p_HP.set(self.ra.p_HP.get())
+        self.entry_ra.p_MP.set(self.ra.p_MP.get())
+        self.entry_ra.p_sta.set(self.ra.p_sta.get())
+        self.entry_ra.p_atk.set(self.ra.p_atk.get())
+        self.entry_ra.p_vit.set(self.ra.p_vit.get())
+        self.entry_ra.p_mag.set(self.ra.p_mag.get())
+        self.entry_ra.p_des.set(self.ra.p_des.get())
+        self.entry_ra.p_agi.set(self.ra.p_agi.get())
+        self.entry_ra.r_rank.set(self.ra.r_rank.get())
+        self.entry_ra.total_pattern.set(self.ra.total_pattern.get())
 
-    # 上位ランク取得
+    # 上位ランクデータ取得
     def getRaceValue(self):
         raceList = {}
         try:
@@ -333,6 +355,29 @@ class create_race():
             acquired_rank = ['SSS','SS','S','A','B','C','D','E','F']
         
         return acquired_rank
+
+    def getOneRank(self, total):
+        
+        rank = 'G'
+
+        if total > 50000:
+            rank = 'SSS'
+        elif total > 20000:
+            rank = 'SS'
+        elif total > 10000:
+            rank = 'S'
+        elif total > 5000:
+            rank = 'A'
+        elif total > 2000:
+            rank = 'B'
+        elif total > 1000:
+            rank = 'C'
+        elif total > 500:
+            rank = 'D'
+        elif total > 200:
+            rank = 'F'
+        
+        return rank
             
     # raceが選択された場合
     def select_race(self, _race):
@@ -406,36 +451,108 @@ class create_race():
                 self.ra_dao.update_child_race(s_race,res)
 
     # ランダム生成押下時
-    def random_generate(self):
+    def randomNum(self):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
-        weight = random.random() + 7.5   # ノーマルガチャ
+        weight = random.random() + 9.5   # ノーマルガチャ
+
+        # 選択可能ランク
+        acquired_rank = self.getRaceRank(self.ra.r_rank.get())
+
+        reg_race = {}
+        reg_race['r_hp'] = 1
+        reg_race['r_mp'] = 1
+        reg_race['r_sta'] = 1
+        reg_race['r_atk'] = 1
+        reg_race['r_vit'] = 1
+        reg_race['r_mag'] = 1
+        reg_race['r_des'] = 1
+        reg_race['r_agi'] = 1
+
+        # 登録用
+        
+        # 新規、編集ランク制限
         if self.mode.get() == 0:
-            self.ra.level.set(self.rand_num_hard(3,weight))
-            self.ra.p_HP.set(self.rand_num(3,weight))
-            self.ra.p_MP.set(self.rand_num(3,weight))
-            self.ra.p_sta.set(self.rand_num(3,weight))
-            self.ra.p_atk.set(self.rand_num(3,weight))
-            self.ra.p_vit.set(self.rand_num(3,weight))
-            self.ra.p_mag.set(self.rand_num(3,weight))
-            self.ra.p_des.set(self.rand_num(3,weight))
-            self.ra.p_agi.set(self.rand_num(3,weight))
+
+            while self.entry_ra.r_rank.get() not in acquired_rank and sum(reg_race.values()) < self.ra.total_pattern.get():
+
+                # geneをランダムで設定
+                # self.ra.level.set(self.rand_num_hard(3,weight))
+                reg_race['r_hp'] = self.rand_num(5,weight)
+                reg_race['r_mp'] = self.rand_num(5,weight)
+                reg_race['r_sta'] = self.rand_num(5,weight)
+                reg_race['r_atk'] = self.rand_num(5,weight)
+                reg_race['r_vit'] = self.rand_num(5,weight)
+                reg_race['r_mag'] = self.rand_num(5,weight)
+                reg_race['r_des'] = self.rand_num(5,weight)
+                reg_race['r_agi'] = self.rand_num(5,weight)
+
+                weight -= 0.1
+            
+            self.entry_ra.p_HP.set(reg_race['r_hp'])
+            self.entry_ra.p_MP.set(reg_race['r_mp'])
+            self.entry_ra.p_sta.set(reg_race['r_sta'])
+            self.entry_ra.p_atk.set(reg_race['r_atk'])
+            self.entry_ra.p_vit.set(reg_race['r_vit'])
+            self.entry_ra.p_mag.set(reg_race['r_mag'])
+            self.entry_ra.p_des.set(reg_race['r_des'])
+            self.entry_ra.p_agi.set(reg_race['r_agi'])
+            self.entry_ra.total_pattern.set(sum(reg_race.values()))
+
+            # totalからrankを設定
+            self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
+            
         elif self.mode.get() == 1:
 
             # geneをランダムで設定
-            self.cbo_gene_list.set(random.choice(self.cboGene['values']))
-            self.cbo_race_list.set(random.choice(self.cboRace['values']))
-            self.ch.birth.set(self.rand_date())
-            self.ch.level.set(self.rand_num_hard(3,weight))
-            # 年齢設定
-            b_birth = datetime.strptime(self.ch.birth.get(),'%Y/%m/%d')
-            self.ch.age.set(self.calculate_age(b_birth.year, b_birth.month, b_birth.day))
-            self.ch.charisma.set(self.rand_num(4,weight))
-            self.ch.karma.set(self.rand_num(4,weight))
-            self.ch.fortune.set(self.rand_num(4,weight))
-            self.ch.intelligence.set(self.rand_num(4,weight))
-            self.ch.set_status_all(self.ge, self.ra)
+            # self.ra.level.set(self.rand_num_hard(3,weight)
+
+            while self.entry_ra.r_rank.get() in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
+
+                reg_race['r_hp'] = self.rand_num(5,weight)
+                reg_race['r_mp'] = self.rand_num(5,weight)
+                reg_race['r_sta'] = self.rand_num(5,weight)
+                reg_race['r_atk'] = self.rand_num(5,weight)
+                reg_race['r_vit'] = self.rand_num(5,weight)
+                reg_race['r_mag'] = self.rand_num(5,weight)
+                reg_race['r_des'] = self.rand_num(5,weight)
+                reg_race['r_agi'] = self.rand_num(5,weight)
+
+                weight -= 0.1
+            
+            self.entry_ra.p_HP.set(reg_race['r_hp'])
+            self.entry_ra.p_MP.set(reg_race['r_mp'])
+            self.entry_ra.p_sta.set(reg_race['r_sta'])
+            self.entry_ra.p_atk.set(reg_race['r_atk'])
+            self.entry_ra.p_vit.set(reg_race['r_vit'])
+            self.entry_ra.p_mag.set(reg_race['r_mag'])
+            self.entry_ra.p_des.set(reg_race['r_des'])
+            self.entry_ra.p_agi.set(reg_race['r_agi'])
+            self.entry_ra.total_pattern.set(sum(reg_race.values()))
+
+            # totalからrankを設定
+            self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
+
+
+    def rand_num(self, num, weight):
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        a = np.arange(0,weight,0.1)
+        exp_a = np.exp(a)
+        sum_exp_a = np.sum(exp_a)
+        y = exp_a / sum_exp_a
+        rn_int = int(random.choice(y)*10**num)
+        if rn_int > 10**(num-1):
+            rn_int = 10**(num-1)
+        if rn_int == 0:
+            rn_int = random.randint(1,10**(num-2))
+        # plt.plot(a,y)
+        # plt.show()
+        # rad_int = random.randint(1,10**(num-1))
+        return rn_int
+        
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304
