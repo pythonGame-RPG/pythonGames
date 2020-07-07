@@ -20,12 +20,33 @@ class create_race():
         self.mode = tk.IntVar()
         self.evoLevel = tk.IntVar()
         self.choosedRace = tk.StringVar()
+        self.val = tk.DoubleVar()
         self.iid=""
         self.rootiid=""
         self.raceRoot = {}
         self.raceTree = {}
         self.s_race = []
         self.bs = bs.MyStack()
+
+        # 表示ラベル編集用
+        self.HP = tk.StringVar()
+        self.MP = tk.StringVar()
+        self.sta = tk.StringVar()
+        self.atk = tk.StringVar()
+        self.vit = tk.StringVar()
+        self.mag = tk.StringVar()
+        self.des = tk.StringVar()
+        self.agi = tk.StringVar()
+        self.p_total = tk.StringVar()
+        self.HP_label = {'HP':self.HP}
+        self.MP_label = {'MP':self.MP}
+        self.sta_label = {'sta':self.sta}
+        self.atk_label = {'atk':self.atk}
+        self.vit_label = {'vit':self.vit}
+        self.mag_label = {'mag':self.mag}
+        self.des_label = {'des':self.des}
+        self.agi_label = {'agi':self.agi}
+        self.total_label = {'total':self.p_total}
 
         # DBアクセス用
         self.ra = races.Race()
@@ -41,6 +62,15 @@ class create_race():
         self.entry_ra.p_des.trace("w", lambda *args: self.character_limit(self.entry_ra.p_des, 5))
         self.entry_ra.p_agi.trace("w", lambda *args: self.character_limit(self.entry_ra.p_agi, 5))
 
+        # ラベル用イベント
+        self.ra.p_HP.trace("w", lambda *args: self.ch_status_set(self.HP_label,self.ra.p_HP.get()))
+        self.ra.p_MP.trace("w", lambda *args: self.ch_status_set(self.MP_label,self.ra.p_MP.get()))
+        self.ra.p_sta.trace("w", lambda *args: self.ch_status_set(self.sta_label,self.ra.p_sta.get()))
+        self.ra.p_atk.trace("w", lambda *args: self.ch_status_set(self.atk_label,self.ra.p_atk.get()))
+        self.ra.p_vit.trace("w", lambda *args: self.ch_status_set(self.vit_label,self.ra.p_vit.get()))
+        self.ra.p_mag.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.ra.p_mag.get()))
+        self.ra.p_des.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ra.p_des.get()))
+        self.ra.p_agi.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ra.p_agi.get()))
 
         #モード変更イベント
         #self.mode.trace("w", lambda *args: self.changeMode())
@@ -149,59 +179,60 @@ class create_race():
         self.lbl_title = tk.Label(pw_right_up2,text="status",width=9)
         self.lbl_title.grid(row=0, column=0, padx=5, pady=2, columnspan = 4)
         # HP
-        self.lbl7 = tk.Label(pw_right_up2,text="HP(" + str(self.ra.p_HP.get()) + ")",width=9)
+        self.lbl7 = tk.Label(pw_right_up2,textvariable=self.HP,width=9)
         self.lbl7.grid(row=2, column=0, padx=5, pady=2)
         self.ent7 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_HP, width=6)
         self.ent7.grid(row=2, column=1, padx=5, pady=2)
         # MP
-        self.lbl8 = tk.Label(pw_right_up2,text="MP(" + str(self.ra.p_MP.get()) + ")",width=9)
+        self.lbl8 = tk.Label(pw_right_up2,textvariable=self.MP,width=9)
         self.lbl8.grid(row=2, column=2, padx=5, pady=2)
         self.ent8 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_MP, width=6)
         self.ent8.grid(row=2, column=3, padx=5, pady=2)
         # sta
-        self.lbl9 = tk.Label(pw_right_up2,text="sta(" + str(self.ra.p_sta.get()) + ")",width=9)
+        self.lbl9 = tk.Label(pw_right_up2,textvariable=self.sta,width=9)
         self.lbl9.grid(row=3, column=0, padx=5, pady=2)
         self.ent9 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_sta, width=6)
         self.ent9.grid(row=3, column=1, padx=5, pady=2)
         # atk
-        self.lbl10 = tk.Label(pw_right_up2,text="atk(" + str(self.ra.p_atk.get()) + ")",width=9)
+        self.lbl10 = tk.Label(pw_right_up2,textvariable=self.atk,width=9)
         self.lbl10.grid(row=3, column=2, padx=5, pady=2)
         self.ent10 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_atk, width=6)
         self.ent10.grid(row=3, column=3, padx=5, pady=2)
         # vit
-        self.lbl11 = tk.Label(pw_right_up2,text="vit(" + str(self.ra.p_vit.get()) + ")",width=9)
+        self.lbl11 = tk.Label(pw_right_up2,textvariable=self.vit,width=9)
         self.lbl11.grid(row=4, column=0, padx=5, pady=2)
         self.ent11 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_vit, width=6)
         self.ent11.grid(row=4, column=1, padx=5, pady=2)
         # mag
-        self.lbl12 = tk.Label(pw_right_up2,text="mag(" + str(self.ra.p_mag.get()) + ")",width=9)
+        self.lbl12 = tk.Label(pw_right_up2,textvariable=self.mag,width=9)
         self.lbl12.grid(row=4, column=2, padx=5, pady=2)
         self.ent12 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_mag, width=6)
         self.ent12.grid(row=4, column=3, padx=5, pady=2)
         # des
-        self.lbl13 = tk.Label(pw_right_up2,text="des(" + str(self.ra.p_des.get()) + ")",width=9)
+        self.lbl13 = tk.Label(pw_right_up2,textvariable=self.des,width=9)
         self.lbl13.grid(row=5, column=0, padx=5, pady=2)
         self.ent13 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_des, width=6)
         self.ent13.grid(row=5, column=1, padx=5, pady=2)
         # agi
-        self.lbl14 = tk.Label(pw_right_up2,text="agi(" + str(self.ra.p_agi.get()) + ")",width=9)
+        self.lbl14 = tk.Label(pw_right_up2,textvariable=self.agi,width=9)
         self.lbl14.grid(row=5, column=2, padx=5, pady=2)
         self.ent14 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.p_agi, width=6)
         self.ent14.grid(row=5, column=3, padx=5, pady=2)
         # total
-        self.lbl16 = tk.Label(pw_right_up2,text="total(" + str(self.ra.total_pattern.get()) + ")",width=9)
+        self.lbl16 = tk.Label(pw_right_up2,textvariable=self.p_total,width=9)
         self.lbl16.grid(row=6, column=0, padx=5, pady=2)
         self.ent16 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.total_pattern,  width=7)
         self.ent16.grid(row=6, column=1, padx=5, pady=2)
         self.ent16.configure(state = 'readonly')
         # rank
-        self.lbl17 = tk.Label(pw_right_up2,text="rank(" + self.ra.r_rank.get() + ")",width=9)
+        self.lbl17 = tk.Label(pw_right_up2,textvariable="rank(" + self.ra.r_rank.get() + ")",width=9)
         self.lbl17.grid(row=6, column=2, padx=5, pady=2)
         self.ent17 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.r_rank,  width=7)
         self.ent17.grid(row=6, column=3, padx=5, pady=2)
         self.ent17.configure(state = 'readonly')
 
         # gene桁数制限
+        """とってくるだけのデータなのでカット
         self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 5))
         self.ra.p_MP.trace("w", lambda *args: self.character_limit(self.ra.p_MP, 5))
         self.ra.p_sta.trace("w", lambda *args: self.character_limit(self.ra.p_sta, 5))
@@ -210,19 +241,43 @@ class create_race():
         self.ra.p_mag.trace("w", lambda *args: self.character_limit(self.ra.p_mag, 5))
         self.ra.p_des.trace("w", lambda *args: self.character_limit(self.ra.p_des, 5))
         self.ra.p_agi.trace("w", lambda *args: self.character_limit(self.ra.p_agi, 5))
+        """
 
         return pw_right_up2
 
     def createButton(self, pw_right):
         pw_right_up4 = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
+
+        # ランダム生成
+        self.lbl17 = tk.Label(pw_right_up4,text="ランダム生成",width=9)
+        self.lbl17.grid(row=0, column=0, columnspan=2, padx=5, pady=2)
+        # スケールの作成
+        self.sc = ttk.Scale(
+            pw_right_up4,
+            variable=self.val,
+            orient=tk.HORIZONTAL,
+            length=200,
+            from_=-90,
+            to=90
+            # , command=lambda e: print('val:%4d' % self.val.get())
+            )
+        self.sc.grid(row=1, column=0, sticky=(tk.N, tk.E, tk.S, tk.W))
+
+        # weight出力
+        self.entWeight = tk.Entry(pw_right_up4, textvariable=self.val,  width=7)
+        self.entWeight.grid(row=1, column=1, padx=5, pady=2)
+        # self.entWeight.configure(state = 'readonly')
+
         # 登録ボタン
-        self.btn1 = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
-        self.btn1.grid(row=4, column=0, padx=5, pady=4)
+        self.btnEntry = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
+        self.btnEntry.grid(row=5, column=0, columnspan=2, padx=5, pady=4)
+
         # ランダムボタン
         self.btnRand = tk.Button(pw_right_up4, text='ランダム', width=10, command=self.randomNum)
-        self.btnRand.grid(row=4, column=0, padx=5, pady=4)
+        self.btnRand.grid(row=4, column=0, columnspan=2, padx=5, pady=4)
 
         return pw_right_up4
+
 
     # textの内容のリセットself.yearに格納
     def makeTree(self):
@@ -304,6 +359,11 @@ class create_race():
 
             # 進化元フラグON
             self.ra.initial_flg.set(1)
+
+        self.setRaceSelected()
+
+    # 選択したraceを登録用メンバにセット
+    def setRaceSelected(self):
         
         self.entry_ra.p_HP.set(self.ra.p_HP.get())
         self.entry_ra.p_MP.set(self.ra.p_MP.get())
@@ -333,6 +393,7 @@ class create_race():
         
         return list(raceList.values())
 
+    # 選択可能ランクリスト取得
     def getRaceRank(self, r_rank):
         acquired_rank = []
         if r_rank == 'SS':
@@ -356,25 +417,26 @@ class create_race():
         
         return acquired_rank
 
+    # totalからランクを設定
     def getOneRank(self, total):
         
         rank = 'G'
 
         if total > 50000:
             rank = 'SSS'
-        elif total > 20000:
+        elif total > 30000:
             rank = 'SS'
-        elif total > 10000:
+        elif total > 15000:
             rank = 'S'
-        elif total > 5000:
+        elif total > 10000:
             rank = 'A'
-        elif total > 2000:
+        elif total > 7500:
             rank = 'B'
-        elif total > 1000:
+        elif total > 5000:
             rank = 'C'
-        elif total > 500:
+        elif total > 3000:
             rank = 'D'
-        elif total > 200:
+        elif total > 1500:
             rank = 'F'
         
         return rank
@@ -418,16 +480,18 @@ class create_race():
         
             try:
                 # total_pattern集計
-                self.ra.total_pattern.set(str(int(self.ra.p_HP.get())+int(self.ra.p_MP.get())
-                +int(self.ra.p_sta.get())+int(self.ra.p_atk.get())+int(self.ra.p_vit.get())
-                +int(self.ra.p_mag.get())+int(self.ra.p_des.get())+int(self.ra.p_agi.get())))   
+                self.entry_ra.total_pattern.set(str(int(self.entry_ra.p_HP.get())+int(self.entry_ra.p_MP.get())
+                +int(self.entry_ra.p_sta.get())+int(self.entry_ra.p_atk.get())+int(self.entry_ra.p_vit.get())
+                +int(self.entry_ra.p_mag.get())+int(self.entry_ra.p_des.get())+int(self.entry_ra.p_agi.get())))   
             except:
                 pass
+
+            self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
 
     # 種族登録更新処理
     def entryRace(self):
 
-        s_race = self.ra
+        s_race = self.entry_ra
 
         # 重複チェック実装
         res = [race for race in self.raceTree if s_race.race_name.get() == race.race_name 
@@ -455,9 +519,10 @@ class create_race():
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
-        weight = random.random() + 9.5   # ノーマルガチャ
+        #weight = random.random() + 100   # ノーマルガチャ
 
         # 選択可能ランク
+        # TODO：チョイス可能に設定する
         acquired_rank = self.getRaceRank(self.ra.r_rank.get())
 
         reg_race = {}
@@ -475,7 +540,14 @@ class create_race():
         # 新規、編集ランク制限
         if self.mode.get() == 0:
 
-            while self.entry_ra.r_rank.get() not in acquired_rank and sum(reg_race.values()) < self.ra.total_pattern.get():
+            for i in range(100):
+
+                # 重み付けF-C安定
+                weight = 92
+                # あたり
+                # weight = 70
+
+                weight = weight + self.val.get() - i*0.1
 
                 # geneをランダムで設定
                 # self.ra.level.set(self.rand_num_hard(3,weight))
@@ -488,7 +560,8 @@ class create_race():
                 reg_race['r_des'] = self.rand_num(5,weight)
                 reg_race['r_agi'] = self.rand_num(5,weight)
 
-                weight -= 0.1
+                if self.getOneRank(sum(reg_race.values())) in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
+                    break
             
             self.entry_ra.p_HP.set(reg_race['r_hp'])
             self.entry_ra.p_MP.set(reg_race['r_mp'])
@@ -508,8 +581,17 @@ class create_race():
             # geneをランダムで設定
             # self.ra.level.set(self.rand_num_hard(3,weight)
 
-            while self.entry_ra.r_rank.get() in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
+            for i in range(100):
 
+                # 重み付けF-C安定
+                weight = 92
+                # あたり
+                # weight = 70
+
+                weight = weight + self.val.get() - i*0.1
+
+                # geneをランダムで設定
+                # self.ra.level.set(self.rand_num_hard(3,weight))
                 reg_race['r_hp'] = self.rand_num(5,weight)
                 reg_race['r_mp'] = self.rand_num(5,weight)
                 reg_race['r_sta'] = self.rand_num(5,weight)
@@ -519,7 +601,8 @@ class create_race():
                 reg_race['r_des'] = self.rand_num(5,weight)
                 reg_race['r_agi'] = self.rand_num(5,weight)
 
-                weight -= 0.1
+                if self.getOneRank(sum(reg_race.values())) in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
+                    break
             
             self.entry_ra.p_HP.set(reg_race['r_hp'])
             self.entry_ra.p_MP.set(reg_race['r_mp'])
@@ -533,7 +616,6 @@ class create_race():
 
             # totalからrankを設定
             self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
-
 
     def rand_num(self, num, weight):
         import numpy as np
@@ -552,7 +634,11 @@ class create_race():
         # plt.show()
         # rad_int = random.randint(1,10**(num-1))
         return rn_int
-        
+    
+    # ラベル編集
+    def ch_status_set(self,label_text,input_num):
+        for dkey, dval in label_text.items():
+            dval.set(dkey + '（{}）'.format(input_num))
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304
