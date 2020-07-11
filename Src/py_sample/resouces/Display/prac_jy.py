@@ -1,27 +1,26 @@
-from tkinter import *
-import tkinter.ttk as ttk
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+import time
 
-class TreeViewSampleInsert(ttk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.create_widgets()
-        self.pack()
+weight = 10
+num = 5
 
-    def create_widgets(self):
-        insertButton = ttk.Button(self,text="insert",command=self.insertData)
-        insertButton.pack()
-        self.tree = ttk.Treeview(self)
-        self.tree.pack()
+for i in range(100):
 
-    def insertData(self):
-        iid = self.tree.insert("",index="end",text="testData")
-        
-        print(iid)
+    a = np.arange(0,i+1,0.1)
+    exp_a = np.exp(a)
+    sum_exp_a = np.sum(exp_a)
+    y = exp_a / sum_exp_a
+    rn_int = int(random.choice(y)*10**num)
+    if rn_int > 10**(num-1):
+        rn_int = 10**(num-1)
+    if rn_int == 0:
+        rn_int = random.randint(1,10**(num-2))
+    plt.plot(a,y)
+    plt.show()
+    rad_int = random.randint(1,10**(num-1))
 
+    print(i+1)
 
-if __name__ == '__main__':
-    master = Tk()
-    master.title("TreeViewSampleInsert")
-    master.geometry("300x250")
-    TreeViewSampleInsert(master)
-    master.mainloop()
+    plt.close()

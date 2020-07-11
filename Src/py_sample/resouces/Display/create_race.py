@@ -21,6 +21,7 @@ class create_race():
         self.evoLevel = tk.IntVar()
         self.choosedRace = tk.StringVar()
         self.val = tk.DoubleVar()
+        self.tilt = tk.DoubleVar()
         self.iid=""
         self.rootiid=""
         self.raceRoot = {}
@@ -38,6 +39,17 @@ class create_race():
         self.des = tk.StringVar()
         self.agi = tk.StringVar()
         self.p_total = tk.StringVar()
+        self.r_rank = tk.StringVar()
+        self.HP.set('HP')
+        self.MP.set('MP')
+        self.sta.set('sta')
+        self.atk.set('atk')
+        self.vit.set('vit')
+        self.mag.set('mag')
+        self.des.set('des')
+        self.agi.set('agi')
+        self.p_total.set('total')
+        self.r_rank.set('rank')
         self.HP_label = {'HP':self.HP}
         self.MP_label = {'MP':self.MP}
         self.sta_label = {'sta':self.sta}
@@ -47,6 +59,7 @@ class create_race():
         self.des_label = {'des':self.des}
         self.agi_label = {'agi':self.agi}
         self.total_label = {'total':self.p_total}
+        self.rank_label = {'total':self.r_rank}
 
         # DBアクセス用
         self.ra = races.Race()
@@ -71,6 +84,8 @@ class create_race():
         self.ra.p_mag.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.ra.p_mag.get()))
         self.ra.p_des.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ra.p_des.get()))
         self.ra.p_agi.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ra.p_agi.get()))
+        self.ra.total_pattern.trace("w", lambda *args: self.ch_status_set(self.total_label,self.ra.total_pattern.get()))
+        self.ra.r_rank.trace("w", lambda *args: self.ch_status_set(self.rank_label,self.ra.r_rank.get()))
 
         #モード変更イベント
         #self.mode.trace("w", lambda *args: self.changeMode())
@@ -158,7 +173,7 @@ class create_race():
         # 種族名
         self.lblName = tk.Label(pw_right_up3,text="種族名",width=9)
         self.lblName.grid(row=2, column=0, padx=5, pady=2)
-        self.entName = tk.Entry(pw_right_up3, textvariable=self.ra.race_name, width=16)
+        self.entName = tk.Entry(pw_right_up3, textvariable=self.entry_ra.race_name, width=16)
         self.entName.grid(row=2, column=1, padx=5, pady=2)
         # 進化レベル
         self.lblLevel = tk.Label(pw_right_up3,text="進化レベル",width=9)
@@ -225,7 +240,7 @@ class create_race():
         self.ent16.grid(row=6, column=1, padx=5, pady=2)
         self.ent16.configure(state = 'readonly')
         # rank
-        self.lbl17 = tk.Label(pw_right_up2,textvariable="rank(" + self.ra.r_rank.get() + ")",width=9)
+        self.lbl17 = tk.Label(pw_right_up2,textvariable=self.r_rank,width=9)
         self.lbl17.grid(row=6, column=2, padx=5, pady=2)
         self.ent17 = tk.Entry(pw_right_up2, textvariable=self.entry_ra.r_rank,  width=7)
         self.ent17.grid(row=6, column=3, padx=5, pady=2)
@@ -251,30 +266,56 @@ class create_race():
         # ランダム生成
         self.lbl17 = tk.Label(pw_right_up4,text="ランダム生成",width=9)
         self.lbl17.grid(row=0, column=0, columnspan=2, padx=5, pady=2)
-        # スケールの作成
-        self.sc = ttk.Scale(
+        
+        # 傾きラベル
+        self.lblTlt = tk.Label(pw_right_up4,text="傾き",width=5)
+        self.lblTlt.grid(row=1, column=0, padx=5, pady=2)
+        
+        # 傾きスケールの作成
+        self.scTilt = ttk.Scale(
+            pw_right_up4,
+            variable=self.tilt,
+            orient=tk.HORIZONTAL,
+            length=150,
+            from_=0,
+            to=10
+            # , command=lambda e: print('val:%4d' % self.val.get())
+            )
+        self.scTilt.grid(row=1, column=1, sticky=(tk.N, tk.E, tk.S, tk.W), padx=5, pady=2)
+
+        # tilt出力
+        self.entTilt = tk.Entry(pw_right_up4, textvariable=self.tilt,  width=7)
+        self.entTilt.grid(row=1, column=2, padx=5, pady=2)
+        # self.entTilt.configure(state = 'readonly')
+        
+        # 傾きラベル
+        self.lblWeight = tk.Label(pw_right_up4,text="重み",width=5)
+        self.lblWeight.grid(row=2, column=0, padx=5, pady=2)
+
+        # 重みスケールの作成
+        self.scWeight = ttk.Scale(
             pw_right_up4,
             variable=self.val,
             orient=tk.HORIZONTAL,
-            length=200,
-            from_=-90,
-            to=90
+            length=150,
+            from_=0,
+            to=100
             # , command=lambda e: print('val:%4d' % self.val.get())
             )
-        self.sc.grid(row=1, column=0, sticky=(tk.N, tk.E, tk.S, tk.W))
+        self.scWeight.grid(row=2, column=1, sticky=(tk.N, tk.E, tk.S, tk.W), padx=5, pady=2)
 
         # weight出力
         self.entWeight = tk.Entry(pw_right_up4, textvariable=self.val,  width=7)
-        self.entWeight.grid(row=1, column=1, padx=5, pady=2)
+        self.entWeight.grid(row=2, column=2, padx=5, pady=2)
         # self.entWeight.configure(state = 'readonly')
-
-        # 登録ボタン
-        self.btnEntry = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
-        self.btnEntry.grid(row=5, column=0, columnspan=2, padx=5, pady=4)
 
         # ランダムボタン
         self.btnRand = tk.Button(pw_right_up4, text='ランダム', width=10, command=self.randomNum)
         self.btnRand.grid(row=4, column=0, columnspan=2, padx=5, pady=4)
+
+        # 登録ボタン
+        self.btnEntry = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
+        self.btnEntry.grid(row=5, column=0, columnspan=2, padx=5, pady=4)
 
         return pw_right_up4
 
@@ -348,7 +389,7 @@ class create_race():
                 self.ra.init()
 
                 # 進化元フラグOFF
-                self.ra.initial_flg.set(0)
+                self.entry_ra.initial_flg.set(0)
                 self.ra.parent_race1_id == self.tree.item(self.iid,"text")
 
         else:
@@ -358,13 +399,14 @@ class create_race():
             self.ra.init()
 
             # 進化元フラグON
-            self.ra.initial_flg.set(1)
+            self.entry_ra.initial_flg.set(1)
 
         self.setRaceSelected()
 
     # 選択したraceを登録用メンバにセット
     def setRaceSelected(self):
         
+        self.entry_ra.race_name.set(self.ra.race_name.get())
         self.entry_ra.p_HP.set(self.ra.p_HP.get())
         self.entry_ra.p_MP.set(self.ra.p_MP.get())
         self.entry_ra.p_sta.set(self.ra.p_sta.get())
@@ -394,6 +436,7 @@ class create_race():
         return list(raceList.values())
 
     # 選択可能ランクリスト取得
+    # 0:編集の場合は自身のランクも選択可能に設定
     def getRaceRank(self, r_rank):
         acquired_rank = []
         if r_rank == 'SS':
@@ -414,6 +457,13 @@ class create_race():
             acquired_rank = ['SSS','SS','S','A','B','C','D','E']
         if r_rank == 'G':
             acquired_rank = ['SSS','SS','S','A','B','C','D','E','F']
+
+        if self.mode.get() == 0:
+            acquired_rank.append(r_rank)
+        
+        # ホームの場合は初期ランク'G'を追加
+        if self.iid == 'I001':
+            acquired_rank.append('G')
         
         return acquired_rank
 
@@ -494,8 +544,8 @@ class create_race():
         s_race = self.entry_ra
 
         # 重複チェック実装
-        res = [race for race in self.raceTree if s_race.race_name.get() == race.race_name 
-                                             and s_race.r_rank.get() == race.r_rank ]
+        res = [race for race in list(self.raceTree.values()) if s_race.race_name.get() == race[0]['race_name'] and s_race.r_rank.get() == race[0]['r_rank'] ]
+        
         if len(res) != 0:
             bs.Popup.ShowInfo(self,E0001)
             return
@@ -543,11 +593,10 @@ class create_race():
             for i in range(100):
 
                 # 重み付けF-C安定
-                weight = 92
                 # あたり
                 # weight = 70
 
-                weight = weight + self.val.get() - i*0.1
+                weight = self.val.get() + 1 - i*0.1
 
                 # geneをランダムで設定
                 # self.ra.level.set(self.rand_num_hard(3,weight))
@@ -560,7 +609,8 @@ class create_race():
                 reg_race['r_des'] = self.rand_num(5,weight)
                 reg_race['r_agi'] = self.rand_num(5,weight)
 
-                if self.getOneRank(sum(reg_race.values())) in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
+                # 編集の場合：ブレーク条件
+                if self.getOneRank(sum(reg_race.values())) in acquired_rank:
                     break
             
             self.entry_ra.p_HP.set(reg_race['r_hp'])
@@ -584,11 +634,11 @@ class create_race():
             for i in range(100):
 
                 # 重み付けF-C安定
-                weight = 92
+                weight = 101
                 # あたり
                 # weight = 70
 
-                weight = weight + self.val.get() - i*0.1
+                weight = self.val.get() +1 - i*0.1
 
                 # geneをランダムで設定
                 # self.ra.level.set(self.rand_num_hard(3,weight))
@@ -621,11 +671,11 @@ class create_race():
         import numpy as np
         import matplotlib.pyplot as plt
 
-        a = np.arange(0,weight,0.1)
+        a = np.arange(0,self.tilt.get()+1,0.1)
         exp_a = np.exp(a)
         sum_exp_a = np.sum(exp_a)
         y = exp_a / sum_exp_a
-        rn_int = int(random.choice(y)*10**num)
+        rn_int = int(random.choice(y)*10**num*weight/(weight+20))
         if rn_int > 10**(num-1):
             rn_int = 10**(num-1)
         if rn_int == 0:

@@ -51,9 +51,6 @@ class RaceDAO:
         self.races = dbaccess().exe_sql(sql)
         return self.races
 
-    def insert_race(self, race):
-        pass
-
     # NOTE:レベルによって選択可能データを制限
     def set_target_race(self,level):
         self.race_cbo = []
@@ -205,13 +202,14 @@ class RaceDAO:
         r_list['parent_race1_id'] = 0
         r_list['evolution1_level'] = 100
         r_list['initial_flg'] = races.initial_flg.get()
+        r_list['is_deleted'] = 0
         r_list['version'] = 1
         r_list['ins_date'] = races.ins_date
         r_list['ins_id'] = races.ins_id
         r_list['upd_date'] = races.upd_date
         r_list['upd_id'] = races.upd_id
 
-        res = dbaccess().INSERT_Column(MST_races, r_list)
+        res = dbaccess().INSERT_Column(MST_RACES, r_list)
         return res
     
     # 進化先種族の更新
@@ -248,7 +246,7 @@ class RaceDAO:
         res = dbaccess().UPDATE_Column(MST_RACES, r_list, where)
 
     # 子種族の更新
-    def update_child_race(self, races, inRace):
+    def update_child_race(self, baseRases, inRace):
         # 更新項目を設定
         r_list = {}
         r_list['parent_race1_id'] = """
@@ -268,13 +266,13 @@ class RaceDAO:
                                     then  {0} 
                                     end 
                                     """.format(inRace.race_id.get())
-        r_list['version'] = races.version + 1
-        r_list['upd_date'] = races.upd_date
-        r_list['upd_id'] = races.upd_id.get()
+        r_list['version'] = baseRases.version + 1
+        r_list['upd_date'] = baseRases.upd_date
+        r_list['upd_id'] = baseRases.upd_id.get()
 
         # 抽出条件を設定
         where = {}
-        where['race_id'] = races.race_id.get()
+        where['race_id'] = baseRases.race_id.get()
         where['is_deleted'] = 0
 
         dbaccess().UPDATE_Column(MST_RACES, r_list, where)
