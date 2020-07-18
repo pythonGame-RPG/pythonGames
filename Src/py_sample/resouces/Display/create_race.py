@@ -23,11 +23,15 @@ class create_race():
         self.val = tk.DoubleVar()
         self.tilt = tk.DoubleVar()
         self.iid=""
+        self.bk_iid=""
         self.rootiid=""
         self.raceRoot = {}
         self.raceTree = {}
         self.s_race = []
         self.bs = bs.MyStack()
+        # フレーム
+        self.pw_left = None
+        self.pw_main = None
 
         # 表示ラベル編集用
         self.HP = tk.StringVar()
@@ -63,6 +67,7 @@ class create_race():
 
         # DBアクセス用
         self.ra = races.Race()
+        self.bk_ra = races.Race()
         self.entry_ra = races.Race()
         self.ra_dao = _races.RaceDAO()
 
@@ -97,17 +102,23 @@ class create_race():
         self.window.geometry('500x540')
         self.window.title("Race App")
         
+        self.createDisplay()
+        
+        # TODO:いらなくなったら消す
+        self.parent.mainloop()
+    
+    def createDisplay(self):
         # ウィンドウを分ける
-        pw_main = tk.PanedWindow(self.window, orient='horizontal')
-        pw_main.pack(expand=True, fill = tk.BOTH, side="left")
+        self.pw_main = tk.PanedWindow(self.window, orient='horizontal')
+        self.pw_main.pack(expand=True, fill = tk.BOTH, side="left")
 
         # self.window→pw_left（左画面ツリービュー）
-        pw_left = self.createTreeView(pw_main)
-        pw_main.add(pw_left)
+        self.pw_left = self.createTreeView(self.pw_main)
+        self.pw_main.add(self.pw_left)
 
         # self.window→pw_right（右画面ツリービュー）
-        pw_right = tk.PanedWindow(pw_main, bg="yellow", orient='vertical')
-        pw_main.add(pw_right)
+        pw_right = tk.PanedWindow(self.pw_main, bg="yellow", orient='vertical')
+        self.pw_main.add(pw_right)
 
         # self.window→pw_right_up1（右上画面モード選択）
         pw_right_up1 = self.setMode(pw_right)
@@ -125,12 +136,14 @@ class create_race():
         pw_right_up4 = self.createButton(pw_right)
         pw_right.add(pw_right_up4)
 
-        
-        # TODO:いらなくなったら消す
-        self.parent.mainloop()
-
     def createTreeView(self, pw_main):
         treeFrame = tk.PanedWindow(pw_main, bg="cyan", orient='vertical')
+        # 検索したraceをツリーに表示
+        self.setSearchTree(treeFrame)
+        return treeFrame
+
+    # ツリーデータ検索
+    def setSearchTree(self, treeFrame):
         self.tree = ttk.Treeview(treeFrame)
         # ツリーの項目が選択されたら、選択された種族を表示する
         self.tree.bind("<<TreeviewSelect>>",self.targetRace)
@@ -142,7 +155,6 @@ class create_race():
         self.iid = self.rootiid
         # 種族ツリー作成
         self.makeTree()
-        return treeFrame
 
     def setMode(self,pw_right):
 
@@ -317,6 +329,10 @@ class create_race():
         self.btnEntry = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryRace)
         self.btnEntry.grid(row=5, column=0, columnspan=2, padx=5, pady=4)
 
+        # 削除ボタン
+        self.btnEntry = tk.Button(pw_right_up4, text='削除', width=10, command=self.deleteRace)
+        self.btnEntry.grid(row=6, column=0, columnspan=2, padx=5, pady=4)
+
         return pw_right_up4
 
 
@@ -354,7 +370,11 @@ class create_race():
 
     # 種族選択時
     def targetRace(self,event):
+        # 初期化
+        self.ra.init()
+        # 前フォーカスIDをセット
         self.iid = self.tree.focus()
+        self.bk_iid = self.tree.parent(self.iid)
 
         # 種族選択コンボボックス編集
         self.cboChoice['values'] = self.getRaceValue()
@@ -378,7 +398,6 @@ class create_race():
             else:
                 self.rdoNew.configure(state = 'normal')
                 self.rdoEdit.configure(state = 'normal')
-                self.mode.set(0)
 
             if self.mode.get() == 0:
                 # 編集の場合、選択ツリーのraceを右画面に表示
@@ -386,27 +405,35 @@ class create_race():
 
             elif self.mode.get() == 1:
                 # 新規登録の場合、右画面の項目を初期化
-                self.ra.init()
+                self.ra.set_select_race(race)
 
-                # 進化元フラグOFF
-                self.entry_ra.initial_flg.set(0)
                 self.ra.parent_race1_id == self.tree.item(self.iid,"text")
+            
+            if self.bk_iid != 'I001':
+                # 一つ前のraceをセット
+                self.bk_ra.set_select_race(self.raceRoot[self.bk_iid])
+            else:
+                # 初期化
+                self.bk_ra.init()
 
         else:
             # 編集不可
             self.rdoEdit.configure(state = 'disabled')
             self.mode.set(1)
             self.ra.init()
+            self.bk_ra.init()
 
             # 進化元フラグON
             self.entry_ra.initial_flg.set(1)
 
         self.setRaceSelected()
 
+
     # 選択したraceを登録用メンバにセット
     def setRaceSelected(self):
         
         self.entry_ra.race_name.set(self.ra.race_name.get())
+        self.entry_ra.race_id.set(self.ra.race_id.get())
         self.entry_ra.p_HP.set(self.ra.p_HP.get())
         self.entry_ra.p_MP.set(self.ra.p_MP.get())
         self.entry_ra.p_sta.set(self.ra.p_sta.get())
@@ -415,6 +442,12 @@ class create_race():
         self.entry_ra.p_mag.set(self.ra.p_mag.get())
         self.entry_ra.p_des.set(self.ra.p_des.get())
         self.entry_ra.p_agi.set(self.ra.p_agi.get())
+        self.entry_ra.parent_race1_id.set(self.ra.parent_race1_id.get())
+        self.entry_ra.evolution1_level.set(self.ra.evolution1_level.get())
+        self.entry_ra.parent_race2_id.set(self.ra.parent_race2_id.get())
+        self.entry_ra.evolution2_level.set(self.ra.evolution2_level.get())
+        self.entry_ra.parent_race3_id.set(self.ra.parent_race3_id.get())
+        self.entry_ra.evolution3_level.set(self.ra.evolution3_level.get())
         self.entry_ra.r_rank.set(self.ra.r_rank.get())
         self.entry_ra.total_pattern.set(self.ra.total_pattern.get())
 
@@ -504,17 +537,6 @@ class create_race():
         except:
             self.ra.init()
 
-    # mode変更時の判定は必要ない
-    """
-    def changeMode(self):
-        if self.mode.get() == 0:
-            # 種族コンボボックス選択可
-            self.cboChoice.configure(state = 'normal')
-        else:
-            # 種族コンボボックス選択不可
-                self.cboChoice.configure(state = 'disabled')
-    """
-
     # 入力文字数制限NOTE:entry_text:gene,num:桁数
     def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
         if len(str(entry_text.get())) > 0:
@@ -538,6 +560,31 @@ class create_race():
 
             self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
 
+
+    # 進化レベル設定（基準）
+    def randomLevel(self,r_rank):
+        if r_rank == 'SS"':
+            self.evoLevel.set(random.randint(60,99))
+        if r_rank == 'SS':
+            self.evoLevel.set(random.randint(45,70))
+        if r_rank == 'S':
+            self.evoLevel.set(random.randint(40,65))
+        if r_rank == 'A':
+            self.evoLevel.set(random.randint(35,60))
+        if r_rank == 'B':
+            self.evoLevel.set(random.randint(30,55))
+        if r_rank == 'C':
+            self.evoLevel.set(random.randint(25,50))
+        if r_rank == 'D':
+            self.evoLevel.set(random.randint(20,40))
+        if r_rank == 'E':
+            self.evoLevel.set(random.randint(10,30))
+        if r_rank == 'F':
+            self.evoLevel.set(random.randint(5,20))
+        if r_rank == 'G':
+            self.evoLevel.set(random.randint(1,5))
+        
+
     # 種族登録更新処理
     def entryRace(self):
 
@@ -549,31 +596,83 @@ class create_race():
         if len(res) != 0:
             bs.Popup.ShowInfo(self,E0001)
             return
+        
+        # initial_flg設定
+        if self.iid == 'I001':
+            self.entry_ra.initial_flg.set(1)
+        else:
+            if self.mode.get() == 0 and self.bk_iid == 'I001':
+                self.entry_ra.initial_flg.set(1)
+            elif self.mode.get() == 0:
+                self.entry_ra.initial_flg.set(0)
+            else:
+                self.entry_ra.initial_flg.set(0)
 
         # 登録確認ポップアップ表示
-        bs.Popup.OKCancelPopup(self,Q0001)
+        if bs.Popup.OKCancelPopup(self,Q0001) == False:
+            return
 
-        # 親種族の更新
-        if self.mode.get() == 0:
-            # 種族更新 
-            self.ra_dao.update_race(s_race)
-        else:
-            # 種族登録 戻り値にInsertした種族を取得
-            res = self.ra_dao.insert_race(s_race)
-            # 子種族の更新
-            if s_race.initial_flg == 0:
-                self.ra_dao.update_child_race(s_race,res)
+        try:
+            # 親種族の更新
+            if self.mode.get() == 0:
+                # 種族更新 
+                self.ra_dao.update_race(s_race)
+                # TODO:進化前更新
+            else:
+                # 種族登録 戻り値にInsertした種族を取得
+                res_id = self.ra_dao.insert_race(s_race)
+                # 子種族の更新
+                if self.iid != 'I001':
+                    self.ra_dao.update_child_race(self.ra,res_id,self.evoLevel.get())
+        except:
+            # 登録完了ポップアップ表示
+            bs.Popup.ShowInfo(self,E0002)
+            return
+
+        # 登録完了ポップアップ表示
+        bs.Popup.ShowInfo(self,I0002)
+        
+        # 再検索を実施
+        self.pw_main.destroy()
+        self.createDisplay()
+
+    # 削除処理
+    def deleteRace(self):
+
+        # 登録確認ポップアップ表示
+        if bs.Popup.OKCancelPopup(self,Q0002) == False:
+            return
+        
+        if self.ra_dao.delete_race(self.ra) == False:
+            bs.Popup.ShowInfo(self,E0002)
+            return
+        if self.ra_dao.update_else(self.ra) == False:
+            bs.Popup.ShowInfo(self,E0002)
+            return
+    
+        # 削除完了ポップアップ表示
+        bs.Popup.ShowInfo(self,I0002)
+
+        # 再検索を実施
+        self.pw_main.destroy()
+        self.createDisplay()
 
     # ランダム生成押下時
     def randomNum(self):
         # weight = 1.5 # 超レアガチャ
         # weight = 2   # 高レアガチャ
         # weight = 3   # レアガチャ
-        #weight = random.random() + 100   # ノーマルガチャ
+        # weight = random.random() + 100   # ノーマルガチャ
+        
+        # 表示用種族をセットする（連打対応）
+        self.setRaceSelected()
 
         # 選択可能ランク
         # TODO：チョイス可能に設定する
-        acquired_rank = self.getRaceRank(self.ra.r_rank.get())
+        acquired_rank = self.getRaceRank(self.entry_ra.r_rank.get())
+        
+        # 重み付けローカル変数
+        val = self.val.get()
 
         reg_race = {}
         reg_race['r_hp'] = 1
@@ -590,13 +689,13 @@ class create_race():
         # 新規、編集ランク制限
         if self.mode.get() == 0:
 
-            for i in range(100):
+            for i in range(1000):
 
                 # 重み付けF-C安定
                 # あたり
                 # weight = 70
 
-                weight = self.val.get() + 1 - i*0.1
+                weight = val + 1 - i*0.1
 
                 # geneをランダムで設定
                 # self.ra.level.set(self.rand_num_hard(3,weight))
@@ -612,33 +711,23 @@ class create_race():
                 # 編集の場合：ブレーク条件
                 if self.getOneRank(sum(reg_race.values())) in acquired_rank:
                     break
-            
-            self.entry_ra.p_HP.set(reg_race['r_hp'])
-            self.entry_ra.p_MP.set(reg_race['r_mp'])
-            self.entry_ra.p_sta.set(reg_race['r_sta'])
-            self.entry_ra.p_atk.set(reg_race['r_atk'])
-            self.entry_ra.p_vit.set(reg_race['r_vit'])
-            self.entry_ra.p_mag.set(reg_race['r_mag'])
-            self.entry_ra.p_des.set(reg_race['r_des'])
-            self.entry_ra.p_agi.set(reg_race['r_agi'])
-            self.entry_ra.total_pattern.set(sum(reg_race.values()))
 
-            # totalからrankを設定
-            self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
-            
+                # weight回復
+                if sum(reg_race.values()) <= 0:
+                    val = val + i*0.2
+
         elif self.mode.get() == 1:
 
             # geneをランダムで設定
             # self.ra.level.set(self.rand_num_hard(3,weight)
 
-            for i in range(100):
+            for i in range(1000):
 
                 # 重み付けF-C安定
-                weight = 101
                 # あたり
                 # weight = 70
 
-                weight = self.val.get() +1 - i*0.1
+                weight = val + 1 - i*0.1
 
                 # geneをランダムで設定
                 # self.ra.level.set(self.rand_num_hard(3,weight))
@@ -651,21 +740,29 @@ class create_race():
                 reg_race['r_des'] = self.rand_num(5,weight)
                 reg_race['r_agi'] = self.rand_num(5,weight)
 
+                # 新規の場合ブレーク条件
                 if self.getOneRank(sum(reg_race.values())) in acquired_rank and sum(reg_race.values()) > self.ra.total_pattern.get():
                     break
-            
-            self.entry_ra.p_HP.set(reg_race['r_hp'])
-            self.entry_ra.p_MP.set(reg_race['r_mp'])
-            self.entry_ra.p_sta.set(reg_race['r_sta'])
-            self.entry_ra.p_atk.set(reg_race['r_atk'])
-            self.entry_ra.p_vit.set(reg_race['r_vit'])
-            self.entry_ra.p_mag.set(reg_race['r_mag'])
-            self.entry_ra.p_des.set(reg_race['r_des'])
-            self.entry_ra.p_agi.set(reg_race['r_agi'])
-            self.entry_ra.total_pattern.set(sum(reg_race.values()))
 
-            # totalからrankを設定
-            self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
+                # weight回復
+                if sum(reg_race.values()) <= 0:
+                    val = val + i*0.2
+            
+        self.entry_ra.p_HP.set(reg_race['r_hp'])
+        self.entry_ra.p_MP.set(reg_race['r_mp'])
+        self.entry_ra.p_sta.set(reg_race['r_sta'])
+        self.entry_ra.p_atk.set(reg_race['r_atk'])
+        self.entry_ra.p_vit.set(reg_race['r_vit'])
+        self.entry_ra.p_mag.set(reg_race['r_mag'])
+        self.entry_ra.p_des.set(reg_race['r_des'])
+        self.entry_ra.p_agi.set(reg_race['r_agi'])
+        self.entry_ra.total_pattern.set(sum(reg_race.values()))
+
+        # totalからrankを設定
+        self.entry_ra.r_rank.set(self.getOneRank(self.entry_ra.total_pattern.get()))
+
+        # 進化レベル設定
+        self.randomLevel(self.entry_ra.r_rank.get())
 
     def rand_num(self, num, weight):
         import numpy as np
@@ -675,7 +772,7 @@ class create_race():
         exp_a = np.exp(a)
         sum_exp_a = np.sum(exp_a)
         y = exp_a / sum_exp_a
-        rn_int = int(random.choice(y)*10**num*weight/(weight+20))
+        rn_int = int(random.choice(y)*(10**num)*weight/(weight+80))
         if rn_int > 10**(num-1):
             rn_int = 10**(num-1)
         if rn_int == 0:

@@ -27,6 +27,7 @@ class dbaccess:
         self.cur.execute('SET NAMES utf8;')
         self.cur.execute('SET CHARACTER SET utf8;')
         self.cur.execute('SET character_set_connection=utf8;')
+        self.res = False
     
     # sql実行取得
     def upins_sql(self, sql):
@@ -85,10 +86,11 @@ class dbaccess:
             
         self.cur.execute(sql)
         self.db.commit()
+        return self.cur.lastrowid
 
     # 更新処理
-    # param = テーブル名、DTO、抽出条件ディクショナリ
-    def UPDATE_Column(self, table_name, DTO_data, where):
+    # param = テーブル名、DTO、抽出条件ディクショナリ、non_strフラグ
+    def UPDATE_Column(self, table_name, DTO_data, where, nonStr=False):
         sql = self.sql_update.format(table_name)
         dataList = []
         # 更新項目を編集
@@ -97,7 +99,10 @@ class dbaccess:
             if len(str(dval)) == 0:
                 dataList.append(dkey + ' = null')
             else:
-                dataList.append(dkey + ' = ' + str(dval))
+                if nonStr:
+                    dataList.append(dkey + ' = ' + str(dval))
+                else:
+                    dataList.append(dkey + ' = ' + '\"' +  str(dval) + '\"')
         
         data_str = " ,".join(dataList)
         sql = sql + data_str
@@ -105,20 +110,30 @@ class dbaccess:
         # where条件を編集
 
         if where != None and len(where) !=0:
-            wh = ''
+            
+            dataList = []
+
             # 更新項目を編集
             for (dkey,dval) in where.items():
                 # 更新項目をリストで取得
-                if len(str(dval)) == 0:
-                    dataList.append(dkey + ' = null')
+                # nullの場合IS NULL表記
+                if str(dval) == 'null':
+                    dataList.append(dkey + ' IS null')
                 else:
-                    dataList.append(dkey + ' = ' + str(dval))
-        
-            data_str = " ,".join(dataList)
-            sql = sql + data_str
+                    if len(str(dval)) == 0:
+                        dataList.append(dkey + ' = null')
+                    else:
+                        if nonStr:
+                            dataList.append(dkey + ' = ' + str(dval))
+                        else:
+                            dataList.append(dkey + ' = ' + '\"' +  str(dval) + '\"')
+            
+            data_str = " AND ".join(dataList)
+            sql = sql + ' where ' + data_str
             
         self.cur.execute(sql)
         self.db.commit()
+        return self.cur.rowcount
 
     # 表示用取得
     def SELECT_All(self, table_name):
@@ -169,9 +184,30 @@ class dbaccess:
 
             sql = sql + t_in
         
-        self.cur.execute(sql)
+        try:
+            self.cur.execute(sql)
+            return self.cur.fetchall()
+        except:
+            self.db.rollback()
+            return self.res
+    
+    def DELETE_Column(self, table_name, where):
 
-        return self.cur.fetchall()
+        sql = "DELETE FROM {}".format(table_name)
+
+        where_sql = ''
+        for dkey,dval in where.items():
+            if len(where_sql) != 0:
+                where_sql = where_sql + ' AND '
+            where_sql = where_sql + dkey + ' = ' + str(dval)
+        sql = sql + ' WHERE ' + where_sql
+
+        try:
+            self.cur.execute(sql)
+            return self.db.commit()
+        except:
+            self.db.rollback()
+            return self.res
 
     # デストラクタ
     def __del__(self):

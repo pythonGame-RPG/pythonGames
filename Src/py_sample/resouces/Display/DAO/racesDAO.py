@@ -229,10 +229,10 @@ class RaceDAO:
         r_list['r_rank'] = races.r_rank.get()
         r_list['parent_race1_id'] = races.parent_race1_id.get()
         r_list['evolution1_level'] = races.evolution1_level.get()
-        r_list['parent_race2_id'] = races.parent_race2_id.get()
-        r_list['evolution2_level'] = races.evolution2_level.get()
-        r_list['parent_race3_id'] = races.parent_race3_id.get()
-        r_list['evolution3_level'] = races.evolution3_level.get()
+        r_list['parent_race2_id'] = races.parent_race2_id.get() if races.parent_race2_id.get() != None else 'null'
+        r_list['evolution2_level'] = races.evolution2_level.get() if races.evolution2_level.get() != None else 'null'
+        r_list['parent_race3_id'] = races.parent_race3_id.get() if races.parent_race3_id.get() != None else 'null'
+        r_list['evolution3_level'] = races.evolution3_level.get() if races.evolution3_level.get() != None else 'null'
         r_list['initial_flg'] = races.initial_flg.get()
         r_list['version'] = races.version.get() + 1
         r_list['upd_date'] = races.upd_date
@@ -246,39 +246,100 @@ class RaceDAO:
         res = dbaccess().UPDATE_Column(MST_RACES, r_list, where)
 
     # 子種族の更新
-    def update_child_race(self, baseRases, inRace):
+    def update_child_race(self, baseRases, res_id, evo_level):
         # 更新項目を設定
         r_list = {}
-        r_list['parent_race1_id'] = """
-                                    case when parent_race1_id == 0 
-                                    then  {0} 
-                                    end 
-                                    """.format(inRace.race_id.get())
-        r_list['parent_race2_id'] = """
-                                    case when parent_race1_id != 0 
-                                          and parent_race2_id == null
-                                    then  {0} 
-                                    end 
-                                    """.format(inRace.race_id.get())
-        r_list['parent_race3_id'] = """
-                                    case when parent_race1_id != 0 
-                                          and parent_race2_id != null 
-                                    then  {0} 
-                                    end 
-                                    """.format(inRace.race_id.get())
-        r_list['version'] = baseRases.version + 1
-        r_list['upd_date'] = baseRases.upd_date
-        r_list['upd_id'] = baseRases.upd_id.get()
+        # 1番目更新の場合
+        r_list = {}
+        r_list['parent_race1_id'] = res_id
+        r_list['evolution1_level'] = evo_level
+        r_list['version'] = 'version + 1'
+        r_list['upd_date'] = 'CURDATE()'
+        r_list['upd_id'] = baseRases.upd_id
 
-        # 抽出条件を設定
         where = {}
         where['race_id'] = baseRases.race_id.get()
+        where['parent_race1_id'] = 0
+        where['is_deleted'] = 0
+
+        res = dbaccess().UPDATE_Column(MST_RACES, r_list, where, True)
+
+        if res == 0:
+            # 2番目更新の場合
+            r_list = {}
+            r_list['parent_race2_id'] = res_id
+            r_list['evolution2_level'] = evo_level
+            r_list['version'] = 'version + 1'
+            r_list['upd_date'] = 'CURDATE()'
+            r_list['upd_id'] = baseRases.upd_id
+
+            where = {}
+            where['race_id'] = baseRases.race_id.get()
+            where['parent_race2_id'] = 'null'
+            where['is_deleted'] = 0
+
+            res = dbaccess().UPDATE_Column(MST_RACES, r_list, where, True)
+        
+        if res == 0:
+            # 3番目更新の場合
+            r_list = {}
+            r_list['parent_race3_id'] = res_id
+            r_list['evolution3_level'] = evo_level
+            r_list['version'] = 'version + 1'
+            r_list['upd_date'] = 'CURDATE()'
+            r_list['upd_id'] = baseRases.upd_id
+
+            where = {}
+            where['race_id'] = baseRases.race_id.get()
+            where['parent_race3_id'] = 'null'
+            where['is_deleted'] = 0
+
+            res = dbaccess().UPDATE_Column(MST_RACES, r_list, where, True)
+
+    # 削除処理進化先id編集
+    def update_else(self, race):
+        # 1番目更新の場合
+        r_list = {}
+        r_list['parent_race1_id'] = race.parent_race2_id.get()
+        r_list['evolution1_level'] = race.evolution2_level.get()
+        r_list['parent_race2_id'] = race.parent_race3_id.get()
+        r_list['evolution2_level'] = race.evolution3_level.get()
+
+        where = {}
+        where['parent_race1_id'] = race.race_id.get()
         where['is_deleted'] = 0
 
         dbaccess().UPDATE_Column(MST_RACES, r_list, where)
 
+        # 2番目更新の場合
+        r_list = {}
+        r_list['parent_race2_id'] = race.parent_race3_id.get()
+        r_list['evolution2_level'] = race.evolution3_level.get()
+        r_list['parent_race3_id'] = 'null'
+        r_list['evolution3_level'] = 'null'
 
+        where = {}
+        where['parent_race2_id'] = race.race_id.get()
+        where['is_deleted'] = 0
+
+        dbaccess().UPDATE_Column(MST_RACES, r_list, where)
+
+        # 3番目更新の場合
+        r_list = {}
+        r_list['parent_race3_id'] = 'null'
+        r_list['evolution3_level'] = 'null'
+
+        where = {}
+        where['parent_race3_id'] = race.race_id.get()
+        where['is_deleted'] = 0
+
+        return dbaccess().UPDATE_Column(MST_RACES, r_list, where)
         
-    
+    def delete_race(self, race):
+        where = {}
+        where['race_id'] = race.race_id.get()
+        where['is_deleted'] = 0
 
-    
+        return dbaccess().DELETE_Column(MST_RACES, where)
+
+

@@ -26,13 +26,14 @@ class Race:
         self.initial_flg = tk.IntVar()
         self.version = tk.IntVar()
         self.ins_date = datetime.now()
-        self.ins_id = None
+        self.ins_id = ''
         self.upd_date = datetime.now()
-        self.upd_id = None
+        self.upd_id = ''
         self.bk_num = 0
         self.bk_total_sense = 0
 
     def init(self):
+        self.race_id.set(0)
         self.p_HP.set(0)
         self.p_MP.set(0)
         self.p_sta.set(0)
@@ -41,6 +42,15 @@ class Race:
         self.p_mag.set(0)
         self.p_des.set(0)
         self.p_agi.set(0)
+        self.total_pattern.set(0)
+        self.initial_flg.set(0)
+        self.r_rank.set('G')
+        self.parent_race1_id.set(None)
+        self.evolution1_level.set(None)
+        self.parent_race2_id.set(None)
+        self.evolution2_level.set(None)
+        self.parent_race3_id.set(None)
+        self.evolution3_level.set(None)
 
     def insert_race(self):
         dbaccess().insert(self, )
