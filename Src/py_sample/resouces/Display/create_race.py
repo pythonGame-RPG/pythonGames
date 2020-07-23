@@ -97,7 +97,7 @@ class create_race():
 
 
     def openDialog(self):        
-       # 子画面クラス
+        # 子画面クラス
         self.window = tk.Toplevel(self.parent)
         self.window.geometry('500x540')
         self.window.title("Race App")
@@ -795,6 +795,6 @@ def convert_in2_2bytes(str_number):
     else:
         return str_number
 
-root = tk.Tk()
-c = create_race(root)
-c.openDialog()
+# root = tk.Tk()
+# c = create_race(root)
+# c.openDialog()

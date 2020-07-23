@@ -17,7 +17,6 @@ class SpriteSheet:
         image = pg.transform.scale(image, (width // 2, height // 2))
         return image
 
-
 # noinspection PyArgumentList
 class Player(pg.sprite.Sprite):
     def __init__(self, game):

@@ -3,6 +3,7 @@ from Sql import *
 from validate import *
 import random
 import tkinter as tk
+import signup as sg
 from turtle import *
 
 # Login classes(GUIで実装)
@@ -28,6 +29,10 @@ class Login(tk.Tk):
         # ログインボタン
         self.btn = tk.Button(self.root, text='Submit', command=self.submit)
         self.btn.pack()
+        self.lbl3.pack()
+        # アカウント作成ボタン
+        self.btnAcount = tk.Button(self.root, text='Submit', command=self.makeAcount)
+        self.btnAcount.pack()
         self.running = True
         self.user_id = None
         self.passwd = None
@@ -77,6 +82,10 @@ class Login(tk.Tk):
                 return self.user_data
         if(self.v_err >= MAX_ERR):
             return
+        
+    def makeAcount(self):
+        s = sg.Signup(self)
+        s.openDialog()
         
         # 0407続きはここから
 

@@ -67,6 +67,7 @@ MST_NAMES = "names"
 ERR_MESSAGE1 = "{}は半角英数字で入力してください。"
 ERR_MESSAGE2 = "{0}は{1}文字以内で入力してください。"
 ERR_MESSAGE3 = "user_idまたはpasswordが間違っています。"
+ERR_MESSAGE4 = "パスワードが一致しません"
 
 # 上限下限
 LOGIN_MAXNUM = 16

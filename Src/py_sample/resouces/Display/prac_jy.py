@@ -1,26 +1,17 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import pygame as pg
+from settings import *
 import random
-import time
 
-weight = 10
-num = 5
+vec = pg.math.Vector2
 
-for i in range(100):
+class SpriteSheet:
+    def __init__(self, filename):
+        """ SpriteSheet専用クラス"""
+        self.spritesheet = pg.image.load(filename).convert()
 
-    a = np.arange(0,i+1,0.1)
-    exp_a = np.exp(a)
-    sum_exp_a = np.sum(exp_a)
-    y = exp_a / sum_exp_a
-    rn_int = int(random.choice(y)*10**num)
-    if rn_int > 10**(num-1):
-        rn_int = 10**(num-1)
-    if rn_int == 0:
-        rn_int = random.randint(1,10**(num-2))
-    plt.plot(a,y)
-    plt.show()
-    rad_int = random.randint(1,10**(num-1))
-
-    print(i+1)
-
-    plt.close()
+    def get_image(self, x, y, width, height):
+        """ spritesheetの中の特定の画像を切り取る """
+        image = pg.Surface((width, height))
+        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+        image = pg.transform.scale(image, (width // 2, height // 2))
+        return image
