@@ -4,15 +4,19 @@ from validate import *
 import random
 import tkinter as tk
 from turtle import *
+import DTO.users as DTO
+import DAO.usersDAO as DAO
+import Base.basic_module as bs
 
-# Login classes(GUIで実装)
 class Signup(tk.Tk):
     def __init__(self,parent):
         self.parent = parent
+        self.user = DTO.User()
+        self._userDAO = DAO.UserDAO()
         self.name = tk.StringVar()
         self.user_id = tk.StringVar()
-        self.passwd1 = tk.StringVar()
-        self.passwd2 = tk.StringVar()
+        self.password1 = tk.StringVar()
+        self.password2 = tk.StringVar()
 
     def openDialog(self):
         # 子画面クラス
@@ -42,12 +46,12 @@ class Signup(tk.Tk):
         # パスワード1
         self.lblPass1 = tk.Label(self.entry_frame, text = 'password')
         self.lblPass1.grid(row=3, column=0, padx=5, pady=2)
-        self.entPass1 = tk.Entry(self.entry_frame,textvariable=self.passwd1, show='*')
+        self.entPass1 = tk.Entry(self.entry_frame,textvariable=self.password1, show='*')
         self.entPass1.grid(row=3, column=1, padx=5, pady=2)
         # パスワード2
         self.lblPass2 = tk.Label(self.entry_frame, text = 'repeatPass')
         self.lblPass2.grid(row=4, column=0, padx=5, pady=2)
-        self.entPass2 = tk.Entry(self.entry_frame,textvariable=self.passwd2, show='*')
+        self.entPass2 = tk.Entry(self.entry_frame,textvariable=self.password2, show='*')
         self.entPass2.grid(row=4, column=1, padx=5, pady=2)
 
         
@@ -61,6 +65,8 @@ class Signup(tk.Tk):
         self.error['digit'] = {}
         # 文字列の長さエラー
         self.error['length'] = {}
+        # パスワード一致エラー
+        self.error['notMatch'] = ''
         # 辞書型データ('user_id':XXXX, 'password':XXXX)
         self.data = {}
         # エラー出力用
@@ -72,9 +78,9 @@ class Signup(tk.Tk):
     # ボタン押下後処理
     def submit(self):
         user_id = self.user_id.get()
-        passwd1 = self.passwd1.get()
-        passwd2 = self.passwd2.get()
-        self.data = {'user_id':user_id, 'password1':passwd1, 'password2':passwd2 }
+        password1 = self.password1.get()
+        password2 = self.password2.get()
+        self.data = {'user_id':user_id, 'password1':password1, 'password2':password2 }
         # validateを実行
         self.error = self.valid(self.data)
         # エラーの場合エラー文を返す
@@ -88,6 +94,7 @@ class Signup(tk.Tk):
                         self.error_output[dkey1].join('/r/n' + dvalue1)
                     except KeyError:
                         self.error_output[dkey1] = dvalue1
+            # エラー文言セット
             self.lbl1 = tk.Label(self.entry_frame, foreground='#ff0000')
             self.lbl1.grid(row=1, column=0, padx=5, pady=2)
             self.lbl1['text'] = self.error_output['user_id']
@@ -97,23 +104,30 @@ class Signup(tk.Tk):
             self.lblps2 = tk.Label(self.entry_frame, foreground='#ff0000')
             self.lblps2.grid(row=6, column=0, padx=5, pady=2)
             self.lblps2['text'] = self.error_output['password1']
+
         elif len(self.error['notMatch']) != 0:
             self.lblE4 = tk.Label(self.entry_frame, foreground='#ff0000')
             self.lblE4.grid(row=8, column=0, padx=5, pady=2)
             self.lblE4['text'] = self.error['notMatch']
         else:
             # ユーザ情報を取得
-            self.user_data = self.select_user(self.data)
+            self.user.init()
+            self.user.user_id.set(self.user_id.get())
+            self.user.password.set(self.password1.get())
+            self.user.name.set(self.name.get())
+            
+            res = self._userDAO.insert_user(self.user)
 
             # 取得判定
-            if(len(self.user_data) == 0):
+            if res == 0:
                 ++self.v_err
                 self.lbl3 = tk.Label(self.entry_frame, foreground='#ff0000')
                 self.lbl3.grid(row=7, column=0, padx=5, pady=2)
-                self.lbl3['text'] = ERR_MESSAGE3
+                self.lbl3['text'] = E0002
             else:
+                # 登録完了ポップアップ表示
+                bs.Popup.ShowInfo(self,E0002)
                 self.destroy()
-                return self.user_data
         if(self.v_err >= MAX_ERR):
             return
 
@@ -133,16 +147,6 @@ class Signup(tk.Tk):
         if data['password1'] != data['password2']:
             self.error['notMatch'] = ERR_MESSAGE4
         return self.error
-
-    # validate後データ入力された情報をもとにuser情報を取得
-    def select_user(self, data):
-        self.sql = sql_query()
-        sql = self.sql.select(MST_USERS)
-        sql = self.sql.where(sql,data)
-
-        # sqlを実行してデータを取得
-        user_data = self.sql.execute(sql)
-        return user_data
         
         # エラーの場合エラー文を返す
 

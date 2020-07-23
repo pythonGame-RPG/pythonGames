@@ -86,7 +86,10 @@ class dbaccess:
             
         self.cur.execute(sql)
         self.db.commit()
-        return self.cur.lastrowid
+        if self.cur.lastrowid != 0:
+            return self.cur.lastrowid
+        else:
+            return self.cur.rowcount
 
     # 更新処理
     # param = テーブル名、DTO、抽出条件ディクショナリ、non_strフラグ

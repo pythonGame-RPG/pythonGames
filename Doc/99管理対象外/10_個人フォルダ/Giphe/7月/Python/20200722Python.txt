@@ -4,7 +4,16 @@
 
 
 ■エラー
+★self.user_id = tk.StringVar()
+                    ^
+SyntaxError: invalid character in identifier
+→エクセルで編集した文字列では不正な半角空白文字になっている場合がある
+→ctrl + fでエラー空白を正常空白に置き換える必要がある
 
+★RecursionError: maximum recursion depth exceeded in comparison
+Fatal Python error: Cannot recover from stack overflow.
+Python runtime state: initialized
+→無限ループになる
 
 
 ■ショートカット
