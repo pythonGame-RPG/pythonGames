@@ -1,5 +1,4 @@
 from settings import *
-from Sql import *
 from validate import *
 import random
 import tkinter as tk
@@ -154,6 +153,6 @@ class Signup(tk.Tk):
 # import以外から呼び出された場合のみこのファイルを実行
 # # if __name__ == '__main__':
 
-root = tk.Tk()
-c = Signup(root)
-c.openDialog()
+#oot = tk.Tk()
+#c = Signup(root)
+#c.openDialog()

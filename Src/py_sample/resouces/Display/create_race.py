@@ -95,7 +95,6 @@ class create_race():
         #モード変更イベント
         #self.mode.trace("w", lambda *args: self.changeMode())
 
-
     def openDialog(self):        
         # 子画面クラス
         self.window = tk.Toplevel(self.parent)
@@ -258,18 +257,6 @@ class create_race():
         self.ent17.grid(row=6, column=3, padx=5, pady=2)
         self.ent17.configure(state = 'readonly')
 
-        # gene桁数制限
-        """とってくるだけのデータなのでカット
-        self.ra.p_HP.trace("w", lambda *args: self.character_limit(self.ra.p_HP, 5))
-        self.ra.p_MP.trace("w", lambda *args: self.character_limit(self.ra.p_MP, 5))
-        self.ra.p_sta.trace("w", lambda *args: self.character_limit(self.ra.p_sta, 5))
-        self.ra.p_atk.trace("w", lambda *args: self.character_limit(self.ra.p_atk, 5))
-        self.ra.p_vit.trace("w", lambda *args: self.character_limit(self.ra.p_vit, 5))
-        self.ra.p_mag.trace("w", lambda *args: self.character_limit(self.ra.p_mag, 5))
-        self.ra.p_des.trace("w", lambda *args: self.character_limit(self.ra.p_des, 5))
-        self.ra.p_agi.trace("w", lambda *args: self.character_limit(self.ra.p_agi, 5))
-        """
-
         return pw_right_up2
 
     def createButton(self, pw_right):
@@ -376,9 +363,6 @@ class create_race():
         self.iid = self.tree.focus()
         self.bk_iid = self.tree.parent(self.iid)
 
-        # 種族選択コンボボックス編集
-        self.cboChoice['values'] = self.getRaceValue()
-
         # ホームでない場合
         if self.iid != 'I001':
 
@@ -425,14 +409,21 @@ class create_race():
 
             # 進化元フラグON
             self.entry_ra.initial_flg.set(1)
+        
+        if len(self.choosedRace.get()) != 0:
+            self.choosedRace.set('')
 
+        # 種族選択コンボボックス編集
+        self.cboChoice['values'] = self.getRaceValue()
+
+        # 表示編集側データと同期
         self.setRaceSelected()
 
 
     # 選択したraceを登録用メンバにセット
     def setRaceSelected(self):
         
-        self.entry_ra.race_name.set(self.ra.race_name.get())
+        # self.entry_ra.race_name.set(self.ra.race_name.get())
         self.entry_ra.race_id.set(self.ra.race_id.get())
         self.entry_ra.p_HP.set(self.ra.p_HP.get())
         self.entry_ra.p_MP.set(self.ra.p_MP.get())
@@ -461,10 +452,15 @@ class create_race():
             acquired_rank = []
             self.cboChoice.configure(state = 'disabled')
 
-
         for data in self.raceRoot.values():
-            if data['r_rank'] in acquired_rank:
-                raceList[data['race_id']] = data['r_rank'] + ':' + data['race_name']
+            # ランクが選択可能ランク以上、かつ進化先と重複しない
+            if (data['r_rank'] in acquired_rank and str(data['race_id']) != self.ra.race_id.get()):
+                try:
+                    # raceTree = Noneの場合を考慮
+                    if data['race_id'] not in [race['race_id'] for race in self.raceTree[self.iid]]:
+                        raceList[data['race_id']] = data['r_rank'] + ':' + data['race_name']
+                except:
+                    raceList[data['race_id']] = data['r_rank'] + ':' + data['race_name']
         
         return list(raceList.values())
 
@@ -527,15 +523,16 @@ class create_race():
     # raceが選択された場合
     def select_race(self, _race):
 
-        # 選択したraceを取得
-        s_race = self.ra_dao.pickup_race(_race.get())
-
         # コンボボックスの種族が存在しない場合初期化
         try:
+            # 選択したraceを取得
+            s_race = self.ra_dao.pickup_race(_race.get())
             # 対象に選択したraceの値を反映
-            self.ra.set_select_race(s_race)
+            self.entry_ra.set_select_race(s_race)
         except:
-            self.ra.init()
+            _race.set('')
+            self.setRaceSelected()
+            return
 
     # 入力文字数制限NOTE:entry_text:gene,num:桁数
     def character_limit(self,entry_text, num, ch_text=None, ra_text=None):
@@ -563,7 +560,7 @@ class create_race():
 
     # 進化レベル設定（基準）
     def randomLevel(self,r_rank):
-        if r_rank == 'SS"':
+        if r_rank == 'SSS':
             self.evoLevel.set(random.randint(60,99))
         if r_rank == 'SS':
             self.evoLevel.set(random.randint(45,70))
@@ -588,6 +585,31 @@ class create_race():
     # 種族登録更新処理
     def entryRace(self):
 
+        # プルダウンで設定した場合
+        if len(self.choosedRace.get()) != 0:
+            # 登録確認ポップアップ表示
+            if bs.Popup.OKCancelPopup(self,Q0003) == False:
+                return
+            # 進化先に選択種族を設定する
+            try:
+                self.ra_dao.update_child_race(self.ra, self.entry_ra.race_id.get(), self.evoLevel.get())
+            except:
+                # 登録エラーポップアップ表示
+                bs.Popup.ShowInfo(self,E0002)
+                return
+        else:
+            # プルダウンで設定されていない場合
+            self.displayEntry()
+
+        # 登録完了ポップアップ表示
+        bs.Popup.ShowInfo(self,I0002)
+        
+        # 再検索を実施
+        self.pw_main.destroy()
+        self.createDisplay()
+    
+    # 画面内容登録
+    def displayEntry(self):
         s_race = self.entry_ra
 
         # 重複チェック実装
@@ -625,28 +647,21 @@ class create_race():
                 if self.iid != 'I001':
                     self.ra_dao.update_child_race(self.ra,res_id,self.evoLevel.get())
         except:
-            # 登録完了ポップアップ表示
+            # 登録エラーポップアップ表示
             bs.Popup.ShowInfo(self,E0002)
             return
-
-        # 登録完了ポップアップ表示
-        bs.Popup.ShowInfo(self,I0002)
-        
-        # 再検索を実施
-        self.pw_main.destroy()
-        self.createDisplay()
 
     # 削除処理
     def deleteRace(self):
 
-        # 登録確認ポップアップ表示
+        # 削除確認ポップアップ表示
         if bs.Popup.OKCancelPopup(self,Q0002) == False:
             return
         
         if self.ra_dao.delete_race(self.ra) == False:
             bs.Popup.ShowInfo(self,E0002)
             return
-        if self.ra_dao.update_else(self.ra) == False:
+        if self.ra_dao.update_else(self.ra, self.bk_ra) == False:
             bs.Popup.ShowInfo(self,E0002)
             return
     

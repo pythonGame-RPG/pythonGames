@@ -229,10 +229,10 @@ class RaceDAO:
         r_list['r_rank'] = races.r_rank.get()
         r_list['parent_race1_id'] = races.parent_race1_id.get()
         r_list['evolution1_level'] = races.evolution1_level.get()
-        r_list['parent_race2_id'] = races.parent_race2_id.get() if races.parent_race2_id.get() != None else 'null'
-        r_list['evolution2_level'] = races.evolution2_level.get() if races.evolution2_level.get() != None else 'null'
-        r_list['parent_race3_id'] = races.parent_race3_id.get() if races.parent_race3_id.get() != None else 'null'
-        r_list['evolution3_level'] = races.evolution3_level.get() if races.evolution3_level.get() != None else 'null'
+        r_list['parent_race2_id'] = races.parent_race2_id.get() if races.parent_race2_id.get() != 'None' else ''
+        r_list['evolution2_level'] = races.evolution2_level.get() if races.evolution2_level.get() != 'None' else ''
+        r_list['parent_race3_id'] = races.parent_race3_id.get() if races.parent_race3_id.get() != 'None' else ''
+        r_list['evolution3_level'] = races.evolution3_level.get() if races.evolution3_level.get() != 'None' else ''
         r_list['initial_flg'] = races.initial_flg.get()
         r_list['version'] = races.version.get() + 1
         r_list['upd_date'] = races.upd_date
@@ -297,13 +297,13 @@ class RaceDAO:
             res = dbaccess().UPDATE_Column(MST_RACES, r_list, where, True)
 
     # 削除処理進化先id編集
-    def update_else(self, race):
+    def update_else(self, race, bk_race):
         # 1番目更新の場合
         r_list = {}
-        r_list['parent_race1_id'] = race.parent_race2_id.get()
-        r_list['evolution1_level'] = race.evolution2_level.get()
-        r_list['parent_race2_id'] = race.parent_race3_id.get()
-        r_list['evolution2_level'] = race.evolution3_level.get()
+        r_list['parent_race1_id'] = bk_race.parent_race2_id.get() if bk_race.parent_race2_id.get() != 'None' else '0'
+        r_list['evolution1_level'] = bk_race.evolution2_level.get() if bk_race.evolution2_level.get() != 'None' else '100'
+        r_list['parent_race2_id'] = bk_race.parent_race3_id.get() if bk_race.parent_race3_id.get() != 'None' else ''
+        r_list['evolution2_level'] = bk_race.evolution3_level.get() if bk_race.evolution3_level.get() != 'None' else ''
 
         where = {}
         where['parent_race1_id'] = race.race_id.get()
@@ -313,10 +313,10 @@ class RaceDAO:
 
         # 2番目更新の場合
         r_list = {}
-        r_list['parent_race2_id'] = race.parent_race3_id.get()
-        r_list['evolution2_level'] = race.evolution3_level.get()
-        r_list['parent_race3_id'] = 'null'
-        r_list['evolution3_level'] = 'null'
+        r_list['parent_race2_id'] = bk_race.parent_race3_id.get() if bk_race.parent_race3_id.get() != 'None' else ''
+        r_list['evolution2_level'] = bk_race.evolution3_level.get() if bk_race.evolution3_level.get() != 'None' else ''
+        r_list['parent_race3_id'] = ''
+        r_list['evolution3_level'] = ''
 
         where = {}
         where['parent_race2_id'] = race.race_id.get()
@@ -326,14 +326,16 @@ class RaceDAO:
 
         # 3番目更新の場合
         r_list = {}
-        r_list['parent_race3_id'] = 'null'
-        r_list['evolution3_level'] = 'null'
+        r_list['parent_race3_id'] = ''
+        r_list['evolution3_level'] = ''
 
         where = {}
         where['parent_race3_id'] = race.race_id.get()
         where['is_deleted'] = 0
 
-        return dbaccess().UPDATE_Column(MST_RACES, r_list, where)
+        dbaccess().UPDATE_Column(MST_RACES, r_list, where)
+
+        return True
         
     def delete_race(self, race):
         where = {}

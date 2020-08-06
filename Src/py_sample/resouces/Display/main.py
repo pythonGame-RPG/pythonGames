@@ -7,6 +7,10 @@ from login import *
 from menu import *
 from Sql import *
 from os import path
+import DTO.characters as DTO
+import DAO.charactersDAO as DAO
+import tkinter as tk
+from datetime import *
 
 class Game:
     def __init__(self):
@@ -68,15 +72,15 @@ class Game:
     
     def show_start_screen(self, user_data):
         # ゲームスタート画面
-        self.character_select_sql = sql_query()
         # character_idにusersのFKをセット
         self.user_id = user_data[0]['user_id']
         # 取得SQLを作成
-        sql = self.character_select_sql.select(MST_CHARACTERS)
-        sql = self.character_select_sql.where(sql, {'user_id': self.user_id})
+        self._characterDAO = DAO.CharacterDAO()
+        sql = self._characterDAO.select(MST_CHARACTERS)
+        sql = self._characterDAO.where(sql, {'user_id': self.user_id})
 
         # sqlを実行してcharacterデータを取得
-        self.character_data = self.character_select_sql.execute(sql)
+        self.character_data = self._characterDAO.execute(sql)
         
         # 名前をリストに格納
         for d in self.character_data:

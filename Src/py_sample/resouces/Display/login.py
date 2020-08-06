@@ -5,6 +5,8 @@ import random
 import tkinter as tk
 import signup as sg
 from turtle import *
+import DTO.users as DTO
+import DAO.usersDAO as DAO
 
 # Login classes(GUIで実装)
 class Login(tk.Tk):
@@ -12,6 +14,8 @@ class Login(tk.Tk):
         self.root = tk.Tk.__init__(self)
         self.geometry('200x200')
         self.title('Enter password')
+        self.user = DTO.User()
+        self._userDAO = DAO.UserDAO()
         # tkinterパーツを初期化
         #self.root = tk.Tk()
         # パーツ１：user_id入力
@@ -87,7 +91,6 @@ class Login(tk.Tk):
         s = sg.Signup(self)
         s.openDialog()
         
-        # 0407続きはここから
 
     # 入力チェック
     def valid(self, data):
@@ -104,12 +107,11 @@ class Login(tk.Tk):
 
     # validate後データ入力された情報をもとにuser情報を取得
     def select_user(self, data):
-        self.sql = sql_query()
-        sql = self.sql.select(MST_USERS)
-        sql = self.sql.where(sql,data)
+        sql = self._userDAO.select(MST_USERS)
+        sql = self._userDAO.where(sql,data)
 
         # sqlを実行してデータを取得
-        user_data = self.sql.execute(sql)
+        user_data = self._userDAO.execute(sql)
         return user_data
         
         # エラーの場合エラー文を返す
