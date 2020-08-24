@@ -60,6 +60,7 @@ MST_PERSONALITIES = "personalities"
 MST_DANGEONS = "dangeons"
 MST_FIELDS = "fields"
 MST_LOCATIONS = "locations"
+MST_AREAS = "areas"
 MST_SPOTS = "spots"
 MST_NAMES = "names"
 
@@ -91,3 +92,5 @@ I0002 = '登録が完了しました。'
 # エラーメッセージ
 E0001 = '名前とランクが重複しています。'
 E0002 = '予期せぬエラーが発生しました。処理を中断します。'
+E0003 = 'いずれかのテキストが入力されていません'
+E0004 = '中心座標は(0, 0)～({0}, {1})の範囲内で設定してください'

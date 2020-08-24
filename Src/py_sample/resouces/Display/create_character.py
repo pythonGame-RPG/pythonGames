@@ -420,6 +420,10 @@ class create_character(tk.Tk):
         self.btnCreateRace = tk.Button(fm_button, text = "種族作成", width=10, command=self.openCreateRace)
         self.btnCreateRace.grid(row=8, column=0, padx=4)
 
+        # マップ作成
+        self.btnCreateRace = tk.Button(fm_button, text = "マップ作成", width=10, command=self.openCreateMap)
+        self.btnCreateRace.grid(row=9, column=0, padx=4)
+
         # テキスト初期化
         self.ge.init()
         self.ra.init()
@@ -447,6 +451,12 @@ class create_character(tk.Tk):
         # 種族作成
         self.sub_race = c_ra.create_race(self)
         self.sub_race.openDialog()
+
+    def openCreateMap(self):
+        pass
+        # マップ作成
+        # self.sub_map = c_ma.create_map(self)
+        # self.sub_map.openDialog()
 
     # ランダム生成押下時
     def random_generate(self):

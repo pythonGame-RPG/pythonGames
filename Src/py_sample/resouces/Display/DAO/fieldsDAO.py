@@ -2,7 +2,6 @@ from DbAccess import *
 import DTO.fields as DTO
 from settings import *
 
-
 class FieldDAO:
 
     def __init__(self):

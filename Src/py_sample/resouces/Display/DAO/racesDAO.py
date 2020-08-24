@@ -78,6 +78,7 @@ class RaceDAO:
                 parent_race3_id, 
                 evolution3_level, 
                 0                 AS over_evolution3_lv,
+                initial_flg,
                 r_rank,
                 concat(r_rank, ":", race_name) as race_cbo
                 FROM dbo.races 
@@ -105,6 +106,7 @@ class RaceDAO:
                 child.parent_race3_id, 
                 child.evolution3_level, 
                 races.evolution3_level AS over_evolution3_lv,
+                child.initial_flg,
                 child.r_rank,
                 concat(child.r_rank, ":", child.race_name) as race_cbo
                 FROM dbo.races AS child, races
@@ -132,6 +134,7 @@ class RaceDAO:
                 child.parent_race3_id, 
                 child.evolution3_level, 
                 races.evolution3_level AS over_evolution3_lv,
+                child.initial_flg,
                 child.r_rank,
                 concat(child.r_rank, ":", child.race_name) as race_cbo
                 FROM dbo.races AS child, races
@@ -159,6 +162,7 @@ class RaceDAO:
                 child.parent_race3_id, 
                 child.evolution3_level, 
                 races.evolution3_level AS over_evolution3_lv,
+                child.initial_flg,
                 child.r_rank,
                 concat(child.r_rank, ":", child.race_name) as race_cbo
                 FROM dbo.races AS child, races
