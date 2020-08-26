@@ -10,6 +10,15 @@ import DTO.locations as locations
 import DAO.areasDAO as _areas
 import DTO.fields as fields
 import Base.basic_module as bs
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pyFAI
+from concurrent import futures
+import time
+
+# 軸の目盛り位置とラベル表示の調整用
+from matplotlib.ticker import MultipleLocator, AutoMinorLocator
+from matplotlib.ticker import StrMethodFormatter
 
 # map範囲
 X = 1440
@@ -23,10 +32,15 @@ class create_kingdom():
         self.parent = parent
         self.dialog = None
         self.targetRa = tk.StringVar()
-        self.capital_x = tk.StringVar()
-        self.capital_y = tk.StringVar()
-        self.v_king = tk.StringVar()
-        self.h_king = tk.StringVar()
+        self.rect_start_x = tk.StringVar()
+        self.rect_start_y = tk.StringVar()
+        self.rect_stop_x = tk.StringVar()
+        self.rect_stop_y = tk.StringVar()
+        self.start_x = None
+        self.start_y = None
+        self.stop_x = None
+        self.stop_y = None
+        self.rect = None
         self.evoLevel = tk.IntVar()
         self.choosedField = tk.StringVar()
         self.val = tk.DoubleVar()
@@ -75,17 +89,13 @@ class create_kingdom():
         self.rank_label = {'total':self.civilization}
 
         # DBアクセス用
-        self.ra = fields.Field()
+        self.fi = fields.Field()
         self.bk_ra = fields.Field()
         self.entry_fi = fields.Field()
         self.fi_dao = _fields.FieldDAO()
-        self.lo_dao = _locations.FieldDAO()
-        self.ar_dao = _areas.FieldDAO()
+        self.lo_dao = _locations.LocationDAO()
+        self.ar_dao = _areas.AreaDAO()
 
-        self.capital_x.trace("w", lambda *args: self.character_limit(self.capital_x, 3))
-        self.capital_y.trace("w", lambda *args: self.character_limit(self.capital_y, 3))
-        self.v_king.trace("w", lambda *args: self.character_limit(self.v_king, 3))
-        self.h_king.trace("w", lambda *args: self.character_limit(self.h_king, 3))
         self.entry_fi.king_gene_id.trace("w", lambda *args: self.character_limit(self.entry_fi.king_gene_id, 5))
         self.entry_fi.character_id.trace("w", lambda *args: self.character_limit(self.entry_fi.character_id, 5))
         self.entry_fi.contract_id.trace("w", lambda *args: self.character_limit(self.entry_fi.contract_id, 5))
@@ -96,19 +106,19 @@ class create_kingdom():
         self.entry_fi.hate.trace("w", lambda *args: self.character_limit(self.entry_fi.hate, 5))
 
         # ラベル用イベント
-        self.ra.king_gene_id.trace("w", lambda *args: self.ch_status_set(self.HP_label,self.ra.king_gene_id.get()))
-        self.ra.character_id.trace("w", lambda *args: self.ch_status_set(self.MP_label,self.ra.character_id.get()))
-        self.ra.contract_id.trace("w", lambda *args: self.ch_status_set(self.sta_label,self.ra.contract_id.get()))
-        self.ra.castle.trace("w", lambda *args: self.ch_status_set(self.atk_label,self.ra.castle.get()))
-        self.ra.area.trace("w", lambda *args: self.ch_status_set(self.vit_label,self.ra.area.get()))
-        self.ra.population.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.ra.population.get()))
-        self.ra.stress.trace("w", lambda *args: self.ch_status_set(self.des_label,self.ra.stress.get()))
-        self.ra.hate.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.ra.hate.get()))
-        self.ra.civil_point.trace("w", lambda *args: self.ch_status_set(self.total_label,self.ra.civil_point.get()))
-        self.ra.civilization.trace("w", lambda *args: self.ch_status_set(self.rank_label,self.ra.civilization.get()))
+        self.fi.king_gene_id.trace("w", lambda *args: self.ch_status_set(self.HP_label,self.fi.king_gene_id.get()))
+        self.fi.character_id.trace("w", lambda *args: self.ch_status_set(self.MP_label,self.fi.character_id.get()))
+        self.fi.contract_id.trace("w", lambda *args: self.ch_status_set(self.sta_label,self.fi.contract_id.get()))
+        self.fi.castle.trace("w", lambda *args: self.ch_status_set(self.atk_label,self.fi.castle.get()))
+        self.fi.area.trace("w", lambda *args: self.ch_status_set(self.vit_label,self.fi.area.get()))
+        self.fi.population.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.fi.population.get()))
+        self.fi.stress.trace("w", lambda *args: self.ch_status_set(self.des_label,self.fi.stress.get()))
+        self.fi.hate.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.fi.hate.get()))
+        self.fi.civil_point.trace("w", lambda *args: self.ch_status_set(self.total_label,self.fi.civil_point.get()))
+        self.fi.civilization.trace("w", lambda *args: self.ch_status_set(self.rank_label,self.fi.civilization.get()))
 
         #モード変更イベント
-        #self.capital_x.trace("w", lambda *args: self.changeMode())
+        #self.rect_start_x.trace("w", lambda *args: self.changeMode())
 
     def openDialog(self):        
         # 子画面クラス
@@ -158,10 +168,10 @@ class create_kingdom():
         # pw_right.add(pw_right_up4)
 
     def init(self):
-        self.capital_x.set(0)
-        self.capital_y.set(0)
-        self.v_king.set(0)
-        self.h_king.set(0)
+        self.rect_start_x.set(0)
+        self.rect_start_y.set(0)
+        self.rect_stop_x.set(0)
+        self.rect_stop_y.set(0)
 
     # ツリーデータ検索
     def setSearchTree(self, treeFrame):
@@ -183,30 +193,61 @@ class create_kingdom():
         self.lblmap = tk.Label(pw_left_up,text = 'map')
         self.lblmap.grid(row=0, column=2, padx=5, pady=2)
         
-        pw_map = ttk.Frame(pw_left_up, width=480, height=300,borderwidth=10, relief='sunken')
-        pw_map.grid(row=1, column=2, padx=5, pady=2)
+        self.pw_map = tk.Canvas(pw_left_up, width=480, height=300,borderwidth=10) # , relief='sunken'
+        self.pw_map.grid(row=1, column=2, padx=5, pady=2)
+        self.pw_map.bind('<Button-1>', self.rect_start_pickup)
+        self.pw_map.bind('<B1-Motion>', self.pickup_position)
+        self.pw_map.bind('<ButtonRelease-1>', self.rect_stop_pickup)
+
+ 
         # 新規作成用
         pw_new = ttk.Frame(pw_left_up, width=480, height=50,borderwidth=10, relief='sunken')
         pw_new.grid(row=2, column=2, padx=5, pady=2)
 
+        # {kingdom_id : [座標リスト] }を取得
 
-        
+        kingdom_grid = {}
+        # areasを取得
+        area_data = self.ar_dao.select()
+
+        for data in area_data:
+            if data['field_id'] in kingdom_grid:
+                kingdom_grid[data['field_id']].append((data['grid_x'], data['grid_y']))
+            else:
+                kingdom_grid[data['field_id']] = []
+                kingdom_grid[data['field_id']].append((data['grid_x'], data['grid_y']))
+            
+        # fig, axes = plt.plot(1,4, figsize=(16,4))
+        # axes[3].imshow(data10[2:8, 2:8], origin='lower', extent=[1.5, 7.5, 1.5, 7.5])
+
+        # 色判別用
+        i = 0
+        # マッピング処理
+        for dkey, dval in kingdom_grid.items():
+
+            color = colorsCollection[i]
+            for d in dval:
+                self.pw_map.create_rectangle(*d,1,1,fill = color,tags=dkey)
+            ++i
+            if i >= len(colorsCollection):
+                i = 0
+
         # 新規作成部ウィジェット
-        self.lblx = tk.Label(pw_new,text = 'x:')
+        self.lblx = tk.Label(pw_new,text = 'x1:')
         self.lblx.grid(row=0, column=0, padx=5, pady=2)
-        self.textx = tk.Entry(pw_new, textvariable=self.capital_x, width = 4)
+        self.textx = tk.Entry(pw_new, textvariable=self.rect_start_x, width = 4, state='readonly')
         self.textx.grid(row=0, column=1, padx=5, pady=2)
-        self.lbly = tk.Label(pw_new,text = 'y:')
+        self.lbly = tk.Label(pw_new,text = 'y1:')
         self.lbly.grid(row=0, column=2, padx=5, pady=2)
-        self.texty = tk.Entry(pw_new, textvariable=self.capital_y, width = 4)
+        self.texty = tk.Entry(pw_new, textvariable=self.rect_start_y, width = 4, state='readonly')
         self.texty.grid(row=0, column=3, padx=5, pady=2)
-        self.lblvert = tk.Label(pw_new,text = '縦:')
+        self.lblvert = tk.Label(pw_new,text = 'x2:')
         self.lblvert.grid(row=0, column=4, padx=5, pady=2)
-        self.entvert = tk.Entry(pw_new, textvariable=self.v_king, width = 4)
+        self.entvert = tk.Entry(pw_new, textvariable=self.rect_stop_x, width = 4, state='readonly')
         self.entvert.grid(row=0, column=5, padx=5, pady=2)
-        self.lblhori = tk.Label(pw_new,text = '横:')
+        self.lblhori = tk.Label(pw_new,text = 'y2:')
         self.lblhori.grid(row=0, column=6, padx=5, pady=2)
-        self.enthori = tk.Entry(pw_new, textvariable=self.h_king, width = 4)
+        self.enthori = tk.Entry(pw_new, textvariable=self.rect_stop_y, width = 4, state='readonly')
         self.enthori.grid(row=0, column=7, padx=5, pady=2)
         # 新規登録ボタン
         self.btnnew = tk.Button(pw_new, text='新規登録', width=10, command=self.entryNewKingdom)
@@ -216,10 +257,24 @@ class create_kingdom():
 
     def entryNewKingdom(self):
         # 
-        if len(self.capital_x.get()) > 0 and len(self.capital_y.get()) > 0 and len(self.v_king.get()) > 0 and len(self.h_king.get()) > 0:
+        if len(self.rect_start_x.get()) > 0 and len(self.rect_start_y.get()) > 0 and len(self.rect_stop_x.get()) > 0 and len(self.rect_stop_y.get()) > 0:
             # 中心座標判定
-            if 0 <= len(self.capital_x.get()) <= X and 0 <= len(self.capital_y.get()) <= Y:
-                upleft = int(self.capital_x.get()) - int(self.h_king.get())
+            if 0 <= len(self.rect_start_x.get()) <= X and 0 <= len(self.rect_start_y.get()) <= Y:
+                upleft = int(self.rect_start_x.get()) - int(self.rect_stop_y.get())
+
+                # ①登録用areasデータを作成
+                # ②登録用spotsデータを作成(①のデータ件数×25)
+                future_list = []
+                with futures.ThreadPoolExecutor(max_workers=4) as executor:
+                    for i in range(min(self.rect_start_x.get(), self.rect_stop_x.get()), max(self.rect_start_x.get(), self.rect_stop_x.get())):
+                        for j in range(min(self.rect_start_y.get(), self.rect_stop_y.get()), max(self.rect_start_y.get(), self.rect_stop_y.get())):
+                            future = executor.submit(fn=self.newMapping, i_x=i, i_y=j)
+                            future_list.append(future)
+                    _ = futures.as_completed(fs=future_list)
+                # ③登録用locationsデータを作成→王都面積に比例、中心座標(①、②のデータの集計)
+                self.newLocations()
+                # ④登録用fieldsデータを作成(新規なのでほぼ③の数値(集計)となる)
+                self.newFields()
             else:
                 # 中心座標エラー
                 bs.Popup.ShowInfo(self,E0004.format(X,Y))
@@ -227,6 +282,20 @@ class create_kingdom():
         else:
             # 登録エラーポップアップ表示
             bs.Popup.ShowInfo(self,E0003)
+    
+    # エリア、建物作成(ランダムテンプレート)
+    def newMapping(self, i_x, i_y):
+        pass
+
+    # 王都作成
+    def newLocations(self):
+        future_list = []
+        with futures.ThreadPoolExecutor(max_workers=4) as executor:
+            # 王国の中心x,y1/5スケールで王都を作成
+            for i in range(int(min(self.rect_start_x.get(), self.rect_stop_x.get())+abs(self.rect_start_x.get() - self.rect_stop_x.get()) * 2 / 5)
+            , int(max(self.rect_start_x.get(), self.rect_stop_x.get())-abs(self.rect_start_x.get() - self.rect_stop_x.get()) * 2 / 5)):
+                for j in range(int(min(self.rect_start_y.get(), self.rect_stop_y.get()+abs(self.rect_start_y.get() - self.rect_stop_y.get()) * 2 / 5))
+                , int(max(self.rect_start_y.get(), self.rect_stop_y.get())-abs(self.rect_start_y.get() - self.rect_stop_y.get()) * 2 / 5)):
     
     def createLocation(self, pw_left):
 
@@ -398,7 +467,7 @@ class create_kingdom():
     def makeTree(self):
 
         # 選択したfieldを取得
-        self.s_field = self.ra_dao.select_fields()
+        self.s_field = self.fi_dao.select_fields()
         initial_field = [field for field in self.s_field if field['initial_flg'] == 1]
         
         # ツリーごとの種族要素を取得
@@ -429,7 +498,7 @@ class create_kingdom():
     # 種族選択時
     def targetField(self,event):
         # 初期化
-        self.ra.init()
+        self.fi.init()
         # 前フォーカスIDをセット
         self.iid = self.tree.focus()
         self.bk_iid = self.tree.parent(self.iid)
@@ -453,7 +522,7 @@ class create_kingdom():
         else:
             # 編集不可
             self.rdoEdit.configure(state = 'disabled')
-            self.ra.init()
+            self.fi.init()
             self.bk_ra.init()
 
             # 進化元フラグON
@@ -472,24 +541,24 @@ class create_kingdom():
     # 選択したfieldを登録用メンバにセット
     def setFieldSelected(self):
         
-        # self.entry_fi.field_name.set(self.ra.field_name.get())
-        self.entry_fi.field_id.set(self.ra.field_id.get())
-        self.entry_fi.king_gene_id.set(self.ra.king_gene_id.get())
-        self.entry_fi.character_id.set(self.ra.character_id.get())
-        self.entry_fi.contract_id.set(self.ra.contract_id.get())
-        self.entry_fi.castle.set(self.ra.castle.get())
-        self.entry_fi.area.set(self.ra.area.get())
-        self.entry_fi.population.set(self.ra.population.get())
-        self.entry_fi.stress.set(self.ra.stress.get())
-        self.entry_fi.hate.set(self.ra.hate.get())
-        self.entry_fi.parent_field1_id.set(self.ra.parent_field1_id.get())
-        self.entry_fi.evolution1_level.set(self.ra.evolution1_level.get())
-        self.entry_fi.parent_field2_id.set(self.ra.parent_field2_id.get())
-        self.entry_fi.evolution2_level.set(self.ra.evolution2_level.get())
-        self.entry_fi.parent_field3_id.set(self.ra.parent_field3_id.get())
-        self.entry_fi.evolution3_level.set(self.ra.evolution3_level.get())
-        self.entry_fi.civilization.set(self.ra.civilization.get())
-        self.entry_fi.civil_point.set(self.ra.civil_point.get())
+        # self.entry_fi.field_name.set(self.fi.field_name.get())
+        self.entry_fi.field_id.set(self.fi.field_id.get())
+        self.entry_fi.king_gene_id.set(self.fi.king_gene_id.get())
+        self.entry_fi.character_id.set(self.fi.character_id.get())
+        self.entry_fi.contract_id.set(self.fi.contract_id.get())
+        self.entry_fi.castle.set(self.fi.castle.get())
+        self.entry_fi.area.set(self.fi.area.get())
+        self.entry_fi.population.set(self.fi.population.get())
+        self.entry_fi.stress.set(self.fi.stress.get())
+        self.entry_fi.hate.set(self.fi.hate.get())
+        self.entry_fi.parent_field1_id.set(self.fi.parent_field1_id.get())
+        self.entry_fi.evolution1_level.set(self.fi.evolution1_level.get())
+        self.entry_fi.parent_field2_id.set(self.fi.parent_field2_id.get())
+        self.entry_fi.evolution2_level.set(self.fi.evolution2_level.get())
+        self.entry_fi.parent_field3_id.set(self.fi.parent_field3_id.get())
+        self.entry_fi.evolution3_level.set(self.fi.evolution3_level.get())
+        self.entry_fi.civilization.set(self.fi.civilization.get())
+        self.entry_fi.civil_point.set(self.fi.civil_point.get())
 
     # 上位ランクデータ取得
     def getFieldValue(self):
@@ -503,7 +572,7 @@ class create_kingdom():
 
         for data in self.fieldRoot.values():
             # ランクが選択可能ランク以上、かつ進化先と重複しない
-            if (data['civilization'] in acquired_rank and str(data['field_id']) != self.ra.field_id.get()):
+            if (data['civilization'] in acquired_rank and str(data['field_id']) != self.fi.field_id.get()):
                 try:
                     # fieldTree = Noneの場合を考慮
                     if data['field_id'] not in [field['field_id'] for field in self.fieldTree[self.iid]]:
@@ -572,7 +641,7 @@ class create_kingdom():
         # コンボボックスの種族が存在しない場合初期化
         try:
             # 選択したfieldを取得
-            s_field = self.ra_dao.pickup_field(_field.get())
+            s_field = self.fi_dao.pickup_field(_field.get())
             # 対象に選択したfieldの値を反映
             self.entry_fi.set_select_field(s_field)
         except:
@@ -603,6 +672,23 @@ class create_kingdom():
 
             # self.entry_fi.civilization.set(self.getOneRank(self.entry_fi.civil_point.get()))
 
+
+    # 入力文字数制限NOTE:entry_text:gene,num:桁数
+    def character_limit_move(self,entry_text, num, ch_text=None, ra_text=None):
+        if len(str(entry_text.get())) > 0:
+            # 不適切な値の場合は1に設定
+            if not str(entry_text.get()).isdecimal():
+                entry_text.set(1)
+            if int(str(entry_text.get())) <= 0:
+                entry_text.set(1)
+            # 100より大きい数字が入力されたら100に
+            elif int(str(entry_text.get())) > 10**(num-1):
+                entry_text.set(10**(num-1))
+            entry_text.set(str(entry_text.get())[:num])
+        
+        tk.Canvas.coords(self.new_kingdom, x0, y0, x1, y1)
+
+            # self.entry_fi.civilization.set(self.getOneRank(self.entry_fi.civil_point.get()))
 
     # 進化レベル設定（基準）
     def randomLevel(self,civilization):
@@ -638,7 +724,7 @@ class create_kingdom():
                 return
             # 進化先に選択種族を設定する
             try:
-                self.ra_dao.update_child_field(self.ra, self.entry_fi.field_id.get(), self.evoLevel.get())
+                self.fi_dao.update_child_field(self.fi, self.entry_fi.field_id.get(), self.evoLevel.get())
             except:
                 # 登録エラーポップアップ表示
                 bs.Popup.ShowInfo(self,E0002)
@@ -677,16 +763,16 @@ class create_kingdom():
 
         try:
             # 親種族の更新
-            if self.capital_x.get() == 0:
+            if self.rect_start_x.get() == 0:
                 # 種族更新 
-                self.ra_dao.update_field(s_field)
+                self.fi_dao.update_field(s_field)
                 # TODO:進化前更新
             else:
                 # 種族登録 戻り値にInsertした種族を取得
-                res_id = self.ra_dao.insert_field(s_field)
+                res_id = self.fi_dao.insert_field(s_field)
                 # 子種族の更新
                 if self.iid != 'I001':
-                    self.ra_dao.update_child_field(self.ra,res_id,self.evoLevel.get())
+                    self.fi_dao.update_child_field(self.fi,res_id,self.evoLevel.get())
         except:
             # 登録エラーポップアップ表示
             bs.Popup.ShowInfo(self,E0002)
@@ -699,10 +785,10 @@ class create_kingdom():
         if bs.Popup.OKCancelPopup(self,Q0002) == False:
             return
         
-        if self.ra_dao.delete_field(self.ra) == False:
+        if self.fi_dao.delete_field(self.fi) == False:
             bs.Popup.ShowInfo(self,E0002)
             return
-        if self.ra_dao.update_else(self.ra, self.bk_ra) == False:
+        if self.fi_dao.update_else(self.fi, self.bk_ra) == False:
             bs.Popup.ShowInfo(self,E0002)
             return
     
@@ -743,7 +829,7 @@ class create_kingdom():
         # 登録用
         
         # 新規、編集ランク制限
-        if self.capital_x.get() == 0:
+        if self.rect_start_x.get() == 0:
 
             for i in range(1000):
 
@@ -754,7 +840,7 @@ class create_kingdom():
                 weight = val + 1 - i*0.1
 
                 # geneをランダムで設定
-                # self.ra.level.set(self.rand_num_hard(3,weight))
+                # self.fi.level.set(self.rand_num_hard(3,weight))
                 reg_field['r_hp'] = self.rand_num(5,weight)
                 reg_field['r_mp'] = self.rand_num(5,weight)
                 reg_field['r_sta'] = self.rand_num(5,weight)
@@ -772,10 +858,10 @@ class create_kingdom():
                 if sum(reg_field.values()) <= 0:
                     val = val + i*0.2
 
-        elif self.capital_x.get() == 1:
+        elif self.rect_start_x.get() == 1:
 
             # geneをランダムで設定
-            # self.ra.level.set(self.rand_num_hard(3,weight)
+            # self.fi.level.set(self.rand_num_hard(3,weight)
 
             for i in range(1000):
 
@@ -786,7 +872,7 @@ class create_kingdom():
                 weight = val + 1 - i*0.1
 
                 # geneをランダムで設定
-                # self.ra.level.set(self.rand_num_hard(3,weight))
+                # self.fi.level.set(self.rand_num_hard(3,weight))
                 reg_field['r_hp'] = self.rand_num(5,weight)
                 reg_field['r_mp'] = self.rand_num(5,weight)
                 reg_field['r_sta'] = self.rand_num(5,weight)
@@ -797,7 +883,7 @@ class create_kingdom():
                 reg_field['r_agi'] = self.rand_num(5,weight)
 
                 # 新規の場合ブレーク条件
-                # if self.getOneRank(sum(reg_field.values())) in acquired_rank and sum(reg_field.values()) > self.ra.civil_point.get():
+                # if self.getOneRank(sum(reg_field.values())) in acquired_rank and sum(reg_field.values()) > self.fi.civil_point.get():
                 #     break
 
                 # weight回復
@@ -842,6 +928,33 @@ class create_kingdom():
     def ch_status_set(self,label_text,input_num):
         for dkey, dval in label_text.items():
             dval.set(dkey + '（{}）'.format(input_num))
+    
+    # マウスイベント
+    def rect_start_pickup(self, event):
+        self.rect_start_x.set(str(event.x))
+        self.rect_start_y.set(str(event.y))
+        self.start_x = event.x
+        self.start_y = event.y
+
+    def pickup_position(self, event):
+        
+        if 0 <= event.x <= X and 0 <= event.y <= Y:
+            self.rect_stop_x.set(str(event.x))
+            self.rect_stop_y.set(str(event.y))
+            # self.stop_x = event.x
+            # self.stop_y = event.y
+
+            if self.rect:
+                self.pw_map.coords(self.rect,
+                    min(self.start_x, event.x), min(self.start_y, event.y),
+                    max(self.start_x, event.x), max(self.start_y, event.y))
+            else:
+                self.rect = self.pw_map.create_rectangle(self.start_x,
+                    self.start_y, event.x, event.y, outline='red')
+
+    def rect_stop_pickup(self, event):
+        self.rect_stop_x.set(str(event.x))
+        self.rect_stop_y.set(str(event.y))
 
 # 1桁の数字を2バイトに変換する関数
 # 追記 https://teratail.com/questions/234639#reply-355304

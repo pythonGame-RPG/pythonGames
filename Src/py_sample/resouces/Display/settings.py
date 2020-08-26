@@ -79,6 +79,9 @@ DATA_1 = 1
 DATA_2 = 2
 DATA_3 = 3
 
+# ランダム色
+colorsCollection=['green yellow','yellow','orange','pink','medium purple','cyan','aquamarin']
+
 # スクレイピング除外リスト
 DELETE_NAME_LIST = ["%・・%", "%ゴブリン%", "%ァァ%", "%アア%", "%アァ%"]
 

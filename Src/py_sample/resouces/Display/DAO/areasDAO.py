@@ -13,10 +13,10 @@ class AreaDAO:
         return dbaccess().exe_sql(sql)
 
     # select文を作成
-    def select(self, Dbname):
+    def select(self):
         # セレクト文を作成
-        sql = "Select * from {}".format(Dbname)
-        return sql
+        sql = "Select * from {} order by field_id, location_id".format(MST_AREAS)
+        return self.execute(sql)
     
    # select文を実行
     def select_area(self):
