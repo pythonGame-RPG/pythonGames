@@ -15,6 +15,7 @@ import Base.basic_module as bs
 # import pyFAI
 from concurrent import futures
 import time
+from tkinter import messagebox
 
 # 軸の目盛り位置とラベル表示の調整用
 from matplotlib.ticker import MultipleLocator, AutoMinorLocator
@@ -36,25 +37,24 @@ class create_kingdom():
         self.rect_start_y = tk.StringVar()
         self.rect_stop_x = tk.StringVar()
         self.rect_stop_y = tk.StringVar()
-        self.start_x = None
-        self.start_y = None
-        self.stop_x = None
-        self.stop_y = None
+        self.start_x = 0
+        self.start_y = 0
+        self.stop_x = 0
+        self.stop_y = 0
         self.rect = None
         self.evoLevel = tk.IntVar()
         self.choosedField = tk.StringVar()
         self.val = tk.DoubleVar()
         self.tilt = tk.DoubleVar()
-        self.iid=""
-        self.bk_iid=""
-        self.rootiid=""
-        self.fieldRoot = {}
-        self.fieldTree = {}
         self.s_field = []
         self.bs = bs.MyStack()
         # フレーム
         self.pw_left = None
         self.pw_main = None
+
+        # ttkフレームの背景色
+        s = ttk.Style()
+        s.configure('new.TFrame', background='#7AC5CD')
 
         # 表示ラベル編集用
         self.HP = tk.StringVar()
@@ -65,57 +65,29 @@ class create_kingdom():
         self.mag = tk.StringVar()
         self.des = tk.StringVar()
         self.agi = tk.StringVar()
-        self.p_total = tk.StringVar()
-        self.civilization = tk.StringVar()
-        self.HP.set('HP')
-        self.MP.set('MP')
-        self.sta.set('sta')
-        self.atk.set('atk')
-        self.vit.set('vit')
-        self.mag.set('mag')
-        self.des.set('des')
-        self.agi.set('agi')
-        self.p_total.set('total')
-        self.civilization.set('rank')
-        self.HP_label = {'HP':self.HP}
-        self.MP_label = {'MP':self.MP}
-        self.sta_label = {'sta':self.sta}
-        self.atk_label = {'atk':self.atk}
-        self.vit_label = {'vit':self.vit}
-        self.mag_label = {'mag':self.mag}
-        self.des_label = {'des':self.des}
-        self.agi_label = {'agi':self.agi}
-        self.total_label = {'total':self.p_total}
-        self.rank_label = {'total':self.civilization}
 
         # DBアクセス用
         self.fi = fields.Field()
+        self.lo = locations.Location()
         self.bk_ra = fields.Field()
         self.entry_fi = fields.Field()
         self.fi_dao = _fields.FieldDAO()
         self.lo_dao = _locations.LocationDAO()
         self.ar_dao = _areas.AreaDAO()
 
-        self.entry_fi.king_gene_id.trace("w", lambda *args: self.character_limit(self.entry_fi.king_gene_id, 5))
-        self.entry_fi.character_id.trace("w", lambda *args: self.character_limit(self.entry_fi.character_id, 5))
-        self.entry_fi.contract_id.trace("w", lambda *args: self.character_limit(self.entry_fi.contract_id, 5))
-        self.entry_fi.castle.trace("w", lambda *args: self.character_limit(self.entry_fi.castle, 5))
-        self.entry_fi.area.trace("w", lambda *args: self.character_limit(self.entry_fi.area, 5))
-        self.entry_fi.population.trace("w", lambda *args: self.character_limit(self.entry_fi.population, 5))
-        self.entry_fi.stress.trace("w", lambda *args: self.character_limit(self.entry_fi.stress, 5))
-        self.entry_fi.hate.trace("w", lambda *args: self.character_limit(self.entry_fi.hate, 5))
-
         # ラベル用イベント
-        self.fi.king_gene_id.trace("w", lambda *args: self.ch_status_set(self.HP_label,self.fi.king_gene_id.get()))
-        self.fi.character_id.trace("w", lambda *args: self.ch_status_set(self.MP_label,self.fi.character_id.get()))
-        self.fi.contract_id.trace("w", lambda *args: self.ch_status_set(self.sta_label,self.fi.contract_id.get()))
-        self.fi.castle.trace("w", lambda *args: self.ch_status_set(self.atk_label,self.fi.castle.get()))
-        self.fi.area.trace("w", lambda *args: self.ch_status_set(self.vit_label,self.fi.area.get()))
-        self.fi.population.trace("w", lambda *args: self.ch_status_set(self.mag_label,self.fi.population.get()))
-        self.fi.stress.trace("w", lambda *args: self.ch_status_set(self.des_label,self.fi.stress.get()))
-        self.fi.hate.trace("w", lambda *args: self.ch_status_set(self.agi_label,self.fi.hate.get()))
-        self.fi.civil_point.trace("w", lambda *args: self.ch_status_set(self.total_label,self.fi.civil_point.get()))
-        self.fi.civilization.trace("w", lambda *args: self.ch_status_set(self.rank_label,self.fi.civilization.get()))
+        self.fi.population.trace("w", lambda *args: self.fi_status_set(self.fi.population.get()))
+        self.fi.stress.trace("w", lambda *args: self.fi_status_set(self.fi.stress.get()))
+        self.fi.hate.trace("w", lambda *args: self.fi_status_set(self.fi.hate.get()))
+        self.fi.power.trace("w", lambda *args: self.fi_status_set(self.fi.power.get()))
+        self.fi.welfare.trace("w", lambda *args: self.fi_status_set(self.fi.welfare.get()))
+        self.fi.technology.trace("w", lambda *args: self.fi_status_set(self.fi.technology.get()))
+        self.fi.military.trace("w", lambda *args: self.fi_status_set(self.fi.military.get()))
+        self.fi.civil_point.trace("w", lambda *args: self.fi_status_set(self.fi.civil_point.get()))
+        self.fi.civilization.trace("w", lambda *args: self.fi_status_set(self.fi.civilization.get()))
+        self.fi.innovation.trace("w", lambda *args: self.fi_status_set(self.fi.innovation.get()))
+        self.fi.strength.trace("w", lambda *args: self.fi_status_set(self.fi.strength.get()))
+        self.fi.assets.trace("w", lambda *args: self.fi_status_set(self.fi.assets.get()))
 
         #モード変更イベント
         #self.rect_start_x.trace("w", lambda *args: self.changeMode())
@@ -141,7 +113,7 @@ class create_kingdom():
         self.pw_main.add(pw_left)
 
         # self.window→pw_right（右画面ツリービュー）
-        pw_right = tk.PanedWindow(self.pw_main, bg="yellow", orient='vertical')
+        pw_right = tk.PanedWindow(self.pw_main, bg="pink", orient='vertical')
         self.pw_main.add(pw_right)
         
         # self.window→pw_left_up（左上マップ表示）
@@ -155,6 +127,8 @@ class create_kingdom():
         # self.window→pw_right_up（右上画面登録部）
         pw_right_up = self.createStatus(pw_right)
         pw_right.add(pw_right_up)
+        pw_right_up2 = self.createButton(pw_right)
+        pw_right.add(pw_right_up2)
 
         # self.window→pw_right_down（右下画面登録部）
         pw_right_down = self.createField(pw_right)
@@ -168,24 +142,16 @@ class create_kingdom():
         # pw_right.add(pw_right_up4)
 
     def init(self):
+        self.rect = None
+        self.pw_map.delete()
         self.rect_start_x.set(0)
         self.rect_start_y.set(0)
         self.rect_stop_x.set(0)
         self.rect_stop_y.set(0)
-
-    # ツリーデータ検索
-    def setSearchTree(self, treeFrame):
-        self.tree = ttk.Treeview(treeFrame)
-        # ツリーの項目が選択されたら、選択された種族を表示する
-        self.tree.bind("<<TreeviewSelect>>",self.targetField)
-        # 列名をつける
-        self.tree.heading("#0",text="field_tree")
-        self.tree.pack()
-        # rootのiidを登録
-        self.rootiid = self.tree.insert("","end",text="Home")
-        self.iid = self.rootiid
-        # 種族ツリー作成
-        self.makeTree()
+        self.start_x = 0
+        self.start_y = 0
+        self.stop_x = 0
+        self.stop_y = 0
 
     def createMap(self,pw_left):
 
@@ -201,7 +167,7 @@ class create_kingdom():
 
  
         # 新規作成用
-        pw_new = ttk.Frame(pw_left_up, width=480, height=50,borderwidth=10, relief='sunken')
+        pw_new = ttk.Frame(pw_left_up, width=480, height=50,borderwidth=10, style="new.TFrame", relief='sunken')
         pw_new.grid(row=2, column=2, padx=5, pady=2)
 
         # {kingdom_id : [座標リスト] }を取得
@@ -231,53 +197,126 @@ class create_kingdom():
             ++i
             if i >= len(colorsCollection):
                 i = 0
+        # 座標部
+        pw_point = self.drawPoint(pw_new)
+        pw_point.grid(row=2, column=3, padx=5, pady=2,sticky=tk.W)
 
-        # 新規作成部ウィジェット
-        self.lblx = tk.Label(pw_new,text = 'x1:')
-        self.lblx.grid(row=0, column=0, padx=5, pady=2)
-        self.textx = tk.Entry(pw_new, textvariable=self.rect_start_x, width = 4, state='readonly')
-        self.textx.grid(row=0, column=1, padx=5, pady=2)
-        self.lbly = tk.Label(pw_new,text = 'y1:')
-        self.lbly.grid(row=0, column=2, padx=5, pady=2)
-        self.texty = tk.Entry(pw_new, textvariable=self.rect_start_y, width = 4, state='readonly')
-        self.texty.grid(row=0, column=3, padx=5, pady=2)
-        self.lblvert = tk.Label(pw_new,text = 'x2:')
-        self.lblvert.grid(row=0, column=4, padx=5, pady=2)
-        self.entvert = tk.Entry(pw_new, textvariable=self.rect_stop_x, width = 4, state='readonly')
-        self.entvert.grid(row=0, column=5, padx=5, pady=2)
-        self.lblhori = tk.Label(pw_new,text = 'y2:')
-        self.lblhori.grid(row=0, column=6, padx=5, pady=2)
-        self.enthori = tk.Entry(pw_new, textvariable=self.rect_stop_y, width = 4, state='readonly')
-        self.enthori.grid(row=0, column=7, padx=5, pady=2)
-        # 新規登録ボタン
-        self.btnnew = tk.Button(pw_new, text='新規登録', width=10, command=self.entryNewKingdom)
-        self.btnnew.grid(row=0, column=8, padx=5, pady=4)
+         # 新規作成ボタン部
+        pw_button = self.drawButton(pw_new)
+        pw_button.grid(row=2, column=4, padx=5, pady=2,sticky=tk.E)
+
+        # 登録部
+        pw_entry = self.drawEntry(pw_new)
+        pw_entry.grid(row=3, column=3,columnspan=2, padx=5, pady=2,sticky=tk.W)
 
         return pw_left_up
 
+    # 座標を描画
+    def drawPoint(self, pw_new):
+
+        pw_point = tk.PanedWindow(pw_new, bg="#7AC5CD", orient='horizontal')
+
+        # 座標表示ウィジェット→読み取り専用？？
+        self.lblx = tk.Label(pw_point,text = 'x1:', bg="#7AC5CD")
+        self.lblx.grid(row=0, column=0, padx=5, pady=2)
+        self.textx = tk.Entry(pw_point, textvariable=self.rect_start_x, width = 4, state='readonly')
+        self.textx.grid(row=0, column=1, padx=5, pady=2)
+        self.lbly = tk.Label(pw_point,text = 'y1:', bg="#7AC5CD")
+        self.lbly.grid(row=0, column=2, padx=5, pady=2)
+        self.texty = tk.Entry(pw_point, textvariable=self.rect_start_y, width = 4, state='readonly')
+        self.texty.grid(row=0, column=3, padx=5, pady=2)
+        self.lblvert = tk.Label(pw_point,text = 'x2:', bg="#7AC5CD")
+        self.lblvert.grid(row=0, column=4, padx=5, pady=2)
+        self.entvert = tk.Entry(pw_point, textvariable=self.rect_stop_x, width = 4, state='readonly')
+        self.entvert.grid(row=0, column=5, padx=5, pady=2)
+        self.lblhori = tk.Label(pw_point,text = 'y2:', bg="#7AC5CD")
+        self.lblhori.grid(row=0, column=6, padx=5, pady=2)
+        self.enthori = tk.Entry(pw_point, textvariable=self.rect_stop_y, width = 4, state='readonly')
+        self.enthori.grid(row=0, column=7, padx=5, pady=2)
+
+        return pw_point
+    
+    def drawButton(self, pw_new):
+
+        pw_button = tk.PanedWindow(pw_new, bg="#7AC5CD", orient='horizontal')
+
+        # 新規登録ボタン
+        self.btnnew = tk.Button(pw_button, text='新規登録', width=10, command=self.entryNewKingdom)
+        self.btnnew.grid(row=0, column=8, padx=5, pady=4)
+
+        return pw_button
+
+    def drawEntry(self,pw_new):
+
+        pw_entry = tk.PanedWindow(pw_new, bg="#7AC5CD", orient='horizontal')
+
+        # kingdom
+        self.lbl7 = tk.Label(pw_entry,text='kingdom',width=9, bg="#7AC5CD")
+        self.lbl7.grid(row=1, column=0, padx=5, pady=2)
+        self.ent7 = tk.Entry(pw_entry, textvariable=self.fi.king_gene_id, width=12)
+        self.ent7.grid(row=1, column=1, padx=5, pady=2)
+        # characterを選択
+        # TODO:条件→王家でない、領主or勇者である、家名持ち
+        # king
+        self.lbl8 = tk.Label(pw_entry,text='king',width=9, bg="#7AC5CD")
+        self.lbl8.grid(row=1, column=2, padx=5, pady=2)
+        self.cboking = ttk.Combobox(pw_entry, textvariable=self.fi.character_id, width=14)
+        self.cboking.grid(row=1, column=3, padx=5, pady=2)
+        self.cboking['value'] = self.fi_dao.chooseCharacter(self.start_x,self.start_y,self.stop_x,self.stop_y)
+        # capital
+        self.lbl9 = tk.Label(pw_entry,text='capital',width=9, bg="#7AC5CD")
+        self.lbl9.grid(row=1, column=4, padx=5, pady=2)
+        self.ent8 = tk.Entry(pw_entry, textvariable=self.lo.location_id, width=12)
+        self.ent8.grid(row=1, column=5, padx=5, pady=2)
+
+        return pw_entry
+
     def entryNewKingdom(self):
-        # 
+        # 登録確認ポップアップ表示
+        if bs.Popup.OKCancelPopup(self,Q0004) == False:
+            # いいえを選択した場合、描画した図形を削除
+            # self.init()
+            return
+
         if len(self.rect_start_x.get()) > 0 and len(self.rect_start_y.get()) > 0 and len(self.rect_stop_x.get()) > 0 and len(self.rect_stop_y.get()) > 0:
             # 中心座標判定
-            if 0 <= len(self.rect_start_x.get()) <= X and 0 <= len(self.rect_start_y.get()) <= Y:
-                upleft = int(self.rect_start_x.get()) - int(self.rect_stop_y.get())
-
-                # ①登録用areasデータを作成
-                # ②登録用spotsデータを作成(①のデータ件数×25)
-                future_list = []
-                with futures.ThreadPoolExecutor(max_workers=4) as executor:
-                    for i in range(min(self.rect_start_x.get(), self.rect_stop_x.get()), max(self.rect_start_x.get(), self.rect_stop_x.get())):
-                        for j in range(min(self.rect_start_y.get(), self.rect_stop_y.get()), max(self.rect_start_y.get(), self.rect_stop_y.get())):
-                            future = executor.submit(fn=self.newMapping, i_x=i, i_y=j)
-                            future_list.append(future)
-                    _ = futures.as_completed(fs=future_list)
-                # ③登録用locationsデータを作成→王都面積に比例、中心座標(①、②のデータの集計)
-                self.newLocations()
-                # ④登録用fieldsデータを作成(新規なのでほぼ③の数値(集計)となる)
-                self.newFields()
+            l_x = 0
+            l_y = 0
+            r_x = 0
+            r_y = 0
+            
+            # TODO:面倒だから元結良い方法ないかな入れ替え処理
+            if self.rect_start_x.get() < self.rect_stop_x.get():
+                l_x = self.rect_stop_x.get()
+                r_x = self.rect_start_x.get()
             else:
-                # 中心座標エラー
-                bs.Popup.ShowInfo(self,E0004.format(X,Y))
+                l_x = self.rect_start_x.get()
+                r_x = self.rect_stop_x.get()
+
+            if self.rect_start_y.get() < self.rect_stop_y.get():
+                l_y = self.rect_stop_y.get()
+                r_y = self.rect_start_y.get()
+            else:
+                l_y = self.rect_start_y.get()
+                r_y = self.rect_stop_y.get()
+
+
+            # ④登録用fieldsデータを作成(新規なのでほぼ③の数値(集計)となる)
+            entry_field = self.newFields(l_x,l_y,r_x,r_y)
+            # ③登録用locationsデータを作成→王都面積に比例、中心座標(①、②のデータの集計)
+            entry_location = self.newLocations(l_x,l_y,r_x,r_y,entry_field)
+            # ①登録用areasデータを作成
+            # ②登録用spotsデータを作成(①のデータ件数×25)
+            future_list = []
+            with futures.ThreadPoolExecutor(max_workers=4) as executor:
+                for i in range(l_x, r_x):
+                    for j in range(l_y, r_y):
+                        future = executor.submit(fn=self.newMapping, i_x=i, i_y=j)
+                        future_list.append(future.result)
+                _ = futures.as_completed(fs=future_list)
+
+            # 中心座標エラー
+            #bs.Popup.ShowInfo(self,E0004.format(X,Y))
 
         else:
             # 登録エラーポップアップ表示
@@ -285,17 +324,134 @@ class create_kingdom():
     
     # エリア、建物作成(ランダムテンプレート)
     def newMapping(self, i_x, i_y):
-        pass
+        area = self.areas
+        area.grid_x = i_x
+        area.grid_y = i_y
+        # 先にfields、locations登録してidを格納
+
+    # 王国作成
+    def newFields(self,l_x,l_y,r_x,r_y):
+        # 範囲内に孫沿いする人口を取得
+        # 初期化状態で登録
+        population = self.fi_dao.get_population(l_x,l_y,r_x,r_y)
+        # 王国登録要素を表示
+        entry_list = []
+        entry_list.append(
+            {
+                "field_name":self.fi.field_name.get(),
+                "f_rank":self.fi.f_rank.get(),
+                "king_gene_id":self.fi_dao.pickup_field(self.cboChoice.get()),
+                "character_id":self.fi.character_id.get(),
+                "contract_id":self.fi.contract_id.get(),
+                "is_war":"0",
+                "area":abs(r_x - l_x) * abs(r_y - l_y),
+                "population":population,
+                "p_density":int(population / ((r_x-l_x) * (r_y - l_y))),
+                "stress":0,
+                "hate":0,
+                "power":0,
+                "welfare":0,
+                "technology":0,
+                "military":0,
+                "civil_point":0,
+                "civilization":0,
+                "innovation":0,
+                "strength":0,
+                "assets":0,
+                "GDP":0,
+                "tax":0,
+                "develop":0,
+                "version":1,
+                "is_deleted":0,
+                "ins_date":datetime.now(),
+                "ins_id":"dummy",
+                "upd_date":datetime.now(),
+                "upd_id":"dummy"
+            }
+        )
+
+        try:
+            self.fi_dao.insert_field(entry_list)
+        except:
+            # OKポップアップ
+            messagebox.showinfo('警告', E0002)
 
     # 王都作成
-    def newLocations(self):
+    def newLocations(self,l_x,l_y,r_x,r_y,field_data):
+
+        # 王都作成
+        capital_list = []
+        capital_list.append(
+            {
+                "field_id" : field_data['field_id'],
+                "lord_gene_id" : field_data['king_gene_id'],
+                "character_id" : field_data['character_id'],
+                "location_name" : self.lo.insert_location,
+                "l_rank" : self.lo.l_rank.get(),
+                "is_battle" : self.lo.is_battle.get(),
+                "area" : self.lo.area.get(),
+                "population" : self.lo.population.get(),
+                "p_density" : self.lo.p_density.get(),
+                "stress" : self.lo.stress.get(),
+                "hate" : self.lo.hate.get(),
+                "power" : self.lo.power.get(),
+                "welfare" : self.lo.welfare.get(),
+                "technology" : self.lo.technology.get(),
+                "military" : self.lo.military.get(),
+                "civil_point" : self.lo.civil_point.get(),
+                "civilization" : self.lo.civilization.get(),
+                "innovation" : self.lo.innovation.get(),
+                "strength" : self.lo.strength.get(),
+                "assets" : self.lo.assets.get(),
+                "GDP" : self.lo.GDP.get(),
+                "tax" : self.lo.tax.get(),
+                "develop" : self.lo.develop.get(),
+                "disparity" : self.lo.disparity.get(),
+                "version":1,
+                "is_deleted":0,
+                "ins_date":datetime.now(),
+                "ins_id":"dummy",
+                "upd_date":datetime.now(),
+                "upd_id":"dummy"
+            }
+        )
+        # locations-areas
         future_list = []
         with futures.ThreadPoolExecutor(max_workers=4) as executor:
             # 王国の中心x,y1/5スケールで王都を作成
-            for i in range(int(min(self.rect_start_x.get(), self.rect_stop_x.get())+abs(self.rect_start_x.get() - self.rect_stop_x.get()) * 2 / 5)
-            , int(max(self.rect_start_x.get(), self.rect_stop_x.get())-abs(self.rect_start_x.get() - self.rect_stop_x.get()) * 2 / 5)):
-                for j in range(int(min(self.rect_start_y.get(), self.rect_stop_y.get()+abs(self.rect_start_y.get() - self.rect_stop_y.get()) * 2 / 5))
-                , int(max(self.rect_start_y.get(), self.rect_stop_y.get())-abs(self.rect_start_y.get() - self.rect_stop_y.get()) * 2 / 5)):
+            for i in range(int(l_x + abs(r_x - l_x) * 2 / 5), int(r_x - abs(r_x - l_x) * 2 / 5)):
+                for j in range(int(l_y + abs(r_y - l_y) * 2 / 5), int(r_y - abs(r_y - l_y) * 2 / 5)):
+                    future_list.append(
+                        {
+                            "grid_x":i,
+                            "grid_y":j,
+                            "field_id" : "dummy",
+                            "lord_gene_id" : "dummy",
+                            "character_id" : "dummy",
+                            "location_name" : "dummy",
+                            "l_rank" : "dummy",
+                            "is_battle" : "dummy",
+                            "power" : "dummy",
+                            "welfare" : "dummy",
+                            "technology" : "dummy",
+                            "military" : "dummy",
+                            "disparity" : "dummy",
+                            "stress" : "dummy",
+                            "civil_point" : "dummy",
+                            "civilization" : "dummy",
+                            "population" : "dummy",
+                            "assets" : "dummy",
+                            "GDP" : "dummy",
+                            "tax" : "dummy",
+                            "develop" : "dummy",
+                            "version" : "dummy",
+                            "is_deleted" : "dummy",
+                            "ins_date" : "dummy",
+                            "ins_id" : "dummy",
+                            "upd_date" : "dummy",
+                            "upd_id" : "dummy"
+                        }
+                    )
     
     def createLocation(self, pw_left):
 
@@ -304,7 +460,7 @@ class create_kingdom():
         self.lbllocation.grid(row=0, column=2, padx=5, pady=2)
         
         pw_location = ttk.Frame(pw_left_down, width=480, height=300,borderwidth=10, relief='sunken')
-        pw_location.grid(row=1, column=2, padx=5, pady=2)
+        pw_location.grid(row=2, column=2, padx=5, pady=2)
 
         return pw_left_down
 
@@ -315,25 +471,7 @@ class create_kingdom():
         self.lbl_titleName = tk.Label(pw_right_down,text="name",width=9)
         self.lbl_titleName.grid(row=0, column=0, padx=5, pady=2, columnspan = 4)
 
-        # 種族選択
-        self.lblChoice = tk.Label(pw_right_down,text="種族選択",width=9)
-        self.lblChoice.grid(row=1, column=0, padx=5, pady=2)
-        self.cboChoice = ttk.Combobox(pw_right_down, textvariable=self.choosedField, width=14)
-        self.cboChoice.grid(row=1, column=1, padx=5, pady=2)
         
-        # 種族名
-        self.lblName = tk.Label(pw_right_down,text="種族名",width=9)
-        self.lblName.grid(row=2, column=0, padx=5, pady=2)
-        self.entName = tk.Entry(pw_right_down, textvariable=self.entry_fi.field_name, width=16)
-        self.entName.grid(row=2, column=1, padx=5, pady=2)
-        # 進化レベル
-        self.lblLevel = tk.Label(pw_right_down,text="進化レベル",width=9)
-        self.lblLevel.grid(row=4, column=0, padx=5, pady=2)
-        self.entLevel = tk.Entry(pw_right_down, textvariable=self.evoLevel, width=6)
-        self.entLevel.grid(row=4, column=1, padx=5, pady=2)
-
-        # 種族選択イベント
-        self.choosedField.trace("w", lambda *args: self.select_field(self.choosedField))
 
         return pw_right_down
 
@@ -342,60 +480,63 @@ class create_kingdom():
 
         pw_right_up = tk.PanedWindow(pw_right, bg="pink", orient='horizontal')
 
-        self.lbl_title = tk.Label(pw_right_up,text="status",width=9)
+        self.lbl_title = tk.Label(pw_right_up,text="Country",width=9)
         self.lbl_title.grid(row=0, column=0, padx=5, pady=2, columnspan = 4)
-        # HP
-        self.lbl7 = tk.Label(pw_right_up,textvariable=self.HP,width=9)
-        self.lbl7.grid(row=2, column=0, padx=5, pady=2)
-        self.ent7 = tk.Entry(pw_right_up, textvariable=self.entry_fi.king_gene_id, width=6)
-        self.ent7.grid(row=2, column=1, padx=5, pady=2)
-        # MP
-        self.lbl8 = tk.Label(pw_right_up,textvariable=self.MP,width=9)
-        self.lbl8.grid(row=2, column=2, padx=5, pady=2)
-        self.ent8 = tk.Entry(pw_right_up, textvariable=self.entry_fi.character_id, width=6)
-        self.ent8.grid(row=2, column=3, padx=5, pady=2)
-        # sta
-        self.lbl9 = tk.Label(pw_right_up,textvariable=self.sta,width=9)
-        self.lbl9.grid(row=3, column=0, padx=5, pady=2)
-        self.ent9 = tk.Entry(pw_right_up, textvariable=self.entry_fi.contract_id, width=6)
-        self.ent9.grid(row=3, column=1, padx=5, pady=2)
-        # atk
-        self.lbl10 = tk.Label(pw_right_up,textvariable=self.atk,width=9)
-        self.lbl10.grid(row=3, column=2, padx=5, pady=2)
-        self.ent10 = tk.Entry(pw_right_up, textvariable=self.entry_fi.castle, width=6)
-        self.ent10.grid(row=3, column=3, padx=5, pady=2)
-        # vit
-        self.lbl11 = tk.Label(pw_right_up,textvariable=self.vit,width=9)
-        self.lbl11.grid(row=4, column=0, padx=5, pady=2)
-        self.ent11 = tk.Entry(pw_right_up, textvariable=self.entry_fi.area, width=6)
-        self.ent11.grid(row=4, column=1, padx=5, pady=2)
-        # mag
-        self.lbl12 = tk.Label(pw_right_up,textvariable=self.mag,width=9)
-        self.lbl12.grid(row=4, column=2, padx=5, pady=2)
-        self.ent12 = tk.Entry(pw_right_up, textvariable=self.entry_fi.population, width=6)
-        self.ent12.grid(row=4, column=3, padx=5, pady=2)
-        # des
-        self.lbl13 = tk.Label(pw_right_up,textvariable=self.des,width=9)
-        self.lbl13.grid(row=5, column=0, padx=5, pady=2)
-        self.ent13 = tk.Entry(pw_right_up, textvariable=self.entry_fi.stress, width=6)
-        self.ent13.grid(row=5, column=1, padx=5, pady=2)
-        # agi
-        self.lbl14 = tk.Label(pw_right_up,textvariable=self.agi,width=9)
-        self.lbl14.grid(row=5, column=2, padx=5, pady=2)
-        self.ent14 = tk.Entry(pw_right_up, textvariable=self.entry_fi.hate, width=6)
-        self.ent14.grid(row=5, column=3, padx=5, pady=2)
-        # total
-        self.lbl16 = tk.Label(pw_right_up,textvariable=self.p_total,width=9)
-        self.lbl16.grid(row=6, column=0, padx=5, pady=2)
-        self.ent16 = tk.Entry(pw_right_up, textvariable=self.entry_fi.civil_point,  width=7)
-        self.ent16.grid(row=6, column=1, padx=5, pady=2)
-        self.ent16.configure(state = 'readonly')
+        # civilization
+        self.lbl14 = tk.Label(pw_right_up,text="civilization",width=9)
+        self.lbl14.grid(row=1, column=0, padx=5, pady=2)
+        self.ent14 = tk.Entry(pw_right_up, textvariable=self.fi.civilization,  width=12)
+        self.ent14.grid(row=1, column=1, padx=5, pady=2)
         # rank
-        self.lbl17 = tk.Label(pw_right_up,textvariable=self.civilization,width=9)
-        self.lbl17.grid(row=6, column=2, padx=5, pady=2)
-        self.ent17 = tk.Entry(pw_right_up, textvariable=self.entry_fi.civilization,  width=7)
-        self.ent17.grid(row=6, column=3, padx=5, pady=2)
-        self.ent17.configure(state = 'readonly')
+        self.lbl16 = tk.Label(pw_right_up,text="rank",width=9)
+        self.lbl16.grid(row=1, column=2, padx=5, pady=2)
+        self.ent16 = tk.Entry(pw_right_up, textvariable=self.fi.f_rank,  width=12)
+        self.ent16.grid(row=1, column=3, padx=5, pady=2)
+        self.ent16.configure(state = 'readonly')
+        # power
+        self.lbl10 = tk.Label(pw_right_up,text="power",width=9)
+        self.lbl10.grid(row=3, column=0, padx=5, pady=2)
+        self.ent10 = tk.Entry(pw_right_up, textvariable=self.fi.power,  width=12)
+        self.ent10.grid(row=3, column=1, padx=5, pady=2)
+        # welfare
+        self.lbl11 = tk.Label(pw_right_up,text="welfare",width=9)
+        self.lbl11.grid(row=3, column=2, padx=5, pady=2)
+        self.ent11 = tk.Entry(pw_right_up, textvariable=self.fi.welfare,  width=12)
+        self.ent11.grid(row=3, column=3, padx=5, pady=2)
+        # technology
+        self.lbl12 = tk.Label(pw_right_up,text="technology",width=9)
+        self.lbl12.grid(row=4, column=0, padx=5, pady=2)
+        self.ent12 = tk.Entry(pw_right_up, textvariable=self.fi.technology,  width=12)
+        self.ent12.grid(row=4, column=1, padx=5, pady=2)
+        # military
+        self.lbl13 = tk.Label(pw_right_up,text="military",width=9)
+        self.lbl13.grid(row=4, column=2, padx=5, pady=2)
+        self.ent13 = tk.Entry(pw_right_up, textvariable=self.fi.military,  width=12)
+        self.ent13.grid(row=4, column=3, padx=5, pady=2)
+        # innovation
+        self.lbl14 = tk.Label(pw_right_up,text="innovation",width=9)
+        self.lbl14.grid(row=5, column=0, padx=5, pady=2)
+        self.ent14 = tk.Entry(pw_right_up, textvariable=self.fi.innovation,  width=12)
+        self.ent14.grid(row=5, column=1, padx=5, pady=2)
+        # assets
+        self.lbl14 = tk.Label(pw_right_up,text="assets",width=9)
+        self.lbl14.grid(row=5, column=2, padx=5, pady=2)
+        self.ent14 = tk.Entry(pw_right_up, textvariable=self.fi.assets,  width=12)
+        self.ent14.grid(row=5, column=3, padx=5, pady=2)
+
+        # 状態値
+        self.lbl_st = tk.Label(pw_right_up,text="Status",width=9)
+        self.lbl_st.grid(row=6, column=0, padx=5, pady=2, columnspan = 4)
+        # stress
+        self.lbl15 = tk.Label(pw_right_up,text="stress",width=9)
+        self.lbl15.grid(row=7, column=0, padx=5, pady=2)
+        self.ent15 = tk.Entry(pw_right_up, textvariable=self.fi.stress,  width=12)
+        self.ent15.grid(row=7, column=1, padx=5, pady=2)
+        # hate
+        self.lbl16 = tk.Label(pw_right_up,text="hate",width=9)
+        self.lbl16.grid(row=7, column=2, padx=5, pady=2)
+        self.ent16 = tk.Entry(pw_right_up, textvariable=self.fi.hate,  width=12)
+        self.ent16.grid(row=7, column=3, padx=5, pady=2)
 
         return pw_right_up
 
@@ -456,109 +597,56 @@ class create_kingdom():
         self.btnEntry = tk.Button(pw_right_up4, text='登録', width=10, command=self.entryField)
         self.btnEntry.grid(row=5, column=0, columnspan=2, padx=5, pady=4)
 
-        # 削除ボタン
-        self.btnEntry = tk.Button(pw_right_up4, text='削除', width=10, command=self.deleteField)
-        self.btnEntry.grid(row=6, column=0, columnspan=2, padx=5, pady=4)
-
         return pw_right_up4
 
 
     # textの内容のリセットself.yearに格納
-    def makeTree(self):
+    def set_f_rank(self,text_label,data):
 
-        # 選択したfieldを取得
-        self.s_field = self.fi_dao.select_fields()
-        initial_field = [field for field in self.s_field if field['initial_flg'] == 1]
-        
-        # ツリーごとの種族要素を取得
-        self.setFieldTree(initial_field,self.iid)
-
-    # fieldのツリー構造を生成
-    def setFieldTree(self,_addTree,_iid):
-
-        # _addTree:アクティブツリーのノード
-        for _field in _addTree:
-            
-            rootiid = self.tree.insert(_iid,"end",text=str(_field['field_id']) + ':' + _field['field_name'])
-            iid = rootiid
-            # 選択イベント用
-            self.iid = iid
-            # 選択種族を格納
-            self.fieldRoot[iid] = _field
-
-            # 進化先fieldを取得
-            addField = [field for field in self.s_field if _field['parent_field1_id'] == field['field_id'] 
-                or _field['parent_field2_id'] == field['field_id'] or _field['parent_field3_id'] == field['field_id']]
-
-            # 進化先が存在する場合
-            if len(addField) != 0:
-                self.fieldTree[iid] = addField
-                self.setFieldTree(addField,iid)
-
-    # 種族選択時
-    def targetField(self,event):
-        # 初期化
-        self.fi.init()
-        # 前フォーカスIDをセット
-        self.iid = self.tree.focus()
-        self.bk_iid = self.tree.parent(self.iid)
-
-        # ホームでない場合
-        if self.iid != 'I001':
-
-            # 編集：アクティブ
-            self.rdoEdit.configure(state = 'normal')
-            
-            #field:選択ツリー
-            field = self.fieldRoot[self.iid]
-            
-            if self.bk_iid != 'I001':
-                # 一つ前のfieldをセット
-                self.bk_ra.set_select_field(self.fieldRoot[self.bk_iid])
-            else:
-                # 初期化
-                self.bk_ra.init()
-
+        if int(data) > 5000000000000:
+            self.fi.f_rank.set('SSS')
+        elif int(data)  > 200000000000:
+            self.fi.f_rank.set('SS')
+        elif int(data)  > 10000000000:
+            self.fi.f_rank.set('S')
+        elif int(data)  > 5000000000:
+            self.fi.f_rank.set('A')
+        elif int(data)  > 250000000:
+            self.fi.f_rank.set('B')
+        elif int(data)  > 12500000:
+            self.fi.f_rank.set('C')
+        elif int(data)  > 1000000:
+            self.fi.f_rank.set('D')
+        elif int(data)  > 62500:
+            self.fi.f_rank.set('E')
+        elif int(data)  > 12500:
+            self.fi.f_rank.set('F')
         else:
-            # 編集不可
-            self.rdoEdit.configure(state = 'disabled')
-            self.fi.init()
-            self.bk_ra.init()
+            self.fi.f_rank.set('G')
 
-            # 進化元フラグON
-            self.entry_fi.initial_flg.set(1)
-        
-        if len(self.choosedField.get()) != 0:
-            self.choosedField.set('')
-
-        # 種族選択コンボボックス編集
-        self.cboChoice['values'] = self.getFieldValue()
-
-        # 表示編集側データと同期
-        self.setFieldSelected()
-
+        # self.ch_status_set(text_label,self.fi.f_rank.get())
 
     # 選択したfieldを登録用メンバにセット
     def setFieldSelected(self):
         
-        # self.entry_fi.field_name.set(self.fi.field_name.get())
-        self.entry_fi.field_id.set(self.fi.field_id.get())
-        self.entry_fi.king_gene_id.set(self.fi.king_gene_id.get())
-        self.entry_fi.character_id.set(self.fi.character_id.get())
-        self.entry_fi.contract_id.set(self.fi.contract_id.get())
-        self.entry_fi.castle.set(self.fi.castle.get())
-        self.entry_fi.area.set(self.fi.area.get())
-        self.entry_fi.population.set(self.fi.population.get())
-        self.entry_fi.stress.set(self.fi.stress.get())
-        self.entry_fi.hate.set(self.fi.hate.get())
-        self.entry_fi.parent_field1_id.set(self.fi.parent_field1_id.get())
-        self.entry_fi.evolution1_level.set(self.fi.evolution1_level.get())
-        self.entry_fi.parent_field2_id.set(self.fi.parent_field2_id.get())
-        self.entry_fi.evolution2_level.set(self.fi.evolution2_level.get())
-        self.entry_fi.parent_field3_id.set(self.fi.parent_field3_id.get())
-        self.entry_fi.evolution3_level.set(self.fi.evolution3_level.get())
-        self.entry_fi.civilization.set(self.fi.civilization.get())
-        self.entry_fi.civil_point.set(self.fi.civil_point.get())
+        # self.fi.field_name.set(self.fi.field_name.get())
+        self.fi.field_id.set(self.fi.field_id.get())
+        self.fi.king_gene_id.set(self.fi.king_gene_id.get())
+        self.fi.character_id.set(self.fi.character_id.get())
+        self.fi.contract_id.set(self.fi.contract_id.get())
+        self.fi.castle.set(self.fi.castle.get())
+        self.fi.area.set(self.fi.area.get())
+        self.fi.population.set(self.fi.population.get())
+        self.fi.stress.set(self.fi.stress.get())
+        self.fi.hate.set(self.fi.hate.get())
+        self.fi.parent_field1_id.set(self.fi.parent_field1_id.get())
+        self.fi.evolution1_level.set(self.fi.evolution1_level.get())
+        self.fi.parent_field2_id.set(self.fi.parent_field2_id.get())
+        self.fi.evolution2_level.set(self.fi.evolution2_level.get())
+        self.fi.parent_field3_id.set(self.fi.parent_field3_id.get())
+        self.fi.evolution3_level.set(self.fi.evolution3_level.get())
+        self.fi.civilization.set(self.fi.civilization.get())
+        self.fi.civil_point.set(self.fi.civil_point.get())
 
     # 上位ランクデータ取得
     def getFieldValue(self):
@@ -643,7 +731,7 @@ class create_kingdom():
             # 選択したfieldを取得
             s_field = self.fi_dao.pickup_field(_field.get())
             # 対象に選択したfieldの値を反映
-            self.entry_fi.set_select_field(s_field)
+            self.fi.set_select_field(s_field)
         except:
             _field.set('')
             self.setFieldSelected()
@@ -664,13 +752,13 @@ class create_kingdom():
         
             try:
                 # civil_point集計
-                self.entry_fi.civil_point.set(str(int(self.entry_fi.king_gene_id.get())+int(self.entry_fi.character_id.get())
-                +int(self.entry_fi.contract_id.get())+int(self.entry_fi.castle.get())+int(self.entry_fi.area.get())
-                +int(self.entry_fi.population.get())+int(self.entry_fi.stress.get())+int(self.entry_fi.hate.get())))   
+                self.fi.civil_point.set(str(int(self.fi.king_gene_id.get())+int(self.fi.character_id.get())
+                +int(self.fi.contract_id.get())+int(self.fi.castle.get())+int(self.fi.area.get())
+                +int(self.fi.population.get())+int(self.fi.stress.get())+int(self.fi.hate.get())))   
             except:
                 pass
 
-            # self.entry_fi.civilization.set(self.getOneRank(self.entry_fi.civil_point.get()))
+            # self.fi.civilization.set(self.getOneRank(self.fi.civil_point.get()))
 
 
     # 入力文字数制限NOTE:entry_text:gene,num:桁数
@@ -686,9 +774,10 @@ class create_kingdom():
                 entry_text.set(10**(num-1))
             entry_text.set(str(entry_text.get())[:num])
         
-        tk.Canvas.coords(self.new_kingdom, x0, y0, x1, y1)
+        # TODO:ナニコレ
+        # tk.Canvas.coords(self.new_kingdom, x0, y0, x1, y1)
 
-            # self.entry_fi.civilization.set(self.getOneRank(self.entry_fi.civil_point.get()))
+            # self.fi.civilization.set(self.getOneRank(self.fi.civil_point.get()))
 
     # 進化レベル設定（基準）
     def randomLevel(self,civilization):
@@ -714,7 +803,7 @@ class create_kingdom():
             self.evoLevel.set(random.randint(1,5))
         
 
-    # 種族登録更新処理
+    # 王国表示処理
     def entryField(self):
 
         # プルダウンで設定した場合
@@ -724,7 +813,7 @@ class create_kingdom():
                 return
             # 進化先に選択種族を設定する
             try:
-                self.fi_dao.update_child_field(self.fi, self.entry_fi.field_id.get(), self.evoLevel.get())
+                self.fi_dao.update_child_field(self.fi, self.fi.field_id.get(), self.evoLevel.get())
             except:
                 # 登録エラーポップアップ表示
                 bs.Popup.ShowInfo(self,E0002)
@@ -753,7 +842,7 @@ class create_kingdom():
         
         # initial_flg設定
         if self.iid == 'I001':
-            self.entry_fi.initial_flg.set(1)
+            self.fi.initial_flg.set(1)
         else:
             pass
 
@@ -811,7 +900,7 @@ class create_kingdom():
 
         # 選択可能ランク
         # TODO：チョイス可能に設定する
-        acquired_rank = self.getFieldRank(self.entry_fi.civilization.get())
+        acquired_rank = self.getFieldRank(self.fi.civilization.get())
         
         # 重み付けローカル変数
         val = self.val.get()
@@ -890,21 +979,21 @@ class create_kingdom():
                 if sum(reg_field.values()) <= 0:
                     val = val + i*0.2
             
-        self.entry_fi.king_gene_id.set(reg_field['r_hp'])
-        self.entry_fi.character_id.set(reg_field['r_mp'])
-        self.entry_fi.contract_id.set(reg_field['r_sta'])
-        self.entry_fi.castle.set(reg_field['r_atk'])
-        self.entry_fi.area.set(reg_field['r_vit'])
-        self.entry_fi.population.set(reg_field['r_mag'])
-        self.entry_fi.stress.set(reg_field['r_des'])
-        self.entry_fi.hate.set(reg_field['r_agi'])
-        self.entry_fi.civil_point.set(sum(reg_field.values()))
+        self.fi.king_gene_id.set(reg_field['r_hp'])
+        self.fi.character_id.set(reg_field['r_mp'])
+        self.fi.contract_id.set(reg_field['r_sta'])
+        self.fi.castle.set(reg_field['r_atk'])
+        self.fi.area.set(reg_field['r_vit'])
+        self.fi.population.set(reg_field['r_mag'])
+        self.fi.stress.set(reg_field['r_des'])
+        self.fi.hate.set(reg_field['r_agi'])
+        self.fi.civil_point.set(sum(reg_field.values()))
 
         # totalからrankを設定
-        self.entry_fi.civilization.set(self.getOneRank(self.entry_fi.civil_point.get()))
+        self.fi.civilization.set(self.getOneRank(self.fi.civil_point.get()))
 
         # 進化レベル設定
-        self.randomLevel(self.entry_fi.civilization.get())
+        self.randomLevel(self.fi.civilization.get())
 
     def rand_num(self, num, weight):
         import numpy as np
@@ -925,7 +1014,7 @@ class create_kingdom():
         return rn_int
     
     # ラベル編集
-    def ch_status_set(self,label_text,input_num):
+    def fi_status_set(self,label_text,input_num):
         for dkey, dval in label_text.items():
             dval.set(dkey + '（{}）'.format(input_num))
     

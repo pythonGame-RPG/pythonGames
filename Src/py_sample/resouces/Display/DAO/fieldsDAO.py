@@ -22,6 +22,37 @@ class FieldDAO:
     def select_field(self):
         return dbaccess().SELECT_Column(MST_FIELDS, ['*', ' concat(f_rank, ":", field_name) as field_cbo'])
     
+    # 王候補をピックアップ
+    def chooseCharacter(self,s_x,s_y,e_x,e_y):
+
+        l_x = 0
+        l_y = 0
+        r_x = 0
+        r_y = 0
+        
+        # TODO:面倒だから元結良い方法ないかな入れ替え処理
+        if s_x < e_x:
+            l_x = e_x
+            r_x = s_x
+        else:
+            l_x = s_x
+            r_x = e_x
+
+        if s_y < e_y:
+            l_y = e_y
+            r_y = s_y
+        else:
+            l_y = s_y
+            r_y = e_y
+
+        where = """grid_x >= {0} and 
+                   grid_x <= {1} and
+                   grid_y <= {2} and
+                   grid_y >= {3} """.format(l_x,l_y,r_x,r_y)
+        sort = "name"
+
+        return dbaccess().SELECT_Column_A(MST_CHARACTERS,[' * '] ,where,sort)
+
     # place_nameをセット
     def set_field(self, stay_field=None, rank_range=None):
         self.field_cbo = []
@@ -42,3 +73,18 @@ class FieldDAO:
     def set_target_field(self,stay_field, rank_range):
         self.field_cbo = []
         return dbaccess().SELECT_Column(MST_FIELDS,['*', ' concat(f_rank, ":", field_name) as field_cbo'],stay_field, rank_range)
+    
+    # 人口取得
+    def get_population(self,l_x,l_y,r_x,r_y):
+        where = """
+                grid_x >= {0},
+                grid_x <= {1},
+                grid_y >= {2},
+                grid_y <= {3}
+                """.format(l_x,l_y,r_x,r_y)
+        res = dbaccess().SELECT_Column_A(MST_FIELDS,['count(*) as population'],where,None)
+        return res[0]['population']
+    
+    # 王国登録
+    def insert_field(self,entry_list):
+        res = dbaccess().INSERT_Column(MST_FIELDS, entry_list)

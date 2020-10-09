@@ -3,33 +3,27 @@ from DbAccess import *
 from settings import *
 from datetime import *
 
-class Location:
+class Area:
     def __init__(self):
-        self.location_id = tk.StringVar()
-        self.grid_x = tk.StringVar()
-        self.grid_y = tk.StringVar()
-        self.lord_gene_id = tk.StringVar()
-        self.character_id = tk.StringVar()
-        self.place_name = tk.StringVar()
-        self.p_rank = tk.StringVar()
-        self.is_sea = tk.IntVar()
-        self.is_battle = tk.IntVar()
-        self.is_guild = tk.IntVar()
-        self.g_point = tk.StringVar()
-        self.g_rank = tk.StringVar()
-        self.is_church = tk.IntVar()
-        self.c_point = tk.StringVar()
-        self.c_rank = tk.StringVar()
-        self.is_blacksmith = tk.IntVar()
-        self.b_point = tk.StringVar()
-        self.b_rank = tk.StringVar()
-        self.assets = tk.StringVar()
-        self.civilization = tk.StringVar()
-        self.population = tk.StringVar()
+        self.grid_x = 0
+        self.grid_y = 0
+        self.location_id = 0
+        self.field_id = 0
+        self.is_maxHeight = 0
+        self.height = 0
+        self.is_river = 0
+        self.depth = 0
+        self.landlord_gene_id = 0
+        self.character_id = 0
+        self.assets = 0
+        self.civil_point = 0
+        self.family = 0
+        self.is_public = 0
+        self.version = 0
         self.ins_date = datetime.now()
-        self.ins_id = None
+        self.ins_id = ''
         self.upd_date = datetime.now()
-        self.upd_id = None
+        self.upd_id = ''
 
         self.bk_num = 0
         self.bk_total_sense = 0
@@ -37,18 +31,18 @@ class Location:
     def init(self):
         pass
 
-    def insert_location(self):
+    def insert_area(self):
         dbaccess().insert(self, )
 
-    def select_location(self, where = None):
-        dbaccess().SELECT_All(MST_LOCATIONS)
+    def select_area(self, where = None):
+        dbaccess().SELECT_All(MST_AREAS)
     
-    # location_nameをセット
-    def set_location_name(self):
-        location_name = [""]
-        # locationデータ取得
-        locations = self.select_location()
-        for data in locations:
-            location_name.append(data)
+    # area_nameをセット
+    def set_area_name(self):
+        area_name = [""]
+        # areaデータ取得
+        areas = self.select_area()
+        for data in areas:
+            area_name.append(data)
         
-        return location_namer
+        return area_namer

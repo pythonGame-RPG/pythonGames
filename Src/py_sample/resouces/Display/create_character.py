@@ -9,7 +9,7 @@ import DTO.classes as classes
 import DTO.talents as talents
 import DTO.locations as locations
 import DTO.names as names
-# from DAO import * いつかはこっちのほうがいいかも
+import Base.basic_module as bs
 import DAO.charactersDAO as _chara
 import DAO.genesDAO as _genes
 import DAO.racesDAO as _races
@@ -42,12 +42,12 @@ class create_character(tk.Tk):
         self.selected_date = tk.StringVar()
         self.cbo_gene_list = tk.StringVar()
         self.cbo_race_list = tk.StringVar()
-        self.stay_location = tk.StringVar()
-        self.stay_field = tk.StringVar()
-        self.stay_field_id = tk.StringVar()
+        self.cbo_location_list = tk.StringVar()
+        self.cbo_field_list = tk.StringVar()
+        self.cbo_birth_place_list = tk.StringVar()
 
         # rank制限格納
-        self.rank_range = tk.StringVar()
+        self.rank_range = None
 
         self.ch = chara.Character()
         self.ge = genes.Gene()
@@ -96,8 +96,9 @@ class create_character(tk.Tk):
 
         # 日付チェック
         self.selected_date.trace("w", lambda *args: self.date_limit(self.selected_date))
-        self.stay_field.trace("w", lambda *args: self.select_field())
-        self.stay_location.trace("w", lambda *args: self.select_location())
+        self.cbo_field_list.trace("w", lambda *args: self.select_field())
+        self.cbo_birth_place_list.trace("w", lambda *args: self.select_birthfield())
+        self.cbo_location_list.trace("w", lambda *args: self.select_location())
 
         # chara桁数制限
         # self.ch.guild_rank.trace("w", lambda *args: self.character_limit(self.ch.guild_rank, 1))
@@ -109,6 +110,8 @@ class create_character(tk.Tk):
         self.ch.intelligence.trace("w", lambda *args: self.character_limit(self.ch.intelligence, 4))
         self.cbo_gene_list.trace("w", lambda *args: self.select_gene(self.cbo_gene_list))
         self.cbo_race_list.trace("w", lambda *args: self.select_race(self.cbo_race_list))
+        self.mode.trace("w", lambda *args:self.set_mode)
+
         # gene桁数制限
         self.ge.s_HP.trace("w", lambda *args: self.character_limit(self.ge.s_HP, 3, self.ch.HP, self.ra.p_HP))
         self.ge.s_MP.trace("w", lambda *args: self.character_limit(self.ge.s_MP, 3, self.ch.MP, self.ra.p_MP))
@@ -170,12 +173,12 @@ class create_character(tk.Tk):
         # field
         self.lblf = tk.Label(fm_left_1,text = 'field')
         self.lblf.grid(row=4, column=2, padx=5, pady=2)
-        self.cbof = ttk.Combobox(fm_left_1, textvariable=self.stay_field,width=18)
+        self.cbof = ttk.Combobox(fm_left_1, textvariable=self.cbo_field_list,width=18)
         self.cbof.grid(row=4, column=3, columnspan=2, padx=5, pady=2)
         # location
         self.lblo = tk.Label(fm_left_1,text = 'location')
         self.lblo.grid(row=5, column=2, padx=5, pady=2)
-        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.ch.location_id,width=18)
+        self.cboo = ttk.Combobox(fm_left_1, textvariable=self.cbo_location_list,width=18)
         self.cboo.grid(row=5, column=3, columnspan=2, padx=5, pady=2)
 
         # dangeon_chara
@@ -199,8 +202,6 @@ class create_character(tk.Tk):
         self.lbl4.grid(row=6, column=2, padx=5, pady=2)
         self.ent4 = tk.Entry(fm_left_1, textvariable=self.ch.birth,width=10)
         self.ent4.grid(row=6, column=3, padx=5, pady=2)
-        # birthをDTOにセット
-        # self.ch.birth.set(self.ent4.get())
 
         # 日付選択ボタン
         self.i_birth = tk.Button(fm_left_1, text = "日付選択", font = ("",8),command=self.sub_root.openDialog)
@@ -209,7 +210,7 @@ class create_character(tk.Tk):
         # birthplace
         self.lbl5a = tk.Label(fm_left_1,text = 'birthplace')
         self.lbl5a.grid(row=5, column=0, padx=5, pady=2)
-        self.cbo5a = ttk.Combobox(fm_left_1, textvariable=self.ch.birthplace,width=10)
+        self.cbo5a = ttk.Combobox(fm_left_1, textvariable=self.cbo_birth_place_list,width=10)
         self.cbo5a['values']=self.fi_dao.set_field()
         if len(self.cbo5a['values']):
             self.cbo5a.current(0) 
@@ -497,7 +498,6 @@ class create_character(tk.Tk):
             self.ch.intelligence.set(self.rand_num(4,weight))
             self.ch.set_status_all(self.ge, self.ra)
 
-
         #self.set_g_rank()
 
     def set_g_rank(self,text_label,data):
@@ -554,7 +554,6 @@ class create_character(tk.Tk):
             rn_int = random.randint(1,10**(num-1))
             i += 1
         return rn_int
-
 
     def rand_date(self):
         rand_d = None
@@ -629,11 +628,17 @@ class create_character(tk.Tk):
 
     # ボタン押下後処理
     def submit(self):
+        # 登録確認ポップアップ表示
+        if bs.Popup.OKCancelPopup(self,Q0003) == False:
+            return
         # gene_idの入力がない場合
-        if len(self.ch.gene_id.get()) > 0:
-            pass
+        if len(self.ch.gene_id.get()) > 0 and self.mode.get() == 1:
+            self.ch_dao.insert_character(self.ch)
+            messagebox.showinfo('確認', '登録が完了しました。')
+
         else:
             self.ge_dao.insert_gene(self.ge)
+            self.cboGene['values']=self.ge_dao.set_gene()
             # OKポップアップ
             messagebox.showinfo('確認', '登録が完了しました。')
 
@@ -655,7 +660,7 @@ class create_character(tk.Tk):
     # geneが選択された場合
     def select_gene(self, _gene):
         # 対象をロック、空の場合は解除
-        if len(_gene.get()) > 0:
+        if len(_gene.get()) > 0 and self.mode.get() == 1:
             self.ent7.configure(state = 'readonly')
             self.ent8.configure(state = 'readonly')
             self.ent9.configure(state = 'readonly')
@@ -673,7 +678,30 @@ class create_character(tk.Tk):
             self.ge.set_select_gene(s_gene)
 
             # gene_idを設定
-            self.ch.gene_id = s_gene['gene_id']
+            self.ch.gene_id.set(s_gene['gene_id'])
+
+        elif len(_gene.get()) > 0 and self.mode.get() == 0:
+
+            self.ent7.configure(state = 'normal')
+            self.ent8.configure(state = 'normal')
+            self.ent9.configure(state = 'normal')
+            self.ent10.configure(state = 'normal')
+            self.ent11.configure(state = 'normal')
+            self.ent12.configure(state = 'normal')
+            self.ent13.configure(state = 'normal')
+            self.ent14.configure(state = 'normal')
+            self.entgn.configure(state = 'normal')
+            self.chkgn.configure(state = 'active')
+
+            # 選択したgeneを取得
+            s_gene = self.ge_dao.pickup_gene(self.cbo_gene_list.get())
+
+            # 対象に選択したgeneの値を反映
+            self.ge.set_select_gene(s_gene)
+
+            # gene_idを設定
+            self.ch.gene_id.set(s_gene['gene_id'])
+            
         else:
             self.ge.init()
             self.ch.init(self.ge, self.ra)
@@ -697,27 +725,30 @@ class create_character(tk.Tk):
         self.ra.set_select_race(s_race)
 
         # race_idを設定
-        self.ch.race_id = s_race['race_id']
+        self.ch.race_id.set(s_race['race_id'])
         # characterに反映
         self.ch.set_status_all(self.ge, self.ra)
     
     # fieldが選択された場合
     def select_field(self):
         # 選択したfieldを取得
-        s_field = self.fi_dao.pickup_field(self.stay_field.get())
+        s_field = self.fi_dao.pickup_field(self.cbo_field_list.get())
 
         # 変数field_idを設定
-        self.stay_field_id.set(s_field['field_id'])
-
-        # NOTE:location:rank_rangeに応じて選択可能拠点を設定
-        self.cboo['values']=self.lo_dao.set_location({'field_id':self.stay_field_id.get()}, {'l_rank':self.rank_range})
-        if len(self.cboo['values']):
-            self.cboo.current(0)
+        self.ch.field_id.set(s_field['field_id'])
     
+    # fieldが選択された場合
+    def select_birthfield(self):
+        # 選択したfieldを取得
+        s_field = self.fi_dao.pickup_field(self.cbo_birth_place_list.get())
+
+        # 変数field_idを設定
+        self.ch.birthplace.set(s_field['field_id'])
+
     # locationが選択された場合
-    def select_location(self, select_location):
+    def select_location(self):
         # 選択したlocationを取得
-        s_location = self.lo_dao.pickup_location(self.stay_location.get())
+        s_location = self.lo_dao.pickup_location(self.cbo_location_list.get())
 
         # location_idを設定
         self.ch.location_id.set(s_location['location_id'])
@@ -803,10 +834,15 @@ class create_character(tk.Tk):
         if len(self.cboGUILD['values']):
             self.cboGUILD.current(0)    
 
-        # fiel
+        # field_rank
         self.cbof['values']=self.fi_dao.set_field(None, {'f_rank':self.rank_range})
         if len(self.cbof['values']):
             self.cbof.current(0)
+
+        # NOTE:location:rank_rangeに応じて選択可能拠点を設定
+        self.cboo['values']=self.lo_dao.set_location({'field_id':self.ch.field_id.get()}, {'l_rank':self.rank_range})
+        if len(self.cboo['values']):
+            self.cboo.current(0)
 
     # ラベル編集
     def ch_status_set(self,label_text,input_num):
@@ -839,6 +875,11 @@ class create_character(tk.Tk):
                 age += 1
                 total_days -= day
         return age
+    
+    def set_mode(self):
+        self.gene.init()
+        self.ch.init()
+        self.ra.init()
 
      
 # import以外から呼び出された場合のみこのファイルを実行

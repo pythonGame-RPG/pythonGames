@@ -6,30 +6,37 @@ from datetime import *
 class Location:
     def __init__(self):
         self.location_id = tk.StringVar()
-        self.grid_x = tk.StringVar()
-        self.grid_y = tk.StringVar()
+        self.field_id = tk.StringVar()
         self.lord_gene_id = tk.StringVar()
         self.character_id = tk.StringVar()
-        self.place_name = tk.StringVar()
-        self.p_rank = tk.StringVar()
-        self.is_sea = tk.IntVar()
+        self.location_name = tk.StringVar()
+        self.l_rank = tk.StringVar()
         self.is_battle = tk.IntVar()
-        self.is_guild = tk.IntVar()
-        self.g_point = tk.StringVar()
-        self.g_rank = tk.StringVar()
-        self.is_church = tk.IntVar()
-        self.c_point = tk.StringVar()
-        self.c_rank = tk.StringVar()
-        self.is_blacksmith = tk.IntVar()
-        self.b_point = tk.StringVar()
-        self.b_rank = tk.StringVar()
-        self.assets = tk.StringVar()
-        self.civilization = tk.StringVar()
-        self.population = tk.StringVar()
+        self.area = tk.IntVar()
+        self.population = tk.IntVar()
+        self.p_density = tk.IntVar()
+        self.stress = tk.IntVar()
+        self.hate = tk.IntVar()
+        self.power = tk.IntVar()
+        self.welfare = tk.IntVar()
+        self.technology = tk.IntVar()
+        self.military = tk.IntVar()
+        self.civil_point = tk.IntVar()
+        self.civilization = tk.DoubleVar()
+        self.innovation = tk.IntVar()
+        self.strength = tk.IntVar()
+        self.assets = tk.IntVar()
+        self.GDP = tk.IntVar()
+        self.tax = tk.DoubleVar()
+        self.develop = tk.DoubleVar()
+        self.disparity = tk.DoubleVar()
+        self.version = 1
+        self.is_deleted = 0
         self.ins_date = datetime.now()
         self.ins_id = None
         self.upd_date = datetime.now()
         self.upd_id = None
+
 
         self.bk_num = 0
         self.bk_total_sense = 0

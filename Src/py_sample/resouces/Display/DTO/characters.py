@@ -8,6 +8,7 @@ class Character:
         self.sex = tk.StringVar()
         self.gene_id = tk.StringVar()
         self.race_id = tk.StringVar()      
+        self.field_id = tk.StringVar()
         self.location_id = tk.StringVar()
         self.age = tk.IntVar()
         self.birth = tk.StringVar()
@@ -55,12 +56,12 @@ class Character:
         
     def init(self, gene, race):
         
+        self.level.set(1)
         self.sex.set(0)
         self.charisma.set(1)
         self.karma.set(1)
         self.fortune.set(1)
         self.intelligence.set(1)
-        self.level.set(1)
 
         # self.set_status(gene,race)
 

@@ -146,6 +146,25 @@ class dbaccess:
 
         return self.cur.fetchall()
 
+    # セレクト文
+    def SELECT_Column_A(self,table_name,columns, where=None, sort=None):
+        for i in range(len(columns)):
+            if i == 0:
+                column_name = columns[0]
+            else:
+                column_name = column_name + ',' + columns[i]
+        sql = "SELECT " + column_name + " from " + table_name
+
+        if where != None:
+            sql = sql +  ' where ' + where
+            
+        if sort != None:
+            sql = sql +  ' order by ' + sort
+
+        self.cur.execute(sql)
+
+        return self.cur.fetchall()       
+
     # セレクト文    
     def SELECT_Column(self, table_name,input_column_name,where=None,_in=None):
         for i in range(len(input_column_name)):
