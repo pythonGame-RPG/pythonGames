@@ -51,7 +51,8 @@ class FieldDAO:
                    grid_y >= {3} """.format(l_x,l_y,r_x,r_y)
         sort = "name"
 
-        return dbaccess().SELECT_Column_A(MST_CHARACTERS,[' * '] ,where,sort)
+        #return dbaccess().SELECT_Column_A(MST_CHARACTERS,[' * '] ,where,sort)
+        return dbaccess().SELECT_Column_A(MST_CHARACTERS,[' * '])
 
     # place_nameをセット
     def set_field(self, stay_field=None, rank_range=None):
@@ -74,17 +75,7 @@ class FieldDAO:
         self.field_cbo = []
         return dbaccess().SELECT_Column(MST_FIELDS,['*', ' concat(f_rank, ":", field_name) as field_cbo'],stay_field, rank_range)
     
-    # 人口取得
-    def get_population(self,l_x,l_y,r_x,r_y):
-        where = """
-                grid_x >= {0},
-                grid_x <= {1},
-                grid_y >= {2},
-                grid_y <= {3}
-                """.format(l_x,l_y,r_x,r_y)
-        res = dbaccess().SELECT_Column_A(MST_FIELDS,['count(*) as population'],where,None)
-        return res[0]['population']
-    
     # 王国登録
     def insert_field(self,entry_list):
-        res = dbaccess().INSERT_Column(MST_FIELDS, entry_list)
+        res = dbaccess().INSERT_Column(MST_FIELDS, entry_list[0])
+        return dbaccess().SELECT_Column(MST_FIELDS, '*', {'field_id':res})

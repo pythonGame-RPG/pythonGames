@@ -20,6 +20,7 @@ class dbaccess:
             passwd='root',
             host='localhost',
             db='dbo'
+            #,local_infile=True
         )
         # Encoding
         # self.db.set_character_set('utf8')
@@ -91,6 +92,37 @@ class dbaccess:
         else:
             return self.cur.rowcount
 
+    # バルクイン処理
+    # param = テーブル名、DTO、重複ディクショナリ
+    def BULK_INSERT_Column2(self, table_name, values, num):
+
+        str_s = ''
+        for i in range(num):
+            str_s = str_s + '%s,'
+        str_s = str_s[:-1]
+
+        # TODO:deliminatorとかの設定
+        print("Insert bulk {}".format(table_name))
+        insert_sql = "INSERT INTO {0} values ({1})".format(table_name,str_s)
+
+        self.cur.executemany(insert_sql, values)
+        self.db.commit()
+
+    # バルクイン処理（ローカルファイル経由）最速
+    # param = テーブル名、DTO、重複ディクショナリ
+    def BULK_INSERT_Column(self, table_name, csv_path):
+
+        # TODO:deliminatorとかの設定
+        sql = """
+            SET GLOBAL local_infile=on;
+            LOAD DATA LOCAL INFILE '{0}'
+            INTO TABLE  {1} FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' 
+            LINES TERMINATED BY '\n' 
+            """.format(csv_path, table_name)
+        
+        self.cur.execute(sql, multi=True)
+        self.db.commit()
+
     # 更新処理
     # param = テーブル名、DTO、抽出条件ディクショナリ、non_strフラグ
     def UPDATE_Column(self, table_name, DTO_data, where, nonStr=False):
@@ -111,7 +143,6 @@ class dbaccess:
         sql = sql + data_str
 
         # where条件を編集
-
         if where != None and len(where) !=0:
             
             dataList = []
@@ -179,7 +210,7 @@ class dbaccess:
             where_sql = ''
             for dkey,dval in where.items():
                 if len(where_sql) != 0:
-                    where_sql = where_sql + ' AND /r/n'
+                    where_sql = where_sql + ' AND \r\n'
                 where_sql = where_sql + dkey + ' = ' + str(dval)
             sql = sql + ' WHERE ' + where_sql
 
@@ -223,6 +254,17 @@ class dbaccess:
                 where_sql = where_sql + ' AND '
             where_sql = where_sql + dkey + ' = ' + str(dval)
         sql = sql + ' WHERE ' + where_sql
+
+        try:
+            self.cur.execute(sql)
+            return self.db.commit()
+        except:
+            self.db.rollback()
+            return self.res
+
+    def BASIC_DELETE(self, table_name, where):
+
+        sql = "DELETE FROM {0} {1}".format(table_name, where)
 
         try:
             self.cur.execute(sql)

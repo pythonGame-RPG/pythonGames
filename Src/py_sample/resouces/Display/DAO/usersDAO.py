@@ -1,6 +1,7 @@
 from DbAccess import *
 import DTO.users as DTO
 from settings import *
+from datetime import *
 
 class UserDAO:
 
@@ -85,6 +86,15 @@ class UserDAO:
         where = " AND ".join(map(str, where_list))
         where = " where " + where
         return select + where
+    
+    # 課金
+    def store_money(self,users,money):
+        u_col = {}
+        u_col["money"] = money
+        u_col['upd_date'] = datetime.now()
+        u_col['upd_id'] = USER_ID
+
+        dbaccess().Update_Column(MST_USERS, where, u_col)
 
     """
     def pickup_user(self, user_cbo):

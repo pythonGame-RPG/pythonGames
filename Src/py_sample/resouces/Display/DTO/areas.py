@@ -21,9 +21,9 @@ class Area:
         self.is_public = 0
         self.version = 0
         self.ins_date = datetime.now()
-        self.ins_id = ''
+        self.ins_id = 'dummy'
         self.upd_date = datetime.now()
-        self.upd_id = ''
+        self.upd_id = 'dummy'
 
         self.bk_num = 0
         self.bk_total_sense = 0
@@ -45,4 +45,4 @@ class Area:
         for data in areas:
             area_name.append(data)
         
-        return area_namer
+        return area_name

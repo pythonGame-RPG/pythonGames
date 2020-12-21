@@ -5,6 +5,7 @@ import random
 
 vec = pg.math.Vector2
 
+
 class SpriteSheet:
     def __init__(self, filename):
         """ SpriteSheet専用クラス"""
@@ -16,6 +17,7 @@ class SpriteSheet:
         image.blit(self.spritesheet, (0, 0), (x, y, width, height))
         image = pg.transform.scale(image, (width // 2, height // 2))
         return image
+
 
 # noinspection PyArgumentList
 class Player(pg.sprite.Sprite):

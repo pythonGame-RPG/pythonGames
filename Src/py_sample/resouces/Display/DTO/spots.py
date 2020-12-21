@@ -1,6 +1,7 @@
 import tkinter as tk
 from DbAccess import *
 from settings import *
+from datetime import *
 
 class Spot:
     def __init__(self):
@@ -14,6 +15,11 @@ class Spot:
         self.assets = tk.IntVar()
         self.civilization = tk.IntVar()
         self.population = tk.IntVar()
+        self.version = 0
+        self.ins_date = datetime.now()
+        self.ins_id = 'dummy'
+        self.upd_date = datetime.now()
+        self.upd_id = 'dummy'
 
         self.bk_num = 0
         self.bk_total_sense = 0
@@ -25,7 +31,7 @@ class Spot:
         dbaccess().insert(self, )
 
     def select_spot(self, where = None):
-        dbaccess().SELECT_All(MST_spotS)
+        dbaccess().SELECT_All(MST_SPOTS)
     
     # spot_nameをセット
     def set_spot_name(self):

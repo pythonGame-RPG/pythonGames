@@ -10,7 +10,7 @@ while running:
     # update
 
     # Draw / render
+    pass
+    # pg.display.flip()
 
-    pg.display.flip()
-
-pg.quit()
+# pg.quit()

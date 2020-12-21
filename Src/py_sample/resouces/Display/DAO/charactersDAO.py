@@ -96,3 +96,36 @@ class CharacterDAO:
         where = " AND ".join(map(str, where_list))
         where = " where " + where
         return select + where
+    
+    # 人口取得
+    def get_population(self,l_x,l_y,r_x,r_y):
+        where = """
+                grid_x >= {0} and
+                grid_x <= {1} and
+                grid_y >= {2} and
+                grid_y <= {3}
+                """.format(l_x,l_y,r_x,r_y)
+        res = dbaccess().SELECT_Column_A(MST_CHARACTERS,['count(*) as population'],where,None)
+        return res[0]['population']
+    
+    # キャラクターコンボボックス
+    def set_character(self, stay_character=None, rank_range=None):
+        self.character_cbo = []
+        # self.characters = self.select_character()
+        self.characters = self.set_target_character(stay_character, rank_range)
+        for character in self.characters:
+            # コンボボックスのリストに追加
+            self.character_cbo.append(character['character_cbo'])
+
+        # characterデータ
+        return self.character_cbo
+
+    # rankによる取得制限あり
+    def set_target_character(self,stay_character, rank_range):
+        self.character_cbo = []
+        return dbaccess().SELECT_Column(MST_CHARACTERS,['*', ' concat(guild_rank, ":", name) as character_cbo'],stay_character, rank_range)
+
+    # キャラクタコンボ
+    def pickup_character(self, character_cbo):
+        s_character = [character for character in self.characters if character['character_cbo'] == character_cbo]
+        return s_character[0]

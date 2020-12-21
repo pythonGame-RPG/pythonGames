@@ -20,7 +20,7 @@ pygame.display.set_caption("Tobishokunin's Commuting")
 sysfont = pygame.font.SysFont(None, 24)
 
 #イメージ設定
-image_background = pygame.image.load("background.jpg")
+image_background = pygame.image.load("img/background.jpg")
 image_title = pygame.image.load("title.png")
 image_start = pygame.image.load("start.png")
 image_final_bonus = pygame.image.load("final_bonus.png")

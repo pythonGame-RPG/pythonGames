@@ -21,6 +21,11 @@ class Popup:
     def OKCancelPopup(self, indata):
         # メッセージボックス（OK・キャンセル） 
         return messagebox.askokcancel('登録', indata)
+        pass
+
+    def YesNoCancelPopup(self, indata):
+        # メッセージボックス（YES・NO・キャンセル） 
+        return messagebox.askyesnocancel('登録', indata)
 
     def ShowInfo(self, indata):
         # メッセージボックス（情報） 

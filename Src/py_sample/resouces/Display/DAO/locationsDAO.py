@@ -42,3 +42,8 @@ class LocationDAO:
     def set_target_location(self,stay_location, rank_range):
         self.location_cbo = []
         return dbaccess().SELECT_Column(MST_LOCATIONS,['*', ' concat(l_rank, ":", location_name) as location_cbo'],stay_location, rank_range)
+
+    # 王国登録
+    def insert_location(self,entry_list):
+        res = dbaccess().INSERT_Column(MST_LOCATIONS, entry_list[0])
+        return dbaccess().SELECT_Column(MST_LOCATIONS, '*', {'location_id':res})

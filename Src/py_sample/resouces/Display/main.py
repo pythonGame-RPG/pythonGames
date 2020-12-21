@@ -11,6 +11,7 @@ import DTO.characters as DTO
 import DAO.charactersDAO as DAO
 import tkinter as tk
 from datetime import *
+import pygame_menu
 
 class Game:
     def __init__(self):
@@ -103,6 +104,33 @@ class Game:
     def draw_display(self):
         # iはフォーカス順
         i = 0
+
+        # メニュー表示
+        menu = pygame_menu.Menu(300, 400, 'MENU',
+                       theme=pygame_menu.themes.THEME_BLUE)
+        # フォント
+        JFONT = pg.font.Font('姫明朝ともえごぜんmini.otf', 20) 
+        menu.add_text_input('Name :', default='John Doe')
+        menu.add_selector('Difficulty :', [('Hard', 1), ('Easy', 2)], onchange=self.set_difficulty)
+        menu.add_button('Play', self.start_the_game)
+        menu.add_vertical_margin(10)
+        menu.add_button('Settings', self.start_the_game)
+        menu.add_button('Shop' , self.create_shop)
+        menu.add_button('Gacha', self.create_character)
+        menu.add_button('Quit', pygame_menu.events.EXIT)
+
+        menu.mainloop(self.screen)
+    
+    def create_shop(self):
+        #画面コピー
+        filler = self.screen.copy()
+        # 子画面呼び出し
+        import shop
+        shop.Shop(filter)
+        
+
+    def second_display(self):
+
         for name in self.player_name:
             self.draw_left_text("{0}. {1}".format(i + 1,name), 22, self.get_color(i),
                             WIDTH / 4, 15+20*(i + 1))
@@ -141,6 +169,7 @@ class Game:
         pg.mixer.music.play(loops=-1)
         """
         self.screen.fill(BGCOLOR)
+
         self.draw_text("GAME OVER", 48, WHITE, WIDTH / 2, HEIGHT / 4)
         self.draw_text("Score: {}".format(str(self.score)), 22, WHITE,
                        WIDTH / 2,
@@ -157,6 +186,15 @@ class Game:
         pg.display.flip()
         self.wait_for_key(False)
         pg.mixer.music.fadeout(500)
+    
+    # TODOなんか工夫
+    def set_difficulty(self, value, difficulty):
+        # Do the job here !
+        pass
+
+    def start_the_game(self):
+        # Do the job here !
+        pass
 
     # TODO:キー押下待ち
     def wait_for_key(self, running = True):
@@ -214,7 +252,7 @@ class Game:
         font = pg.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
-        text_rect.midtop = (x, y)
+        text_rect.midtop = (int(x), int(y))
         self.screen.blit(text_surface, text_rect)
 
     # 左詰めテキスト表示
@@ -229,7 +267,7 @@ class Game:
 g = Game()
 
 # ログイン画面を表示
-l = Login()
+l = Login(id = "a1",passwd = "a1")
 l.mainloop()
 
 # ユーザ―データの有無を確認

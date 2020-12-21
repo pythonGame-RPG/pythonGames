@@ -4,6 +4,7 @@ from datetime import *
 
 class Character:
     def __init__(self):
+        self.id = tk.IntVar()
         self.name = tk.StringVar()
         self.sex = tk.StringVar()
         self.gene_id = tk.StringVar()
