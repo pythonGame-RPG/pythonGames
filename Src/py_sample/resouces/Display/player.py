@@ -94,6 +94,8 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.animate()
+        # stop_flg
+    
         # 重力の設定
         self.acc = vec(0, PLAYER_GRAV)
         keys = pg.key.get_pressed()
@@ -121,10 +123,12 @@ class Player(pg.sprite.Sprite):
             self.pos.x = WIDTH + self.rect.width / 2
 
         # 現在の位置に Positionを設定
-        self.rect.midbottom = self.pos
+        if self.stop_flg:
+            self.rect.midbottom = self.pos
 
     def animate(self):
         """アニメーション"""
+        # 立っているとき、ジャンプしているときのフレーム
         now = pg.time.get_ticks()  # 現在のtick(時間)を取得
         if self.vel.x != 0:
             self.walking = True

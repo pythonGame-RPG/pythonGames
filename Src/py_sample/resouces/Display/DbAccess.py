@@ -17,7 +17,7 @@ class dbaccess:
         # db
         self.db = mysql.connector.connect(
             user='root',
-            passwd='root',
+            passwd='rootpass',
             host='localhost',
             db='dbo'
             #,local_infile=True

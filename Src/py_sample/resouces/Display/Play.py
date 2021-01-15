@@ -17,7 +17,7 @@ from Common import button
 import random
 import numpy as np
 
-class Gacha:
+class Play:
     def __init__(self,filter):
         """ ゲームを初期化 """
         self.running = True
@@ -27,11 +27,15 @@ class Gacha:
         #self.buttons = button.Button()
 
         self.clock = pg.time.Clock()
-        self.PG_ID = "GACHA"
-        # self.g_ball = GachaBalls(self)
+        self.PG_ID = "PLAY"
         self.platforms = None
         self.playing = False
+        self.object = None
         self.player = None
+        # object
+        self.obj_player = None
+
+        self.house_rect_list = []
         self.score = 0
         self.all_sprites = None
         self.knight_flg = True
@@ -45,12 +49,11 @@ class Gacha:
         self.focus_rect.set_alpha(50)
         # 騎士イベント用
         self.hover = False
-        self.select_ball = []
-        self.ball_frame = []
-        self.gacha_hontai_frame = self.load_images(IMG_GACHA_HONTAI)
-        self.gacha_haikei_frame = self.load_images(IMG_GACHA_HAIKEI)
-        self.gacha_ball_frame = self.load_images(IMG_GACHA_BALL)
-        self.gacha_knight_frame = self.load_images(IMG_GACHA_KNIGHT)
+        self.player_frame = self.load_images(PLAYER_ACTION)
+        # objhouse_listはたたき台
+        self.house_list = self.load_images(HOUSE_SCREEN)
+        # house表示用
+        self.house_frame = self.new_obj_house(self.house_list)
         # NewGameフラグ
         self.rebase = True
         self.font_name = pg.font.match_font(FONT_NAME)  # FONTを探す
@@ -65,8 +68,9 @@ class Gacha:
         # ファイル名を添え字とした辞書を作成
         self.back_img = pg.image.load(BACK_IMG[self.PG_ID]).convert_alpha()
         self.back_img = pg.transform.scale(self.back_img, (WIDTH,HEIGHT))
-        self.smoke_img = pg.image.load(MOVE_SCREEN[self.PG_ID][0]).convert_alpha()
-        self.smoke_img = pg.transform.scale(self.back_img,MOVE_SCREEN[self.PG_ID][1])
+        # 霧画像
+        # self.smoke_img = pg.image.load(MOVE_SCREEN[self.PG_ID][0]).convert_alpha()
+        # self.smoke_img = pg.transform.scale(self.back_img,MOVE_SCREEN[self.PG_ID][1])
 
         # 画面ロード
         self.new()
@@ -103,27 +107,71 @@ class Gacha:
         self.screen.blit(image['img'], image['location'])
         # TODO:self.rectを作るかどうかは別
 
-
     def new(self):
         # ゲームオーバー後のニューゲーム
         self.score = 0
         self.all_sprites = pg.sprite.LayeredUpdates()  # sprite が描かれる順番を指定できるようになる
-        self.gacha_hontai = pg.sprite.Group()
-        self.gacha_haikei = pg.sprite.Group()
+        self.player = pg.sprite.Group()
+        self.object =  pg.sprite.Group()
+        self.fixed_object = pg.sprite.Group()
         # TODO:複数個
-        self.gacha_ball = pg.sprite.Group()
-        self.gacha_knight = pg.sprite.Group()
+        # self.gacha_ball = pg.sprite.Group()
+        # self.gacha_knight = pg.sprite.Group()
         # mob を作成した時間を記録
         self.mob_timer = 0
         # 固定オブジェクト表示
-        FixedObject(self, self.gacha_haikei_frame,GACHA_HAIKEI_LAYER)
-        FixedObject(self, self.gacha_hontai_frame,GACHA_HONTAI_LAYER)
+        self.obj_player = Player(self)
+        # obj = Object(self)
+        # 円を描画
+        # obj.drawCircle()
+        # obj.getLocation(player.rect.midbottom)
+        # 固定オブジェクトの配置
+        for data in self.house_frame:
+            # 家を表示
+            self.house_rect_list.append(FixedObject(self, data))
+    
+    # 家を表示する
+    def new_obj_house(self,images):
+
+        new_house_images = []
+        size_L = 550
+        size_M = 250
+        size_S = 120
+        x_M = 225
+        x_S = 360
+        rate_L = 9/16
+        rate_M = 2/3
+        rate_S = 11/16
+        house_data = [
+            {"location":(0,HEIGHT*rate_L),"size":(size_L,size_L),"layer":4},
+            {"location":(WIDTH,HEIGHT*rate_L),"size":(size_L,size_L),"layer":4},
+            {"location":(x_M,HEIGHT*rate_M),"size":(size_M,size_M),"layer":3},
+            {"location":(WIDTH - x_M,HEIGHT*rate_M),"size":(size_M,size_M),"layer":3},
+            {"location":(x_S,HEIGHT*rate_S),"size":(size_S,size_S),"layer":2},
+            {"location":(WIDTH - x_S,HEIGHT*rate_S),"size":(size_S,size_S),"layer":2},
+        ]
+        # new_image作成
+        for data in house_data:
+            for i_data in images:
+                new_house = {}
+                new_house['name'] = i_data['name']
+                new_house['img'] = i_data['img']
+                new_house['location'] = data['location']
+                new_house['size'] = data['size']
+                new_house['layer'] = data['layer']
+
+                new_house_images.append(new_house)
+        
+        return new_house_images
 
     def update(self):
         # アップデート
         self.all_sprites.update()
+        # 当たり判定
+        self.hitJudge()
 
         # gacha を作成
+        """
         now = pg.time.get_ticks()
         if now - self.mob_timer > 5000 + random.choice(
                 [-1000, -500, 0, 500, 1000]):
@@ -133,6 +181,33 @@ class Gacha:
             if self.knight_flg == True:
                 GachaKnight(self)
                 self.knight_flg = False
+        """
+
+    # 当たり判定
+    def hitJudge(self):
+
+        now = pg.time.get_ticks()  # 現在のtick(時間)を取得
+        
+        # 【Director】当たり判定処理
+        for data in self.house_rect_list:
+            # 最低点が被った場合は停止
+            if self.obj_player.rect.clip(data.rect).bottom == self.obj_player.rect.bottom:
+                self.obj_player.stop_flg = True
+                self.obj_player.stop_pos = self.obj_player.pos
+                break
+
+            else:
+                self.obj_player.stop_flg = False
+                self.obj_player.pos = self.obj_player.stop_pos
+                # print(self.obj_player.stop_pos)
+
+        if self.obj_player.stop_flg:
+            self.obj_player.pos = self.obj_player.stop_pos
+
+        # dump処理→もっと詳細を表示したい
+        if now - self.last_update > 1000:
+            self.last_update = now
+            print('★'.join([str(self.obj_player.pos),str(self.obj_player.rect.midbottom)]))
 
     def run(self):
         # ゲームループ
@@ -188,57 +263,188 @@ class Gacha:
         text_rect = text_surface.get_rect()
         text_rect.midleft = (x, y)
         self.screen.blit(text_surface, text_rect)
+    
         
 class FixedObject(pg.sprite.Sprite):
-    def __init__(self, game, image, layer):
-        self._layer = layer
-        self.groups = game.all_sprites, game.gacha_knight
+    def __init__(self, game, image):
+        self._layer = image['layer']
+        self.groups = game.all_sprites, game.fixed_object
         super().__init__(self.groups)
         self.game = game
-        self.image = image[0]['img']
+        self.image = image['img']
+        self.image = pg.transform.scale(self.image, image['size'])
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH/2, HEIGHT/2)
+        self.rect.center = image['location']
+    
+    # 使わないかも
+    def unionHouses(self,images):
+        
+        rect_llist = []
+        for data in images:
+            image = data['img']
+            image = pg.transform.scale(image, data['size'])
+            rect = image.get_rect()
+            rect.center = data['location']
+            
+            rect_list.append(rect)
+        
+        self.rect = Rect.unionall(rect_list)
 
-class GachaKnight(pg.sprite.Sprite):
+class Player(pg.sprite.Sprite):
     def __init__(self, game):
-        self._layer = GACHA_KNIGHT_LAYER
-        self.groups = game.all_sprites, game.gacha_knight
+        self._layer = PLAYER_LAYER
+        self.groups = game.all_sprites, game.player
         super().__init__(self.groups)
         self.game = game
-        self.image_up = self.game.gacha_knight_frame[0]['img']
-        self.image_down = self.game.gacha_knight_frame[0]['img']
-        self.image = self.image_up
+        self.walking = False
+        self.jumping = False
+        self.stop_flg = False
+        self.standing_frames = []
+        # self.walk_frames_r = []
+        # self.walk_frames_l = []
+        # self.jump_frame = []
+        self.current_frame = 0 # to keep track of animation frame
+        self.last_update = 0  # to keep time of animation
+        self.player_frame = self.game.player_frame
+        self.image = self.player_frame[0]['img']
         self.rect = self.image.get_rect()
-        self.rect.centerx = random.choice([-100, WIDTH + 100])
-        self.vx = random.randrange(1, 4)
-        if self.rect.centerx > WIDTH:
-            self.vx *= -1
-        self.rect.centery = HEIGHT
-        self.vy = 0
-        self.dy = 0.5
+        self.rect.center = (500, HEIGHT - 100)
+        self.pos = vec(self.player_frame[0]['location'])
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
+        self.stop_pos = vec(0,0)
+
+    def jump(self):
+        # jump only if on a platform
+        self.rect.y += 2
+        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
+        self.rect.y -= 2
+        if hits and not self.jumping:
+            # self.game.jump_sound.play()
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
 
     def update(self):
-        self.rect.x += self.vx
-        self.vy += self.dy
-        if self.vy > 3 or self.vy < -3:
-            self.dy *= -1
-        center = self.rect.center
-        if self.dy < 0:
-            self.image = self.image_up
+        self.animate()
+        # 重力の設定
+        self.acc = vec(0, PLAYER_GRAV)
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            self.acc.x = -PLAYER_ACC
+        if keys[pg.K_RIGHT]:
+            self.acc.x = PLAYER_ACC
+
+        # 摩擦を計算
+        self.acc.x += self.vel.x * PLAYER_FRICTION
+        # Velocity に Accelerationを足す
+        self.vel += self.acc
+
+        # 微かな動きを止める
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0
+
+        # Position に Velocity を足す
+        self.pos += self.vel + 0.5 * self.acc
+
+        # Check Edges
+        if self.pos.x > WIDTH + self.rect.width / 2:
+            self.pos.x = 0 - self.rect.width / 2
+        if self.pos.x < 0 - self.rect.width / 2:
+            self.pos.x = WIDTH + self.rect.width / 2
+
+        # if self.stop_flg:
+            # 速度０処理
+        if abs(self.vel.y) < 0.1:
+            self.vel.y = 0
+            self.acc.y = 0
+            # self.stop_flg = True
+            # レイヤー順を修正
+            # self.game.all_sprites.change_layer(self, GACHA_BALL_LAYER2)
+            # self._layer = GACHA_BALL_LAYER2
+
+        # 速度が０になったらホップしてくる処理
+        if self.vel.y == 0 and not self.stop_flg:
+            self.vel = vec(random.randrange(-10,10), 10)
+            
+        # ストップ前の判定をスルー
+        # バウンド処理  
+        if self.pos.y >= HEIGHT * 29 / 32: #and now - self.last_update > 5000:
+            self.vel.y = - COEFFICIENT_RESTITUTION*self.vel.y 
+            self.pos.y = HEIGHT * 29 / 32
+        
+        # 現在の位置に Positionを設定
+        self.rect.midbottom = self.pos
+
+
+    def animate(self):
+        """アニメーション"""
+        now = pg.time.get_ticks()  # 現在のtick(時間)を取得
+        if self.vel.x != 0:
+            self.walking = True
         else:
-            self.image = self.image_down
+            self.walking = False
+
+        # 歩くアニメーション
+        if self.walking:
+            if now - self.last_update > 200:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(
+                    self.player_frame)  # フレーム画像の配列番号を計算
+                bottom = self.rect.bottom
+                """左右切り替え
+                if self.vel.x > 0:
+                    self.image = self.player_frame[self.current_frame]
+                else:
+                    self.image = self.player_frame[self.current_frame]
+                """
+                self.image = self.player_frame[self.current_frame]['img']
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+
+        # アイドルアニメーション
+        if not self.jumping and not self.walking:
+            if now - self.last_update > 350:  # 現在と最後にupdateした時間を比較
+                self.last_update = now  # もしそうだったらlast_updateをnow(現在)に設定
+                self.current_frame = (self.current_frame + 1) % len(self.player_frame)  # フレーム画像の配列番号を計算
+                bottom = self.rect.bottom  # フレームごとにimageのサイズが変更になるかもしれないから
+                # 地面に必ず足がついているように画像が変更になる前のbottom を取得
+                self.image = self.player_frame[self.current_frame]['img']  # imageを計算したフレームに画像に変更
+                self.rect = self.image.get_rect()  # rectを新たに取得
+                self.rect.bottom = bottom  # rectのbottomを更新
+
         # 衝突判定用のマスク
         self.mask = pg.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.rect.center = center
-        self.rect.y += self.vy
 
-        if self.rect.left > WIDTH + 100 or self.rect.right < -100:
+# オブジェクト
+class Object(pg.sprite.Sprite):
+    def __init__(self, game):
+        self._layer = PLAYER_POINT_LAYER
+        self.groups = game.all_sprites, game.object
+        super().__init__(self.groups)
+        self.game = game
+        self.screen = game.screen
+        self.last_update = 0
+        self.current_ball = 0
+        self.play_num = 0
+        self.running = True
+        self.stop_flg = True
+        self.name = ''
+        self.image = pg.Surface((10, 10))
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH/2,HEIGHT/2)
+    
+    def update(self):
+        if self.rect.bottom > HEIGHT + 100 or self.rect.bottom < -100:
             self.kill()
-            self.game.knight_flg = True
+    
+    def drawCircle(self):
+        self.rect = pg.draw.circle(self.image, 'red', self.rect.center,40)
+
+    def getLocation(self,location):
+        self.rect.center = location
 
 # ガチャ玉単一
-class GachaBall(pg.sprite.Sprite):
+class Enemy(pg.sprite.Sprite):
     def __init__(self, game):
         self._layer = GACHA_BALL_LAYER
         self.groups = game.all_sprites, game.gacha_ball
@@ -324,8 +530,6 @@ class GachaBall(pg.sprite.Sprite):
                 self.vel.y = 0
                 self.acc.y = 0
                 self.stop_flg = False
-                # レイヤー順を修正
-                self.game.all_sprites.change_layer(self, GACHA_BALL_LAYER2)
                 # self._layer = GACHA_BALL_LAYER2
 
             # 速度が０になったらホップしてくる処理
@@ -341,11 +545,7 @@ class GachaBall(pg.sprite.Sprite):
             # 一度のみの処理になってしまう？
             # 拡大再描画
             # self.size = tuple(np.array(np.multiply(self.size,1.05),dtype=int))
-            self.size = (100,100)
-            # self.scaledSurf = pg.transform.scale(self.scaledSurf, self.size)
-            self.image = pg.transform.scale(self.image, self.size)#, DestSurface = self.image)
-            self.disp_image = pg.transform.scale(self.image, self.size, self.image)#, DestSurface = self.image)
-            self.rect = self.disp_image.get_rect()
+            self.rect = self.image.get_rect()
             if self.validate == True:
                 print(self.rect)
                 self.validate = False
@@ -381,4 +581,4 @@ pg.mixer.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption(TITLE)
 
-Gacha(screen)
+Play(screen)

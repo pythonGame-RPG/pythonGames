@@ -147,8 +147,7 @@ class Player(pg.sprite.Sprite):
         if not self.jumping and not self.walking:
             if now - self.last_update > 350:  # 現在と最後にupdateした時間を比較
                 self.last_update = now  # もしそうだったらlast_updateをnow(現在)に設定
-                self.current_frame = (self.current_frame + 1) % len(
-                    self.standing_frames)  # フレーム画像の配列番号を計算
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)  # フレーム画像の配列番号を計算
                 bottom = self.rect.bottom  # フレームごとにimageのサイズが変更になるかもしれないから
                 # 地面に必ず足がついているように画像が変更になる前のbottom を取得
                 self.image = self.standing_frames[

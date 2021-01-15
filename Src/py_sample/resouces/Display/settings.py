@@ -36,17 +36,23 @@ CLOUD_FREQ = 15
 
 # LAYER 描かれる順番
 PLAYER_LAYER = 2
+PLAYER_POINT_LAYER = 8
 PLATFORM_LAYER = 1
 POW_LAYER = 1
 MOB_LAYER = 2
 CLOUD_LAYER = 0
 
 # ガチャ
-#GACHA_BALL_LAYER = 2
 GACHA_BALL_LAYER = 2
+# 停止後
+GACHA_BALL_LAYER2 = 6
 GACHA_HONTAI_LAYER = 3
 GACHA_KNIGHT_LAYER = 0
 GACHA_HAIKEI_LAYER = 1
+
+# PLAY
+PLAYER_LAYER = 5
+OBJECT_LAYER = 1
 
 # TODO:Starting platformsいらなくなったら削除
 PLATFORM_LIST = [(0, HEIGHT - 50),
@@ -168,10 +174,22 @@ IMG_GACHA_KNIGHT= [
 BACK_IMG = {
     "SHOP":"img/酒場背景.png",
     "GACHA":"img/ガチャ関連/gacha_haikei.png",
+    "PLAY":"img/操作画面/play_haikei.jpg",
 }
 
 MOVE_SCREEN = {
     "GACHA":("img/ガチャ関連/smoke_haikei.png",(959,979))
+}
+
+PLAYER_ACTION = {
+    ("img/操作画面/left_model.png",(68,250),(WIDTH/2, HEIGHT-100),50),
+    ("img/操作画面/right_model.png",(68,250),(WIDTH/2, HEIGHT-100),50),
+}
+
+# object：Json形式で一括Arrayに収める
+# 家などは表示位置を変更したり可能にしたい
+HOUSE_SCREEN = {
+    ("img/操作画面/house_a.png",(200, 200),(0,300),50),
 }
 
 HUKIDASHI_IMG = [
