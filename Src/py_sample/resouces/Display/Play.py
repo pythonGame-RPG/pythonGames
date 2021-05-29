@@ -54,6 +54,9 @@ class Play:
         self.house_list = self.load_images(HOUSE_SCREEN)
         # house表示用
         self.house_frame = self.new_obj_house(self.house_list)
+        # 霧(単一)
+        self.fog_frame = self.load_images([MOVE_SCREEN[self.PG_ID]])[0]
+        self.fog_frame['layer'] = FOG_LAYER
         # NewGameフラグ
         self.rebase = True
         self.font_name = pg.font.match_font(FONT_NAME)  # FONTを探す
@@ -68,9 +71,9 @@ class Play:
         # ファイル名を添え字とした辞書を作成
         self.back_img = pg.image.load(BACK_IMG[self.PG_ID]).convert_alpha()
         self.back_img = pg.transform.scale(self.back_img, (WIDTH,HEIGHT))
-        # 霧画像
-        # self.smoke_img = pg.image.load(MOVE_SCREEN[self.PG_ID][0]).convert_alpha()
-        # self.smoke_img = pg.transform.scale(self.back_img,MOVE_SCREEN[self.PG_ID][1])
+        #platoform用
+        self.platform_img = pg.image.load(PLATFORM_OBJECT[self.PG_ID]).convert_alpha()
+        self.platform_img = pg.transform.scale(self.platform_img, (WIDTH,HEIGHT))
 
         # 画面ロード
         self.new()
@@ -112,8 +115,10 @@ class Play:
         self.score = 0
         self.all_sprites = pg.sprite.LayeredUpdates()  # sprite が描かれる順番を指定できるようになる
         self.player = pg.sprite.Group()
+        self.platforms = pg.sprite.Group()
         self.object =  pg.sprite.Group()
         self.fixed_object = pg.sprite.Group()
+        self.fog = pg.sprite.Group()
         # TODO:複数個
         # self.gacha_ball = pg.sprite.Group()
         # self.gacha_knight = pg.sprite.Group()
@@ -121,14 +126,14 @@ class Play:
         self.mob_timer = 0
         # 固定オブジェクト表示
         self.obj_player = Player(self)
-        # obj = Object(self)
-        # 円を描画
-        # obj.drawCircle()
-        # obj.getLocation(player.rect.midbottom)
-        # 固定オブジェクトの配置
+        self.obj_platform = Platform(self)
+        # 家
         for data in self.house_frame:
             # 家を表示
             self.house_rect_list.append(FixedObject(self, data))
+        
+        # 霧
+        self.obj_fog = FixedObject(self, self.fog_frame)
     
     # 家を表示する
     def new_obj_house(self,images):
@@ -188,10 +193,12 @@ class Play:
 
         now = pg.time.get_ticks()  # 現在のtick(時間)を取得
         
+        """
         # 【Director】当たり判定処理
         for data in self.house_rect_list:
             # 最低点が被った場合は停止
             if self.obj_player.rect.clip(data.rect).bottom == self.obj_player.rect.bottom:
+                # 疑似Rectをセット
                 self.obj_player.stop_flg = True
                 self.obj_player.stop_pos = self.obj_player.pos
                 break
@@ -208,6 +215,7 @@ class Play:
         if now - self.last_update > 1000:
             self.last_update = now
             print('★'.join([str(self.obj_player.pos),str(self.obj_player.rect.midbottom)]))
+        """
 
     def run(self):
         # ゲームループ
@@ -263,33 +271,69 @@ class Play:
         text_rect = text_surface.get_rect()
         text_rect.midleft = (x, y)
         self.screen.blit(text_surface, text_rect)
-    
         
 class FixedObject(pg.sprite.Sprite):
     def __init__(self, game, image):
         self._layer = image['layer']
         self.groups = game.all_sprites, game.fixed_object
         super().__init__(self.groups)
+        # 各属性フラグ
+        self.fog_flg = False
+        self.name = image['name']
+        self.last_update = 0
         self.game = game
+        self.location = image['location']
         self.image = image['img']
         self.image = pg.transform.scale(self.image, image['size'])
         self.rect = self.image.get_rect()
-        self.rect.center = image['location']
+        self.pos = vec(WIDTH / 2, HEIGHT / 2)
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
     
-    # 使わないかも
-    def unionHouses(self,images):
-        
-        rect_llist = []
-        for data in images:
-            image = data['img']
-            image = pg.transform.scale(image, data['size'])
-            rect = image.get_rect()
-            rect.center = data['location']
-            
-            rect_list.append(rect)
-        
-        self.rect = Rect.unionall(rect_list)
+    # update
+    def update(self):
 
+        # 霧の発生
+        if self._layer == FOG_LAYER:
+            self.updateFog()
+            self.mask = pg.mask.from_surface(self.image)
+        
+        if self._layer == 2 or self._layer == 3 or self._layer == 4:
+            self.updateHouse()
+
+    def updateHouse(self):
+        self.rect.center = self.location
+
+    # 霧
+    def updateFog(self):
+        
+        now = pg.time.get_ticks()  # 現在のtick(時間)を取得
+
+        self.fog_flg = True
+        self.vel.x = 0.2
+        self.pos.x = self.pos.x + self.vel.x
+        self.rect.center = self.pos
+
+        # 歩くアニメーション
+        if now - self.last_update > 2000:
+            self.last_update = now
+            pass
+
+class Platform(pg.sprite.Sprite):
+    def __init__(self, game):
+        self._layer = PLATFORM_LAYER
+        self.groups = game.all_sprites, game.platforms
+        super().__init__(self.groups)
+        self.game = game
+        # spritesheetから地面の画像を２つ取得
+        self.image = self.game.platform_img  # 2つのうち１つをランダムに取得
+        self.image.set_colorkey((0, 0, 0))  # 背景を消す
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        # if random.randrange(100) < POW_SPAWN_PCT:
+        #     Pow(self.game, self)
+
+# プレイヤーオブジェクト
 class Player(pg.sprite.Sprite):
     def __init__(self, game):
         self._layer = PLAYER_LAYER
@@ -305,6 +349,7 @@ class Player(pg.sprite.Sprite):
         # self.jump_frame = []
         self.current_frame = 0 # to keep track of animation frame
         self.last_update = 0  # to keep time of animation
+        self.last_stop = 0  # to keep time of animation
         self.player_frame = self.game.player_frame
         self.image = self.player_frame[0]['img']
         self.rect = self.image.get_rect()
@@ -313,6 +358,7 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.stop_pos = vec(0,0)
+        self.before_stop_pos = vec(0,0)
 
     def jump(self):
         # jump only if on a platform
@@ -325,6 +371,20 @@ class Player(pg.sprite.Sprite):
             self.vel.y = -PLAYER_JUMP
 
     def update(self):
+
+        # 当たり判定
+        # for data in self.game.platforms:
+        now = pg.time.get_ticks() 
+        hits = pg.sprite.spritecollide(self,self.game.platforms,False, pg.sprite.collide_mask)
+        # 当たり判定
+        if not hits:
+            self.stop_flg = False
+        else:
+            # 本来ならここで衝突したスプライトを精査する
+            self.stop_flg = True
+            # 停止位置を記録
+            self.stop_pos = vec(self.pos.x,self.pos.y)
+        
         self.animate()
         # 重力の設定
         self.acc = vec(0, PLAYER_GRAV)
@@ -333,6 +393,13 @@ class Player(pg.sprite.Sprite):
             self.acc.x = -PLAYER_ACC
         if keys[pg.K_RIGHT]:
             self.acc.x = PLAYER_ACC
+        # 上下移動はPlatformと接している問のみ可能
+        # 接してからの処理、徐々に加速度を弱めていくのが良いのでは？
+        if self.stop_flg:
+            if keys[pg.K_UP]:
+                self.acc.y = -PLAYER_ACC
+            if keys[pg.K_DOWN]:
+                self.acc.y = PLAYER_ACC
 
         # 摩擦を計算
         self.acc.x += self.vel.x * PLAYER_FRICTION
@@ -343,9 +410,6 @@ class Player(pg.sprite.Sprite):
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
 
-        # Position に Velocity を足す
-        self.pos += self.vel + 0.5 * self.acc
-
         # Check Edges
         if self.pos.x > WIDTH + self.rect.width / 2:
             self.pos.x = 0 - self.rect.width / 2
@@ -353,7 +417,7 @@ class Player(pg.sprite.Sprite):
             self.pos.x = WIDTH + self.rect.width / 2
 
         # if self.stop_flg:
-            # 速度０処理
+        # 速度０処理
         if abs(self.vel.y) < 0.1:
             self.vel.y = 0
             self.acc.y = 0
@@ -372,9 +436,14 @@ class Player(pg.sprite.Sprite):
             self.vel.y = - COEFFICIENT_RESTITUTION*self.vel.y 
             self.pos.y = HEIGHT * 29 / 32
         
-        # 現在の位置に Positionを設定
-        self.rect.midbottom = self.pos
+        self.pos += self.vel + 0.5 * self.acc
 
+        # 停止時
+        if not self.stop_flg:
+            # self.posを差し戻し
+            self.pos = vec(self.stop_pos.x,self.stop_pos.y)
+        # Position に Velocity を足す
+        self.rect.midbottom = self.pos
 
     def animate(self):
         """アニメーション"""
@@ -462,7 +531,6 @@ class Enemy(pg.sprite.Sprite):
         # 拡大表示用
         self.disp_image = None
         self.validate = True
-
         self.rect = self.image.get_rect()
         self.size = (40,40)
         # self.rect.center = (390,300)

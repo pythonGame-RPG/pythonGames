@@ -5,6 +5,7 @@ import random
 
 vec = pg.math.Vector2
 
+
 class SpriteSheet:
     def __init__(self, filename):
         """ SpriteSheet専用クラス"""
@@ -16,16 +17,14 @@ class SpriteSheet:
         image.blit(self.spritesheet, (0, 0), (x, y, width, height))
         image = pg.transform.scale(image, (width // 2, height // 2))
         return image
-        
+
 
 # noinspection PyArgumentList
-# playerのステータス
 class Player(pg.sprite.Sprite):
     def __init__(self, game):
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         super().__init__(self.groups)
-        # Gameクラスをクラス変数として使う
         self.game = game
         self.walking = False
         self.jumping = False
@@ -42,7 +41,6 @@ class Player(pg.sprite.Sprite):
         self.pos = vec(40, HEIGHT - 100)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-        
 
     def load_images(self):
         """アニメーションのフレーム画像をロード"""
@@ -94,8 +92,6 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.animate()
-        # stop_flg
-    
         # 重力の設定
         self.acc = vec(0, PLAYER_GRAV)
         keys = pg.key.get_pressed()
@@ -123,12 +119,10 @@ class Player(pg.sprite.Sprite):
             self.pos.x = WIDTH + self.rect.width / 2
 
         # 現在の位置に Positionを設定
-        if self.stop_flg:
-            self.rect.midbottom = self.pos
+        self.rect.midbottom = self.pos
 
     def animate(self):
         """アニメーション"""
-        # 立っているとき、ジャンプしているときのフレーム
         now = pg.time.get_ticks()  # 現在のtick(時間)を取得
         if self.vel.x != 0:
             self.walking = True

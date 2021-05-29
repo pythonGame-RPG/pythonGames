@@ -65,8 +65,8 @@ class Gacha:
         # ファイル名を添え字とした辞書を作成
         self.back_img = pg.image.load(BACK_IMG[self.PG_ID]).convert_alpha()
         self.back_img = pg.transform.scale(self.back_img, (WIDTH,HEIGHT))
-        self.smoke_img = pg.image.load(MOVE_SCREEN[self.PG_ID][0]).convert_alpha()
-        self.smoke_img = pg.transform.scale(self.back_img,MOVE_SCREEN[self.PG_ID][1])
+        smoke_img = self.load_images([MOVE_SCREEN[self.PG_ID]])[0]
+        self.smoke_img = pg.transform.scale(smoke_img['img'],smoke_img['img'][1])
 
         # 画面ロード
         self.new()

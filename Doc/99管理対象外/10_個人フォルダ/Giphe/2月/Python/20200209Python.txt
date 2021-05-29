@@ -1,9 +1,0 @@
-Python作業メモ
-
-
-■課題
-・VsCodeでpipを使用
-・numpyのLocation設定、おそらく環境変数をいじる。
-
-↓参考
-https://qiita.com/maech/items/72559402556eb2af73ad

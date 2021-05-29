@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../gulp-sample-sample"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../gulp-test"
+		}
+	]
+}

@@ -1,2 +1,0 @@
-cd pyGame_sample1
-python pyGame_sample1.py

@@ -1,2 +1,0 @@
-dbo.character,,,,,,,,,,,,,,,,,,,,,,,,,,
-id,g_id,gene,name,age,birth,level,class1,class2,class3,rank,HP,MP,state,sta,atk,bit,int,def,agi,talent,is_deleted,party1_id,party2_id,party3_id,dangeon_id,master_id

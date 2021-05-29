@@ -52,6 +52,7 @@ GACHA_HAIKEI_LAYER = 1
 
 # PLAY
 PLAYER_LAYER = 5
+FOG_LAYER = 6
 OBJECT_LAYER = 1
 
 # TODO:Starting platformsいらなくなったら削除
@@ -178,18 +179,23 @@ BACK_IMG = {
 }
 
 MOVE_SCREEN = {
-    "GACHA":("img/ガチャ関連/smoke_haikei.png",(959,979))
+    "GACHA":("img/ガチャ関連/smoke_haikei.png",(WIDTH+100,HEIGHT+100),(0,0),50),
+    "PLAY":("img/ガチャ関連/smoke_haikei.png",(WIDTH+100,HEIGHT+100),(0,0),50),
 }
 
-PLAYER_ACTION = {
+PLAYER_ACTION = [
     ("img/操作画面/left_model.png",(68,250),(WIDTH/2, HEIGHT-100),50),
     ("img/操作画面/right_model.png",(68,250),(WIDTH/2, HEIGHT-100),50),
-}
+]
 
 # object：Json形式で一括Arrayに収める
 # 家などは表示位置を変更したり可能にしたい
 HOUSE_SCREEN = {
     ("img/操作画面/house_a.png",(200, 200),(0,300),50),
+}
+
+PLATFORM_OBJECT = {
+    "PLAY":"img/操作画面/move_range.png",
 }
 
 HUKIDASHI_IMG = [
